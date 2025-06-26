@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestão de Fichas de Terceirizados</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --bg: #f8fafc;
+      --surface: #fff;
+      --border: #e5e7eb;
+      --text: #1e293b;
+      --muted: #64748b;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(30,41,59,0.08);
+      --transition: 0.2s cubic-bezier(.4,0,.2,1);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--primary);
+      letter-spacing: -1px;
+    }
+    nav button {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-left: 1.5rem;
+      cursor: pointer;
+      transition: color var(--transition);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+    }
+    nav button.active, nav button:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem 2.5rem;
+      animation: fadeIn 0.7s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .form-section {
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .form-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .form-section h2 {
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .form-row {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .form-group {
+      flex: 1 1 180px;
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-size: 0.97rem;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+      font-weight: 500;
+    }
+    input, select {
+      padding: 0.7rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 1rem;
+      background: var(--bg);
+      transition: border-color var(--transition);
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: var(--primary-light);
+    }
+    .sizes-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+    .sizes-table th, .sizes-table td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.7rem;
+      text-align: center;
+      font-size: 0.97rem;
+    }
+    .sizes-table th {
+      background: var(--bg);
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .actions button {
+      padding: 0.8rem 2.2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius);
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.07);
+      transition: background var(--transition), transform var(--transition);
+    }
+    .actions button:active {
+      transform: scale(0.97);
+    }
+    .actions button.secondary {
+      background: var(--border);
+      color: var(--text);
+    }
+    .list-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+      animation: fadeIn 0.7s;
+    }
+    .list-table th, .list-table td {
+      border: 1px solid var(--border);
+      padding: 0.7rem 0.9rem;
+      text-align: center;
+      font-size: 1rem;
+    }
+    .list-table th {
+      background: var(--bg);
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: color var(--transition);
+    }
+    .delete-btn:hover {
+      color: #b91c1c;
+    }
+    @media (max-width: 700px) {
+      main { padding: 1rem 0.5rem; }
+      .form-row { flex-direction: column; gap: 0.7rem; }
+      .actions { flex-direction: column; gap: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Fichas de Terceirizados</h1>
+    <nav>
+      <button id="nav-list" class="active">Listar</button>
+      <button id="nav-create">Cadastrar</button>
+    </nav>
+  </header>
+  <main>
+    <section id="list-section" style="display: block;">
+      <h2 style="margin-bottom:1.5rem;">Fichas Cadastradas</h2>
+      <table class="list-table" id="fichas-table">
+        <thead>
+          <tr>
+            <th>Cluster</th>
+            <th>Referência</th>
+            <th>Qtd. Peças</th>
+            <th>Valor Unit.</th>
+            <th>Valor Total</th>
+            <th>Pilotagem</th>
+            <th>Saída</th>
+            <th>Pagamento</th>
+            <th>Cor/Estampa</th>
+            <th>PP/36</th>
+            <th>P/38</th>
+            <th>M/40</th>
+            <th>G/42</th>
+            <th>GG/44</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="fichas-list">
+          <!-- Linhas dinâmicas -->
+        </tbody>
+      </table>
+    </section>
+    <section id="create-section" style="display: none;">
+      <form id="ficha-form" autocomplete="off">
+        <div class="form-section">
+          <h2>🗂️ Informações Gerais</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cluster">Cluster</label>
+              <input type="text" id="cluster" required />
+            </div>
+            <div class="form-group">
+              <label for="referencia">Referência</label>
+              <input type="text" id="referencia" required />
+            </div>
+            <div class="form-group">
+              <label for="quantidade">Quantidade de peças</label>
+              <input type="number" id="quantidade" min="1" required />
+            </div>
+            <div class="form-group">
+              <label for="valorUnitario">Valor unitário</label>
+              <input type="number" id="valorUnitario" min="0" step="0.01" required />
+            </div>
+            <div class="form-group">
+              <label for="valorTotal">Valor total</label>
+              <input type="number" id="valorTotal" min="0" step="0.01" required />
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <h2>🧪 Processos</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="pilotagem">Pilotagem</label>
+              <select id="pilotagem" required>
+                <option value="Sim">Sim</option>
+                <option value="Não">Não</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="saida">Data de saída</label>
+              <input type="date" id="saida" required />
+            </div>
+            <div class="form-group">
+              <label for="pagamento">Pagamento / data</label>
+              <input type="date" id="pagamento" required />
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <h2>🎨 Variedade de Produto</h2>
+          <div class="form-row">
+            <div class="form-group" style="flex:2;">
+              <label for="cor">Cor / Estampa</label>
+              <input type="text" id="cor" required />
+            </div>
+          </div>
+          <table class="sizes-table">
+            <thead>
+              <tr>
+                <th>PP / 36</th>
+                <th>P / 38</th>
+                <th>M / 40</th>
+                <th>G / 42</th>
+                <th>GG / 44</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="number" id="pp" min="0" value="0" /></td>
+                <td><input type="number" id="p" min="0" value="0" /></td>
+                <td><input type="number" id="m" min="0" value="0" /></td>
+                <td><input type="number" id="g" min="0" value="0" /></td>
+                <td><input type="number" id="gg" min="0" value="0" /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="actions">
+          <button type="submit">Cadastrar</button>
+          <button type="button" class="secondary" id="cancelar-btn">Cancelar</button>
+        </div>
+      </form>
+    </section>
+  </main>
+  <script>
+    // Navegação entre telas
+    const navList = document.getElementById('nav-list');
+    const navCreate = document.getElementById('nav-create');
+    const listSection = document.getElementById('list-section');
+    const createSection = document.getElementById('create-section');
+    const fichaForm = document.getElementById('ficha-form');
+    const cancelarBtn = document.getElementById('cancelar-btn');
+    const fichasList = document.getElementById('fichas-list');
+    const fichasTable = document.getElementById('fichas-table');
+
+    let fichas = JSON.parse(localStorage.getItem('fichas') || '[]');
+
+    function switchScreen(screen) {
+      if (screen === 'list') {
+        listSection.style.display = 'block';
+        createSection.style.display = 'none';
+        navList.classList.add('active');
+        navCreate.classList.remove('active');
+        renderFichas();
+      } else {
+        listSection.style.display = 'none';
+        createSection.style.display = 'block';
+        navList.classList.remove('active');
+        navCreate.classList.add('active');
+        fichaForm.reset();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    navList.onclick = () => switchScreen('list');
+    navCreate.onclick = () => switchScreen('create');
+    cancelarBtn.onclick = () => switchScreen('list');
+
+    function renderFichas() {
+      fichasList.innerHTML = '';
+      if (fichas.length === 0) {
+        fichasList.innerHTML = `<tr><td colspan="15" style="color:var(--muted);padding:2rem;">Nenhuma ficha cadastrada.</td></tr>`;
+        return;
+      }
+      fichas.forEach((ficha, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${ficha.cluster}</td>
+          <td>${ficha.referencia}</td>
+          <td>${ficha.quantidade}</td>
+          <td>R$ ${Number(ficha.valorUnitario).toFixed(2)}</td>
+          <td>R$ ${Number(ficha.valorTotal).toFixed(2)}</td>
+          <td>${ficha.pilotagem}</td>
+          <td>${ficha.saida}</td>
+          <td>${ficha.pagamento}</td>
+          <td>${ficha.cor}</td>
+          <td>${ficha.pp}</td>
+          <td>${ficha.p}</td>
+          <td>${ficha.m}</td>
+          <td>${ficha.g}</td>
+          <td>${ficha.gg}</td>
+          <td><button class="delete-btn" title="Excluir" onclick="deleteFicha(${idx})">&#128465;</button></td>
+        `;
+        fichasList.appendChild(tr);
+      });
+    }
+
+    window.deleteFicha = function(idx) {
+      if (confirm('Deseja realmente excluir esta ficha?')) {
+        fichas.splice(idx, 1);
+        localStorage.setItem('fichas', JSON.stringify(fichas));
+        renderFichas();
+      }
+    }
+
+    fichaForm.onsubmit = function(e) {
+      e.preventDefault();
+      const ficha = {
+        cluster: document.getElementById('cluster').value.trim(),
+        referencia: document.getElementById('referencia').value.trim(),
+        quantidade: Number(document.getElementById('quantidade').value),
+        valorUnitario: Number(document.getElementById('valorUnitario').value),
+        valorTotal: Number(document.getElementById('valorTotal').value),
+        pilotagem: document.getElementById('pilotagem').value,
+        saida: document.getElementById('saida').value,
+        pagamento: document.getElementById('pagamento').value,
+        cor: document.getElementById('cor').value.trim(),
+        pp: Number(document.getElementById('pp').value),
+        p: Number(document.getElementById('p').value),
+        m: Number(document.getElementById('m').value),
+        g: Number(document.getElementById('g').value),
+        gg: Number(document.getElementById('gg').value)
+      };
+      fichas.push(ficha);
+      localStorage.setItem('fichas', JSON.stringify(fichas));
+      switchScreen('list');
+    };
+
+    // Inicialização
+    renderFichas();
+  </script>
+</body>
+</html> 
