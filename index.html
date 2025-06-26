@@ -210,6 +210,12 @@
   <main>
     <section id="list-section" style="display: block;">
       <h2 style="margin-bottom:1.5rem;">Fichas Cadastradas</h2>
+      <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+        <label for="cluster-filter" style="font-weight: 600; color: var(--muted);">Filtrar por Cluster:</label>
+        <select id="cluster-filter" style="padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg);">
+          <option value="">Todos os Clusters</option>
+        </select>
+      </div>
       <table class="list-table" id="fichas-table">
         <thead>
           <tr>
@@ -317,6 +323,15 @@
         </div>
       </form>
     </section>
+    <section id="dashboard-section" style="display: none;">
+      <h2 style="margin-bottom:1.5rem;">Dashboard de Produção</h2>
+      <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+        <canvas id="pieChart" width="400" height="400"></canvas>
+      </div>
+      <div id="chart-legend" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 1rem;">
+        <!-- Legenda do gráfico -->
+      </div>
+    </section>
   </main>
   <script>
     // Navegação entre telas
@@ -325,24 +340,30 @@
     const navDashboard = document.getElementById('nav-dashboard');
     const listSection = document.getElementById('list-section');
     const createSection = document.getElementById('create-section');
+    const dashboardSection = document.getElementById('dashboard-section');
     const fichaForm = document.getElementById('ficha-form');
     const cancelarBtn = document.getElementById('cancelar-btn');
     const fichasList = document.getElementById('fichas-list');
     const fichasTable = document.getElementById('fichas-table');
+    const clusterFilter = document.getElementById('cluster-filter');
 
     let fichas = JSON.parse(localStorage.getItem('fichas') || '[]');
+    let filteredFichas = [...fichas];
 
     function switchScreen(screen) {
       if (screen === 'list') {
         listSection.style.display = 'block';
         createSection.style.display = 'none';
+        dashboardSection.style.display = 'none';
         navList.classList.add('active');
         navCreate.classList.remove('active');
         navDashboard.classList.remove('active');
         renderFichas();
+        updateClusterFilter();
       } else if (screen === 'create') {
         listSection.style.display = 'none';
         createSection.style.display = 'block';
+        dashboardSection.style.display = 'none';
         navList.classList.remove('active');
         navCreate.classList.add('active');
         navDashboard.classList.remove('active');
@@ -350,9 +371,11 @@
       } else if (screen === 'dashboard') {
         listSection.style.display = 'none';
         createSection.style.display = 'none';
+        dashboardSection.style.display = 'block';
         navList.classList.remove('active');
         navCreate.classList.remove('active');
         navDashboard.classList.add('active');
+        renderDashboard();
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -362,13 +385,34 @@
     navDashboard.onclick = () => switchScreen('dashboard');
     cancelarBtn.onclick = () => switchScreen('list');
 
+    function updateClusterFilter() {
+      const clusters = [...new Set(fichas.map(f => f.cluster))];
+      clusterFilter.innerHTML = '<option value="">Todos os Clusters</option>';
+      clusters.forEach(cluster => {
+        const option = document.createElement('option');
+        option.value = cluster;
+        option.textContent = cluster;
+        clusterFilter.appendChild(option);
+      });
+    }
+
+    clusterFilter.onchange = function() {
+      const selectedCluster = this.value;
+      if (selectedCluster === '') {
+        filteredFichas = [...fichas];
+      } else {
+        filteredFichas = fichas.filter(f => f.cluster === selectedCluster);
+      }
+      renderFichas();
+    };
+
     function renderFichas() {
       fichasList.innerHTML = '';
-      if (fichas.length === 0) {
-        fichasList.innerHTML = `<tr><td colspan="15" style="color:var(--muted);padding:2rem;">Nenhuma ficha cadastrada.</td></tr>`;
+      if (filteredFichas.length === 0) {
+        fichasList.innerHTML = `<tr><td colspan="15" style="color:var(--muted);padding:2rem;">Nenhuma ficha encontrada.</td></tr>`;
         return;
       }
-      fichas.forEach((ficha, idx) => {
+      filteredFichas.forEach((ficha, idx) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${ficha.cluster}</td>
@@ -391,11 +435,96 @@
       });
     }
 
+    function renderDashboard() {
+      const canvas = document.getElementById('pieChart');
+      const ctx = canvas.getContext('2d');
+      
+      // Limpar canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      if (fichas.length === 0) {
+        ctx.fillStyle = '#64748b';
+        ctx.font = '16px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('Nenhum dado disponível', canvas.width/2, canvas.height/2);
+        return;
+      }
+
+      // Calcular dados por cluster
+      const clusterData = {};
+      let totalPecas = 0;
+      
+      fichas.forEach(ficha => {
+        if (!clusterData[ficha.cluster]) {
+          clusterData[ficha.cluster] = 0;
+        }
+        clusterData[ficha.cluster] += ficha.quantidade;
+        totalPecas += ficha.quantidade;
+      });
+
+      // Cores para o gráfico
+      const colors = ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#dbeafe', '#1e40af', '#1d4ed8', '#2563eb'];
+      
+      // Desenhar gráfico de pizza
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = 150;
+      
+      let currentAngle = 0;
+      const clusters = Object.keys(clusterData);
+      
+      clusters.forEach((cluster, index) => {
+        const percentage = (clusterData[cluster] / totalPecas) * 100;
+        const sliceAngle = (percentage / 100) * 2 * Math.PI;
+        
+        // Desenhar fatia
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+        ctx.closePath();
+        ctx.fillStyle = colors[index % colors.length];
+        ctx.fill();
+        
+        // Desenhar borda
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        currentAngle += sliceAngle;
+      });
+
+      // Criar legenda
+      const legend = document.getElementById('chart-legend');
+      legend.innerHTML = '';
+      
+      clusters.forEach((cluster, index) => {
+        const percentage = (clusterData[cluster] / totalPecas) * 100;
+        const legendItem = document.createElement('div');
+        legendItem.style.display = 'flex';
+        legendItem.style.alignItems = 'center';
+        legendItem.style.gap = '0.5rem';
+        legendItem.style.padding = '0.5rem 1rem';
+        legendItem.style.backgroundColor = 'var(--bg)';
+        legendItem.style.borderRadius = 'var(--radius)';
+        legendItem.style.fontSize = '0.9rem';
+        
+        legendItem.innerHTML = `
+          <div style="width: 16px; height: 16px; background-color: ${colors[index % colors.length]}; border-radius: 50%;"></div>
+          <span><strong>${cluster}</strong>: ${clusterData[cluster]} peças (${percentage.toFixed(1)}%)</span>
+        `;
+        
+        legend.appendChild(legendItem);
+      });
+    }
+
     window.deleteFicha = function(idx) {
       if (confirm('Deseja realmente excluir esta ficha?')) {
-        fichas.splice(idx, 1);
+        const originalIdx = fichas.indexOf(filteredFichas[idx]);
+        fichas.splice(originalIdx, 1);
         localStorage.setItem('fichas', JSON.stringify(fichas));
+        filteredFichas = [...fichas];
         renderFichas();
+        updateClusterFilter();
       }
     }
 
@@ -419,11 +548,13 @@
       };
       fichas.push(ficha);
       localStorage.setItem('fichas', JSON.stringify(fichas));
+      filteredFichas = [...fichas];
       switchScreen('list');
     };
 
     // Inicialização
     renderFichas();
+    updateClusterFilter();
   </script>
 </body>
 </html> 
