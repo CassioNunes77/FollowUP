@@ -61,12 +61,12 @@
       color: #fff;
     }
     main {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 2rem auto;
       background: var(--surface);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 2rem 3rem;
+      padding: 2rem 4rem;
       animation: fadeIn 0.7s;
     }
     @keyframes fadeIn {
@@ -173,7 +173,7 @@
       border: 1px solid var(--border);
       padding: 0.7rem 0.9rem;
       text-align: center;
-      font-size: 1rem;
+      font-size: 0.93rem;
     }
     .list-table th {
       background: var(--bg);
@@ -202,8 +202,9 @@
   <header>
     <h1>Fichas de Terceirizados</h1>
     <nav>
-      <button id="nav-list" class="active">Listar</button>
+      <button id="nav-list" class="active">Início</button>
       <button id="nav-create">Cadastrar</button>
+      <button id="nav-dashboard">Dashboards</button>
     </nav>
   </header>
   <main>
@@ -321,6 +322,7 @@
     // Navegação entre telas
     const navList = document.getElementById('nav-list');
     const navCreate = document.getElementById('nav-create');
+    const navDashboard = document.getElementById('nav-dashboard');
     const listSection = document.getElementById('list-section');
     const createSection = document.getElementById('create-section');
     const fichaForm = document.getElementById('ficha-form');
@@ -336,19 +338,28 @@
         createSection.style.display = 'none';
         navList.classList.add('active');
         navCreate.classList.remove('active');
+        navDashboard.classList.remove('active');
         renderFichas();
-      } else {
+      } else if (screen === 'create') {
         listSection.style.display = 'none';
         createSection.style.display = 'block';
         navList.classList.remove('active');
         navCreate.classList.add('active');
+        navDashboard.classList.remove('active');
         fichaForm.reset();
+      } else if (screen === 'dashboard') {
+        listSection.style.display = 'none';
+        createSection.style.display = 'none';
+        navList.classList.remove('active');
+        navCreate.classList.remove('active');
+        navDashboard.classList.add('active');
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     navList.onclick = () => switchScreen('list');
     navCreate.onclick = () => switchScreen('create');
+    navDashboard.onclick = () => switchScreen('dashboard');
     cancelarBtn.onclick = () => switchScreen('list');
 
     function renderFichas() {
