@@ -256,15 +256,15 @@
             </div>
             <div class="form-group">
               <label for="quantidade">Quantidade de peças</label>
-              <input type="number" id="quantidade" min="1" required />
+              <input type="number" id="quantidade" min="1" required onchange="calcularValorTotal()" />
             </div>
             <div class="form-group">
               <label for="valorUnitario">Valor unitário</label>
-              <input type="number" id="valorUnitario" min="0" step="0.01" required />
+              <input type="number" id="valorUnitario" min="0" step="0.01" required onchange="calcularValorTotal()" />
             </div>
             <div class="form-group">
               <label for="valorTotal">Valor total</label>
-              <input type="number" id="valorTotal" min="0" step="0.01" required />
+              <input type="number" id="valorTotal" min="0" step="0.01" required readonly />
             </div>
           </div>
         </div>
@@ -325,11 +325,47 @@
     </section>
     <section id="dashboard-section" style="display: none;">
       <h2 style="margin-bottom:1.5rem;">Dashboard de Produção</h2>
-      <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
-        <canvas id="pieChart" width="400" height="400"></canvas>
+      
+      <!-- Resumo Técnico -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
+          <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="total-pecas">0</div>
+          <div style="color: var(--muted); font-size: 0.9rem;">Total de Peças</div>
+        </div>
+        <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
+          <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="total-fichas">0</div>
+          <div style="color: var(--muted); font-size: 0.9rem;">Total de Fichas</div>
+        </div>
+        <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
+          <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="total-valor">R$ 0,00</div>
+          <div style="color: var(--muted); font-size: 0.9rem;">Valor Total</div>
+        </div>
+        <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
+          <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="total-clusters">0</div>
+          <div style="color: var(--muted); font-size: 0.9rem;">Clusters Ativos</div>
+        </div>
       </div>
-      <div id="chart-legend" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 1rem;">
-        <!-- Legenda do gráfico -->
+
+      <!-- Gráficos -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <!-- Gráfico de Pizza -->
+        <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius);">
+          <h3 style="margin-bottom: 1rem; color: var(--text); font-size: 1.1rem;">Produção por Cluster</h3>
+          <div style="display: flex; justify-content: center;">
+            <canvas id="pieChart" width="300" height="300"></canvas>
+          </div>
+          <div id="chart-legend" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-top: 1rem;">
+            <!-- Legenda do gráfico -->
+          </div>
+        </div>
+
+        <!-- Gráfico de Linha -->
+        <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius);">
+          <h3 style="margin-bottom: 1rem; color: var(--text); font-size: 1.1rem;">Produção por Período</h3>
+          <div style="display: flex; justify-content: center;">
+            <canvas id="lineChart" width="300" height="300"></canvas>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -436,6 +472,24 @@
     }
 
     function renderDashboard() {
+      updateResumoTecnico();
+      renderPieChart();
+      renderLineChart();
+    }
+
+    function updateResumoTecnico() {
+      const totalPecas = fichas.reduce((sum, f) => sum + f.quantidade, 0);
+      const totalFichas = fichas.length;
+      const totalValor = fichas.reduce((sum, f) => sum + f.valorTotal, 0);
+      const totalClusters = new Set(fichas.map(f => f.cluster)).size;
+
+      document.getElementById('total-pecas').textContent = totalPecas.toLocaleString();
+      document.getElementById('total-fichas').textContent = totalFichas;
+      document.getElementById('total-valor').textContent = `R$ ${totalValor.toFixed(2).replace('.', ',')}`;
+      document.getElementById('total-clusters').textContent = totalClusters;
+    }
+
+    function renderPieChart() {
       const canvas = document.getElementById('pieChart');
       const ctx = canvas.getContext('2d');
       
@@ -444,7 +498,7 @@
       
       if (fichas.length === 0) {
         ctx.fillStyle = '#64748b';
-        ctx.font = '16px Inter';
+        ctx.font = '14px Inter';
         ctx.textAlign = 'center';
         ctx.fillText('Nenhum dado disponível', canvas.width/2, canvas.height/2);
         return;
@@ -468,7 +522,7 @@
       // Desenhar gráfico de pizza
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
-      const radius = 150;
+      const radius = 100;
       
       let currentAngle = 0;
       const clusters = Object.keys(clusterData);
@@ -502,19 +556,101 @@
         const legendItem = document.createElement('div');
         legendItem.style.display = 'flex';
         legendItem.style.alignItems = 'center';
-        legendItem.style.gap = '0.5rem';
-        legendItem.style.padding = '0.5rem 1rem';
-        legendItem.style.backgroundColor = 'var(--bg)';
-        legendItem.style.borderRadius = 'var(--radius)';
-        legendItem.style.fontSize = '0.9rem';
+        legendItem.style.gap = '0.3rem';
+        legendItem.style.padding = '0.3rem 0.5rem';
+        legendItem.style.backgroundColor = 'var(--surface)';
+        legendItem.style.borderRadius = '4px';
+        legendItem.style.fontSize = '0.8rem';
         
         legendItem.innerHTML = `
-          <div style="width: 16px; height: 16px; background-color: ${colors[index % colors.length]}; border-radius: 50%;"></div>
-          <span><strong>${cluster}</strong>: ${clusterData[cluster]} peças (${percentage.toFixed(1)}%)</span>
+          <div style="width: 12px; height: 12px; background-color: ${colors[index % colors.length]}; border-radius: 50%;"></div>
+          <span><strong>${cluster}</strong>: ${percentage.toFixed(1)}%</span>
         `;
         
         legend.appendChild(legendItem);
       });
+    }
+
+    function renderLineChart() {
+      const canvas = document.getElementById('lineChart');
+      const ctx = canvas.getContext('2d');
+      
+      // Limpar canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      if (fichas.length === 0) {
+        ctx.fillStyle = '#64748b';
+        ctx.font = '14px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('Nenhum dado disponível', canvas.width/2, canvas.height/2);
+        return;
+      }
+
+      // Agrupar dados por mês
+      const monthlyData = {};
+      fichas.forEach(ficha => {
+        const date = new Date(ficha.saida);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        if (!monthlyData[monthKey]) {
+          monthlyData[monthKey] = 0;
+        }
+        monthlyData[monthKey] += ficha.quantidade;
+      });
+
+      const months = Object.keys(monthlyData).sort();
+      const values = months.map(month => monthlyData[month]);
+      const maxValue = Math.max(...values);
+
+      // Configurações do gráfico
+      const padding = 40;
+      const chartWidth = canvas.width - 2 * padding;
+      const chartHeight = canvas.height - 2 * padding;
+      const barWidth = chartWidth / months.length;
+
+      // Desenhar eixos
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 1;
+      
+      // Eixo Y
+      ctx.beginPath();
+      ctx.moveTo(padding, padding);
+      ctx.lineTo(padding, canvas.height - padding);
+      ctx.stroke();
+      
+      // Eixo X
+      ctx.beginPath();
+      ctx.moveTo(padding, canvas.height - padding);
+      ctx.lineTo(canvas.width - padding, canvas.height - padding);
+      ctx.stroke();
+
+      // Desenhar barras
+      ctx.fillStyle = '#2563eb';
+      months.forEach((month, index) => {
+        const barHeight = (values[index] / maxValue) * chartHeight;
+        const x = padding + index * barWidth + barWidth * 0.1;
+        const y = canvas.height - padding - barHeight;
+        const width = barWidth * 0.8;
+        
+        ctx.fillRect(x, y, width, barHeight);
+        
+        // Rótulo do mês
+        ctx.fillStyle = '#64748b';
+        ctx.font = '10px Inter';
+        ctx.textAlign = 'center';
+        const monthLabel = month.split('-')[1] + '/' + month.split('-')[0].slice(-2);
+        ctx.fillText(monthLabel, x + width/2, canvas.height - padding + 15);
+        
+        // Valor
+        ctx.fillText(values[index], x + width/2, y - 5);
+        ctx.fillStyle = '#2563eb';
+      });
+    }
+
+    function calcularValorTotal() {
+      const quantidade = Number(document.getElementById('quantidade').value) || 0;
+      const valorUnitario = Number(document.getElementById('valorUnitario').value) || 0;
+      const valorTotal = quantidade * valorUnitario;
+      document.getElementById('valorTotal').value = valorTotal.toFixed(2);
     }
 
     window.deleteFicha = function(idx) {
