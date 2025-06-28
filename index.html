@@ -321,12 +321,20 @@
   </header>
   <main>
     <section id="list-section" style="display: block;">
-      <h2 style="margin-bottom:1.5rem;">Fichas Cadastradas</h2>
-      <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
-        <label for="cluster-filter" style="font-weight: 600; color: var(--muted);">Filtrar por Cluster:</label>
-        <select id="cluster-filter" style="padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg);">
-          <option value="">Todos os Clusters</option>
-        </select>
+      <h2 style="margin-bottom:1.5rem; font-size: 1.1rem;">Fichas Cadastradas</h2>
+      <div style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+          <label for="cluster-filter" style="font-weight: 600; color: var(--muted);">Filtrar por Cluster:</label>
+          <select id="cluster-filter" style="padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg);">
+            <option value="">Todos os Clusters</option>
+          </select>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+          <label for="categoria-filter" style="font-weight: 600; color: var(--muted);">Filtrar por Categoria:</label>
+          <select id="categoria-filter" style="padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg);">
+            <option value="">Todas as Categorias</option>
+          </select>
+        </div>
       </div>
       <table class="list-table" id="fichas-table">
         <thead>
@@ -447,19 +455,35 @@
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
         <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
           <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="total-pecas">0</div>
-          <div style="color: var(--muted); font-size: 0.9rem;">Total de Peças</div>
+          <div style="color: var(--muted); font-size: 0.9rem;">Total de Peças Produzidas</div>
         </div>
         <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
           <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="total-fichas">0</div>
-          <div style="color: var(--muted); font-size: 0.9rem;">Total de Fichas</div>
+          <div style="color: var(--muted); font-size: 0.9rem;">Total de Fichas Cadastradas</div>
         </div>
         <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
           <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="total-valor">R$ 0,00</div>
-          <div style="color: var(--muted); font-size: 0.9rem;">Valor Total</div>
+          <div style="color: var(--muted); font-size: 0.9rem;">Valor Total Produzido</div>
         </div>
         <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
           <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="total-clusters">0</div>
           <div style="color: var(--muted); font-size: 0.9rem;">Clusters Ativos</div>
+        </div>
+        <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
+          <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="total-categorias">0</div>
+          <div style="color: var(--muted); font-size: 0.9rem;">Categorias Utilizadas</div>
+        </div>
+        <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
+          <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="media-valor">R$ 0,00</div>
+          <div style="color: var(--muted); font-size: 0.9rem;">Valor Médio por Ficha</div>
+        </div>
+        <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
+          <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="media-pecas">0</div>
+          <div style="color: var(--muted); font-size: 0.9rem;">Média de Peças por Ficha</div>
+        </div>
+        <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
+          <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="pilotagem-sim">0</div>
+          <div style="color: var(--muted); font-size: 0.9rem;">Fichas com Pilotagem</div>
         </div>
       </div>
 
@@ -499,6 +523,7 @@
     const fichasList = document.getElementById('fichas-list');
     const fichasTable = document.getElementById('fichas-table');
     const clusterFilter = document.getElementById('cluster-filter');
+    const categoriaFilter = document.getElementById('categoria-filter');
 
     let fichas = JSON.parse(localStorage.getItem('fichas') || '[]');
     let filteredFichas = [...fichas];
@@ -513,6 +538,7 @@
         navDashboard.classList.remove('active');
         renderFichas();
         updateClusterFilter();
+        updateCategoriaFilter();
       } else if (screen === 'create') {
         listSection.style.display = 'none';
         createSection.style.display = 'block';
@@ -549,15 +575,37 @@
       });
     }
 
+    function updateCategoriaFilter() {
+      const categorias = [...new Set(fichas.map(f => f.categoria))];
+      categoriaFilter.innerHTML = '<option value="">Todas as Categorias</option>';
+      categorias.forEach(categoria => {
+        const option = document.createElement('option');
+        option.value = categoria;
+        option.textContent = categoria;
+        categoriaFilter.appendChild(option);
+      });
+    }
+
     clusterFilter.onchange = function() {
-      const selectedCluster = this.value;
-      if (selectedCluster === '') {
-        filteredFichas = [...fichas];
-      } else {
-        filteredFichas = fichas.filter(f => f.cluster === selectedCluster);
-      }
-      renderFichas();
+      aplicarFiltros();
     };
+
+    categoriaFilter.onchange = function() {
+      aplicarFiltros();
+    };
+
+    function aplicarFiltros() {
+      const selectedCluster = clusterFilter.value;
+      const selectedCategoria = categoriaFilter.value;
+      
+      filteredFichas = fichas.filter(f => {
+        const matchCluster = selectedCluster === '' || f.cluster === selectedCluster;
+        const matchCategoria = selectedCategoria === '' || f.categoria === selectedCategoria;
+        return matchCluster && matchCategoria;
+      });
+      
+      renderFichas();
+    }
 
     function renderFichas() {
       fichasList.innerHTML = '';
@@ -600,11 +648,19 @@
       const totalFichas = fichas.length;
       const totalValor = fichas.reduce((sum, f) => sum + f.valorTotal, 0);
       const totalClusters = new Set(fichas.map(f => f.cluster)).size;
+      const totalCategorias = new Set(fichas.map(f => f.categoria)).size;
+      const mediaValor = totalFichas > 0 ? totalValor / totalFichas : 0;
+      const mediaPecas = totalFichas > 0 ? totalPecas / totalFichas : 0;
+      const pilotagemSim = fichas.filter(f => f.pilotagem === 'Sim').length;
 
       document.getElementById('total-pecas').textContent = totalPecas.toLocaleString();
       document.getElementById('total-fichas').textContent = totalFichas;
       document.getElementById('total-valor').textContent = `R$ ${totalValor.toFixed(2).replace('.', ',')}`;
       document.getElementById('total-clusters').textContent = totalClusters;
+      document.getElementById('total-categorias').textContent = totalCategorias;
+      document.getElementById('media-valor').textContent = `R$ ${mediaValor.toFixed(2).replace('.', ',')}`;
+      document.getElementById('media-pecas').textContent = Math.round(mediaPecas);
+      document.getElementById('pilotagem-sim').textContent = pilotagemSim;
     }
 
     function renderPieChart() {
@@ -779,6 +835,7 @@
         filteredFichas = [...fichas];
         renderFichas();
         updateClusterFilter();
+        updateCategoriaFilter();
       }
     }
 
@@ -810,6 +867,7 @@
     // Inicialização
     renderFichas();
     updateClusterFilter();
+    updateCategoriaFilter();
   </script>
 </body>
 </html> 
