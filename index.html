@@ -5,17 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestão de Fichas de Terceirizados</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
     :root {
-      --primary: #2563eb;
-      --primary-light: #3b82f6;
-      --bg: #f8fafc;
+      --primary: #1976d2;
+      --primary-light: #42a5f5;
+      --primary-dark: #1565c0;
+      --accent: #e3f2fd;
+      --bg: #f5f6fa;
       --surface: #fff;
-      --border: #e5e7eb;
-      --text: #1e293b;
-      --muted: #64748b;
-      --radius: 12px;
-      --shadow: 0 4px 24px rgba(30,41,59,0.08);
+      --border: #e0e0e0;
+      --text: #344767;
+      --muted: #8392ab;
+      --radius: 16px;
+      --shadow: 0 4px 24px rgba(44,62,80,0.08);
       --transition: 0.2s cubic-bezier(.4,0,.2,1);
       --sidebar-width: 250px;
     }
@@ -30,8 +34,9 @@
     }
     .sidebar {
       width: var(--sidebar-width);
-      background: var(--surface);
-      box-shadow: var(--shadow);
+      background: linear-gradient(195deg, var(--primary-dark), var(--primary));
+      color: #fff;
+      box-shadow: 0 8px 26px -4px rgba(33,150,243,0.42), 0 1.5px 10px 0 rgba(44,62,80,0.12);
       position: fixed;
       left: 0;
       top: 0;
@@ -49,8 +54,11 @@
       font-size: 1.3rem;
       font-weight: 600;
       margin: 0;
-      color: var(--primary);
+      color: #fff;
       letter-spacing: -0.5px;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }
     .sidebar-nav {
       padding: 1.5rem 0;
@@ -60,26 +68,33 @@
       display: flex;
       align-items: center;
       padding: 0.8rem 1.5rem;
-      color: var(--muted);
+      color: #fff;
       text-decoration: none;
       transition: all var(--transition);
       cursor: pointer;
       border-left: 3px solid transparent;
+      border-radius: 8px;
+      margin: 0.2rem 0.5rem;
+      font-family: 'Roboto', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
     }
     .nav-item:hover {
-      background: var(--bg);
-      color: var(--primary);
+      background: var(--accent);
+      color: var(--primary-dark);
+      border-left: 3px solid #fff;
     }
     .nav-item.active {
-      background: var(--primary);
-      color: #fff;
-      border-left-color: #fff;
+      background: var(--accent);
+      color: var(--primary-dark);
+      border-left: 3px solid #fff;
     }
-    .nav-item i {
+    .nav-item i, .nav-item .material-icons {
       margin-right: 0.8rem;
-      font-size: 1.1rem;
-      width: 20px;
+      font-size: 1.3rem;
+      width: 24px;
       text-align: center;
+      vertical-align: middle;
     }
     .nav-item span {
       font-weight: 500;
@@ -108,8 +123,9 @@
     .content-header {
       background: var(--surface);
       padding: 1.5rem 2rem;
-      box-shadow: var(--shadow);
+      box-shadow: 0 2px 8px rgba(44,62,80,0.04);
       border-bottom: 1px solid var(--border);
+      font-family: 'Roboto', sans-serif;
     }
     .content-header h2 {
       margin: 0;
@@ -238,20 +254,24 @@
       font-size: 0.93rem;
     }
     .list-table th {
-      background: var(--bg);
-      color: var(--muted);
-      font-weight: 600;
+      background: var(--accent);
+      color: var(--primary-dark);
+      font-weight: 700;
+      font-family: 'Roboto', sans-serif;
+    }
+    .list-table tr:nth-child(even) {
+      background: #f0f4f8;
     }
     .delete-btn {
       background: none;
       border: none;
-      color: #ef4444;
+      color: #e53935;
       font-size: 1.1rem;
       cursor: pointer;
       transition: color var(--transition);
     }
     .delete-btn:hover {
-      color: #b91c1c;
+      color: #b71c1c;
     }
     .edit-btn {
       background: none;
@@ -263,7 +283,7 @@
       margin-right: 0.5rem;
     }
     .edit-btn:hover {
-      color: var(--primary-light);
+      color: var(--primary-dark);
     }
     .modal-overlay {
       position: fixed;
@@ -463,6 +483,73 @@
         margin-bottom: 1rem;
       }
     }
+    /* Ajuste para ícones Material nas ações */
+    .edit-btn, .delete-btn {
+      font-family: 'Material Icons';
+      font-size: 1.3rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      vertical-align: middle;
+      padding: 0 0.2rem;
+      transition: color var(--transition);
+    }
+    .edit-btn { color: var(--primary); }
+    .edit-btn:hover { color: var(--primary-dark); }
+    .delete-btn { color: #e53935; }
+    .delete-btn:hover { color: #b71c1c; }
+    /* Tabela estilo Material */
+    .list-table th {
+      background: var(--accent);
+      color: var(--primary-dark);
+      font-weight: 700;
+      font-family: 'Roboto', sans-serif;
+    }
+    .list-table tr:nth-child(even) {
+      background: #f0f4f8;
+    }
+    /* Responsividade e detalhes */
+    @media (max-width: 768px) {
+      .sidebar {
+        box-shadow: 0 8px 26px -4px rgba(33,150,243,0.32);
+      }
+    }
+    @media (max-width: 1200px) {
+      .dashboard-section > div {
+        min-width: 220px;
+      }
+    }
+    @media (max-width: 900px) {
+      .dashboard-section > div {
+        min-width: 180px;
+      }
+      .dashboard-section {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 600px) {
+      .dashboard-section {
+        grid-template-columns: 1fr;
+      }
+      .dashboard-section > div {
+        min-width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+    .dashboard-section > div {
+      margin-bottom: 0.5rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 24px rgba(44,62,80,0.10);
+    }
+    .sidebar {
+      border-top-right-radius: 16px;
+      border-bottom-right-radius: 16px;
+    }
+    .main-content, .content-wrapper {
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(44,62,80,0.10);
+    }
   </style>
 </head>
 <body>
@@ -470,20 +557,20 @@
   
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <h1>Fichas de Terceirizados</h1>
+      <h1>Material Dashboard</h1>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-item active" data-screen="list">
-        <i>🏠</i>
-        <span>Início</span>
+        <span class="material-icons">dashboard</span>
+        <span>Dashboard</span>
       </div>
       <div class="nav-item" data-screen="create">
-        <i>➕</i>
+        <span class="material-icons">add_circle</span>
         <span>Cadastrar</span>
       </div>
       <div class="nav-item" data-screen="dashboard">
-        <i>📊</i>
-        <span>Dashboards</span>
+        <span class="material-icons">bar_chart</span>
+        <span>Relatórios</span>
       </div>
     </nav>
   </div>
@@ -625,38 +712,62 @@
         <h2 style="margin-bottom:1.5rem;">Dashboard de Produção</h2>
         
         <!-- Resumo Técnico -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-          <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
-            <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="total-pecas">0</div>
-            <div style="color: var(--muted); font-size: 0.9rem;">Total de Peças Produzidas</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius); text-align: center; box-shadow: 0 2px 8px rgba(44,62,80,0.08); display: flex; align-items: center; gap: 1rem;">
+            <span class="material-icons" style="font-size:2.5rem; color:var(--primary); background:var(--accent); border-radius:50%; padding:0.7rem;">inventory_2</span>
+            <div style="text-align:left;">
+              <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.2rem;" id="total-pecas">0</div>
+              <div style="color: var(--muted); font-size: 0.95rem;">Total de Peças Produzidas</div>
+            </div>
           </div>
-          <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
-            <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="total-fichas">0</div>
-            <div style="color: var(--muted); font-size: 0.9rem;">Total de Fichas Cadastradas</div>
+          <div style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius); text-align: center; box-shadow: 0 2px 8px rgba(44,62,80,0.08); display: flex; align-items: center; gap: 1rem;">
+            <span class="material-icons" style="font-size:2.5rem; color:var(--primary); background:var(--accent); border-radius:50%; padding:0.7rem;">assignment</span>
+            <div style="text-align:left;">
+              <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.2rem;" id="total-fichas">0</div>
+              <div style="color: var(--muted); font-size: 0.95rem;">Total de Fichas Cadastradas</div>
+            </div>
           </div>
-          <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
-            <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="total-valor">R$ 0,00</div>
-            <div style="color: var(--muted); font-size: 0.9rem;">Valor Total Produzido</div>
+          <div style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius); text-align: center; box-shadow: 0 2px 8px rgba(44,62,80,0.08); display: flex; align-items: center; gap: 1rem;">
+            <span class="material-icons" style="font-size:2.5rem; color:var(--primary); background:var(--accent); border-radius:50%; padding:0.7rem;">attach_money</span>
+            <div style="text-align:left;">
+              <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.2rem;" id="total-valor">R$ 0,00</div>
+              <div style="color: var(--muted); font-size: 0.95rem;">Valor Total Produzido</div>
+            </div>
           </div>
-          <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
-            <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="total-clusters">0</div>
-            <div style="color: var(--muted); font-size: 0.9rem;">Clusters Ativos</div>
+          <div style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius); text-align: center; box-shadow: 0 2px 8px rgba(44,62,80,0.08); display: flex; align-items: center; gap: 1rem;">
+            <span class="material-icons" style="font-size:2.5rem; color:var(--primary); background:var(--accent); border-radius:50%; padding:0.7rem;">groups</span>
+            <div style="text-align:left;">
+              <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.2rem;" id="total-clusters">0</div>
+              <div style="color: var(--muted); font-size: 0.95rem;">Clusters Ativos</div>
+            </div>
           </div>
-          <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
-            <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="total-categorias">0</div>
-            <div style="color: var(--muted); font-size: 0.9rem;">Categorias Utilizadas</div>
+          <div style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius); text-align: center; box-shadow: 0 2px 8px rgba(44,62,80,0.08); display: flex; align-items: center; gap: 1rem;">
+            <span class="material-icons" style="font-size:2.5rem; color:var(--primary); background:var(--accent); border-radius:50%; padding:0.7rem;">category</span>
+            <div style="text-align:left;">
+              <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.2rem;" id="total-categorias">0</div>
+              <div style="color: var(--muted); font-size: 0.95rem;">Categorias Utilizadas</div>
+            </div>
           </div>
-          <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
-            <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="media-valor">R$ 0,00</div>
-            <div style="color: var(--muted); font-size: 0.9rem;">Valor Médio por Ficha</div>
+          <div style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius); text-align: center; box-shadow: 0 2px 8px rgba(44,62,80,0.08); display: flex; align-items: center; gap: 1rem;">
+            <span class="material-icons" style="font-size:2.5rem; color:var(--primary); background:var(--accent); border-radius:50%; padding:0.7rem;">trending_up</span>
+            <div style="text-align:left;">
+              <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.2rem;" id="media-valor">R$ 0,00</div>
+              <div style="color: var(--muted); font-size: 0.95rem;">Valor Médio por Ficha</div>
+            </div>
           </div>
-          <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
-            <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="media-pecas">0</div>
-            <div style="color: var(--muted); font-size: 0.9rem;">Média de Peças por Ficha</div>
+          <div style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius); text-align: center; box-shadow: 0 2px 8px rgba(44,62,80,0.08); display: flex; align-items: center; gap: 1rem;">
+            <span class="material-icons" style="font-size:2.5rem; color:var(--primary); background:var(--accent); border-radius:50%; padding:0.7rem;">format_list_numbered</span>
+            <div style="text-align:left;">
+              <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.2rem;" id="media-pecas">0</div>
+              <div style="color: var(--muted); font-size: 0.95rem;">Média de Peças por Ficha</div>
+            </div>
           </div>
-          <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); text-align: center;">
-            <div style="font-size: 2rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;" id="pilotagem-sim">0</div>
-            <div style="color: var(--muted); font-size: 0.9rem;">Fichas com Pilotagem</div>
+          <div style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius); text-align: center; box-shadow: 0 2px 8px rgba(44,62,80,0.08); display: flex; align-items: center; gap: 1rem;">
+            <span class="material-icons" style="font-size:2.5rem; color:var(--primary); background:var(--accent); border-radius:50%; padding:0.7rem;">check_circle</span>
+            <div style="text-align:left;">
+              <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.2rem;" id="pilotagem-sim">0</div>
+              <div style="color: var(--muted); font-size: 0.95rem;">Fichas com Pilotagem</div>
+            </div>
           </div>
         </div>
 
@@ -990,7 +1101,7 @@
           <td>${ficha.m}</td>
           <td>${ficha.g}</td>
           <td>${ficha.gg}</td>
-          <td><button class="edit-btn" title="Editar" onclick="editFicha(${idx})">✏️</button><button class="delete-btn" title="Excluir" onclick="deleteFicha(${idx})">&#128465;</button></td>
+          <td><button class="edit-btn" title="Editar" onclick="editFicha(${idx})">edit</button><button class="delete-btn" title="Excluir" onclick="deleteFicha(${idx})">delete</button></td>
         `;
         fichasList.appendChild(tr);
       });
