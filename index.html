@@ -942,11 +942,22 @@
             </div>
           </div>
         </div>
-        <!-- Gráfico de Barras por Categoria -->
-        <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); margin-bottom: 2rem; max-width: 700px; margin-left:auto; margin-right:auto;">
-          <h3 style="margin-bottom: 1rem; color: var(--text); font-size: 1.1rem;">Quantidade por Categoria</h3>
-          <div style="display: flex; justify-content: center;">
-            <canvas id="barCategoriaChart" width="600" height="320"></canvas>
+        <!-- Gráficos por Categoria -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; max-width: 1400px; margin-left:auto; margin-right:auto;">
+          <!-- Gráfico de Barras por Categoria -->
+          <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius);">
+            <h3 style="margin-bottom: 1rem; color: var(--text); font-size: 1.1rem;">Quantidade por Categoria</h3>
+            <div style="display: flex; justify-content: center;">
+              <canvas id="barCategoriaChart" width="320" height="320"></canvas>
+            </div>
+          </div>
+          <!-- Gráfico de Pizza por Categoria -->
+          <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius);">
+            <h3 style="margin-bottom: 1rem; color: var(--text); font-size: 1.1rem;">Quantidade de Peças por Categoria</h3>
+            <div style="display: flex; justify-content: center;">
+              <canvas id="pieCategoriaChart" width="320" height="320"></canvas>
+            </div>
+            <div id="pie-categoria-legend" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-top: 1rem;"></div>
           </div>
         </div>
       </section>
@@ -1277,6 +1288,7 @@
       renderPieChart();
       renderLineChart();
       renderBarCategoriaChart();
+      renderPieCategoriaChart();
     }
 
     function updateResumoTecnico() {
