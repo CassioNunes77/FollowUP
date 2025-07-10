@@ -1161,7 +1161,7 @@
       });
 
       // Cores para o gráfico
-      const colors = ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#dbeafe', '#1e40af', '#1d4ed8', '#2563eb'];
+      const colors = ['#222831', '#393e46', '#00aaff', '#0077b6', '#90a4ae', '#b0bec5', '#1565c0', '#1976d2'];
       
       // Desenhar gráfico de pizza
       const centerX = canvas.width / 2;
@@ -1268,25 +1268,22 @@
       ctx.stroke();
 
       // Desenhar barras
-      ctx.fillStyle = '#2563eb';
+      const barColors = ['#222831', '#393e46', '#00aaff', '#0077b6', '#90a4ae', '#b0bec5', '#1565c0', '#1976d2'];
       months.forEach((month, index) => {
         const barHeight = (values[index] / maxValue) * chartHeight;
         const x = padding + index * barWidth + barWidth * 0.1;
         const y = canvas.height - padding - barHeight;
         const width = barWidth * 0.8;
-        
+        ctx.fillStyle = barColors[index % barColors.length];
         ctx.fillRect(x, y, width, barHeight);
-        
         // Rótulo do mês
-        ctx.fillStyle = '#64748b';
+        ctx.fillStyle = '#393e46';
         ctx.font = '10px Inter';
         ctx.textAlign = 'center';
         const monthLabel = month.split('-')[1] + '/' + month.split('-')[0].slice(-2);
         ctx.fillText(monthLabel, x + width/2, canvas.height - padding + 15);
-        
         // Valor
         ctx.fillText(values[index], x + width/2, y - 5);
-        ctx.fillStyle = '#2563eb';
       });
     }
 
