@@ -712,6 +712,13 @@
         min-width: 180px;
       }
     }
+    /* Cards do dashboard - diminuir fonte dos valores */
+    .dashboard-section > div > div {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -942,23 +949,13 @@
             </div>
           </div>
         </div>
-        <!-- Gráficos por Categoria -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; max-width: 1400px; margin-left:auto; margin-right:auto;">
-          <!-- Gráfico de Barras por Categoria -->
-          <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius);">
-            <h3 style="margin-bottom: 1rem; color: var(--text); font-size: 1.1rem;">Quantidade por Categoria</h3>
-            <div style="display: flex; justify-content: center;">
-              <canvas id="barCategoriaChart" width="320" height="320"></canvas>
-            </div>
+        <!-- Gráfico de Pizza por Categoria -->
+        <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius); margin-bottom: 2rem; max-width: 500px; margin-left:auto; margin-right:auto;">
+          <h3 style="margin-bottom: 1rem; color: var(--text); font-size: 1.1rem;">Quantidade de Peças por Categoria</h3>
+          <div style="display: flex; justify-content: center;">
+            <canvas id="pieCategoriaChart" width="320" height="320"></canvas>
           </div>
-          <!-- Gráfico de Pizza por Categoria -->
-          <div style="background: var(--bg); padding: 1.5rem; border-radius: var(--radius);">
-            <h3 style="margin-bottom: 1rem; color: var(--text); font-size: 1.1rem;">Quantidade de Peças por Categoria</h3>
-            <div style="display: flex; justify-content: center;">
-              <canvas id="pieCategoriaChart" width="320" height="320"></canvas>
-            </div>
-            <div id="pie-categoria-legend" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-top: 1rem;"></div>
-          </div>
+          <div id="pie-categoria-legend" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-top: 1rem;"></div>
         </div>
       </section>
     </div>
@@ -1287,7 +1284,6 @@
       updateResumoTecnico();
       renderPieChart();
       renderLineChart();
-      renderBarCategoriaChart();
       renderPieCategoriaChart();
     }
 
