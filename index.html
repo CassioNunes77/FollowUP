@@ -34,9 +34,9 @@
     }
     .sidebar {
       width: var(--sidebar-width);
-      background: linear-gradient(195deg, var(--primary-dark), var(--primary));
+      background: #18191a;
       color: #fff;
-      box-shadow: 0 8px 26px -4px rgba(33,150,243,0.42), 0 1.5px 10px 0 rgba(44,62,80,0.12);
+      box-shadow: 0 8px 26px -4px rgba(0,0,0,0.42), 0 1.5px 10px 0 rgba(0,0,0,0.12);
       position: fixed;
       left: 0;
       top: 0;
@@ -557,20 +557,20 @@
   
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <h1>Material Dashboard</h1>
+      <h1>Follow Up</h1>
     </div>
     <nav class="sidebar-nav">
-      <div class="nav-item active" data-screen="list">
-        <span class="material-icons">dashboard</span>
-        <span>Fichas</span>
+      <div class="nav-item active" data-screen="dashboard">
+        <span class="material-icons">bar_chart</span>
+        <span>Dashboards</span>
       </div>
       <div class="nav-item" data-screen="create">
         <span class="material-icons">add_circle</span>
         <span>Cadastrar</span>
       </div>
-      <div class="nav-item" data-screen="dashboard">
-        <span class="material-icons">bar_chart</span>
-        <span>Dashboards</span>
+      <div class="nav-item" data-screen="list">
+        <span class="material-icons">dashboard</span>
+        <span>Fichas</span>
       </div>
     </nav>
   </div>
