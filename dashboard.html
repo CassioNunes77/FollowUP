@@ -1855,17 +1855,30 @@
   <script>
     // Verificação de login
     function checkLogin() {
-      const isLoggedIn = localStorage.getItem('isLoggedIn');
-      const currentUser = localStorage.getItem('currentUser');
-      console.log('Verificando login:', { isLoggedIn, currentUser });
-      
-      if (isLoggedIn !== 'true' || !currentUser) {
-        console.log('Usuário não logado, redirecionando...');
-        window.location.href = 'index.html?t=' + Date.now();
+      try {
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const currentUser = localStorage.getItem('currentUser');
+        console.log('Verificando login:', { isLoggedIn, currentUser });
+        
+        // Verificação mais robusta para Firefox
+        if (!isLoggedIn || isLoggedIn !== 'true' || !currentUser) {
+          console.log('Usuário não logado, redirecionando...');
+          // Pequeno delay para garantir que o localStorage foi processado
+          setTimeout(() => {
+            window.location.href = 'index.html?t=' + Date.now();
+          }, 100);
+          return false;
+        }
+        console.log('Usuário logado, continuando...');
+        return true;
+      } catch (error) {
+        console.error('Erro ao verificar login:', error);
+        // Em caso de erro, redireciona para login
+        setTimeout(() => {
+          window.location.href = 'index.html?t=' + Date.now();
+        }, 100);
         return false;
       }
-      console.log('Usuário logado, continuando...');
-      return true;
     }
 
     // Função de logout
@@ -1878,15 +1891,27 @@
     // Verificar login após o DOM estar carregado
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOM carregado, verificando login...');
+      
+      // Verificar se localStorage está disponível
+      if (typeof localStorage === 'undefined') {
+        console.error('localStorage não está disponível');
+        window.location.href = 'index.html?t=' + Date.now();
+        return;
+      }
+      
       if (!checkLogin()) {
         return; // A função checkLogin já redireciona se necessário
       }
       
       // Exibir usuário atual
-      const currentUser = localStorage.getItem('currentUser') || 'Admin';
-      const currentUserElement = document.getElementById('current-user');
-      if (currentUserElement) {
-        currentUserElement.textContent = currentUser;
+      try {
+        const currentUser = localStorage.getItem('currentUser') || 'Admin';
+        const currentUserElement = document.getElementById('current-user');
+        if (currentUserElement) {
+          currentUserElement.textContent = currentUser;
+        }
+      } catch (error) {
+        console.error('Erro ao exibir usuário:', error);
       }
     });
 

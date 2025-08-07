@@ -478,18 +478,34 @@
         showSuccess('Login realizado com sucesso! Redirecionando...');
         
         // Store login status
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('currentUser', username);
-        console.log('Login salvo no localStorage:', {
-          isLoggedIn: localStorage.getItem('isLoggedIn'),
-          currentUser: localStorage.getItem('currentUser')
-        });
-        
-        // Redirect to dashboard
-        setTimeout(() => {
-          console.log('Redirecionando para dashboard...');
-          window.location.href = 'dashboard.html?t=' + Date.now();
-        }, 1500);
+        try {
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('currentUser', username);
+          
+          // Verificar se foi salvo corretamente
+          const savedLogin = localStorage.getItem('isLoggedIn');
+          const savedUser = localStorage.getItem('currentUser');
+          
+          console.log('Login salvo no localStorage:', {
+            isLoggedIn: savedLogin,
+            currentUser: savedUser
+          });
+          
+          // Verificar se salvou corretamente antes de redirecionar
+          if (savedLogin === 'true' && savedUser === username) {
+            // Redirect to dashboard
+            setTimeout(() => {
+              console.log('Redirecionando para dashboard...');
+              window.location.href = 'dashboard.html?t=' + Date.now();
+            }, 1500);
+          } else {
+            throw new Error('Falha ao salvar login no localStorage');
+          }
+        } catch (error) {
+          console.error('Erro ao salvar login:', error);
+          showError('Erro ao fazer login. Tente novamente.');
+          setLoading(false);
+        }
       } else {
         showError('Usuário ou senha incorretos. Tente novamente.');
         setLoading(false);
