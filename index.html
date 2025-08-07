@@ -480,9 +480,14 @@
         // Store login status
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('currentUser', username);
+        console.log('Login salvo no localStorage:', {
+          isLoggedIn: localStorage.getItem('isLoggedIn'),
+          currentUser: localStorage.getItem('currentUser')
+        });
         
         // Redirect to dashboard
         setTimeout(() => {
+          console.log('Redirecionando para dashboard...');
           window.location.href = 'dashboard.html?t=' + Date.now();
         }, 1500);
       } else {
