@@ -483,7 +483,7 @@
         
         // Redirect to dashboard
         setTimeout(() => {
-          window.location.href = 'dashboard.html';
+          window.location.href = 'dashboard.html?t=' + Date.now();
         }, 1500);
       } else {
         showError('Usuário ou senha incorretos. Tente novamente.');

@@ -1853,6 +1853,36 @@
   </div>
 
   <script>
+    // Verificação de login
+    function checkLogin() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      console.log('Verificando login:', isLoggedIn);
+      if (isLoggedIn !== 'true') {
+        console.log('Usuário não logado, redirecionando...');
+        window.location.href = 'index.html?t=' + Date.now();
+        return false;
+      }
+      console.log('Usuário logado, continuando...');
+      return true;
+    }
+
+    // Função de logout
+    function logout() {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('currentUser');
+      window.location.href = 'index.html?t=' + Date.now();
+    }
+
+    // Verificar login imediatamente
+    if (!checkLogin()) {
+      // Se não estiver logado, para a execução
+      throw new Error('Usuário não autenticado');
+    }
+
+    // Exibir usuário atual
+    const currentUser = localStorage.getItem('currentUser') || 'Admin';
+    document.getElementById('current-user').textContent = currentUser;
+
     // Navegação entre telas
     const sidebar = document.getElementById('sidebar');
     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
