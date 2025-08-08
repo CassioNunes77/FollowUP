@@ -3234,6 +3234,164 @@
       editingIndex = -1;
     }
 
+    // Função para mostrar detalhes da ficha
+    function showFichaDetails(idx) {
+      const ficha = filteredFichas[idx];
+      const detailsModal = document.getElementById('details-modal');
+      const detailsContent = document.getElementById('ficha-details-content');
+      
+      if (!ficha) {
+        console.error('Ficha não encontrada');
+        return;
+      }
+      
+      // Formatar datas
+      const formatarData = (dataString) => {
+        if (!dataString) return '-';
+        const data = new Date(dataString);
+        return data.toLocaleDateString('pt-BR');
+      };
+      
+      // Formatar valor monetário
+      const formatarValor = (valor) => {
+        return `R$ ${Number(valor).toFixed(2)}`;
+      };
+      
+      // Gerar HTML dos detalhes
+      const detailsHTML = `
+        <div style="display: grid; gap: 1.5rem;">
+          <!-- Informações Básicas -->
+          <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
+            <h4 style="margin: 0 0 1rem 0; color: var(--text); font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+              <span class="material-icons" style="color: var(--primary); font-size: 1.2rem;">info</span>
+              Informações Básicas
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+              <div>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Cluster:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${ficha.cluster}</p>
+              </div>
+              <div>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Categoria:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${ficha.categoria}</p>
+              </div>
+              <div>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Referência:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${ficha.referencia}</p>
+              </div>
+              <div>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Quantidade:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${ficha.quantidade} peças</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Informações Financeiras -->
+          <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
+            <h4 style="margin: 0 0 1rem 0; color: var(--text); font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+              <span class="material-icons" style="color: var(--success); font-size: 1.2rem;">payments</span>
+              Informações Financeiras
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+              <div>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Valor Unitário:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${formatarValor(ficha.valorUnitario)}</p>
+              </div>
+              <div>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Valor Total:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${formatarValor(ficha.valorTotal)}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Datas e Prazos -->
+          <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
+            <h4 style="margin: 0 0 1rem 0; color: var(--text); font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+              <span class="material-icons" style="color: var(--warning); font-size: 1.2rem;">schedule</span>
+              Datas e Prazos
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+              <div>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Data de Entrada:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${formatarData(ficha.entrada)}</p>
+              </div>
+              <div>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Data de Saída:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${formatarData(ficha.saida)}</p>
+              </div>
+              <div>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Data de Pagamento:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${formatarData(ficha.pagamento)}</p>
+              </div>
+              <div>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Pilotagem:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${formatarData(ficha.pilotagem)}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tamanhos e Cores -->
+          ${ficha.cores && ficha.cores.length > 0 ? `
+            <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
+              <h4 style="margin: 0 0 1rem 0; color: var(--text); font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                <span class="material-icons" style="color: var(--primary); font-size: 1.2rem;">palette</span>
+                Cores e Tamanhos
+              </h4>
+              <div style="display: grid; gap: 1rem;">
+                ${ficha.cores.map(cor => `
+                  <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border);">
+                    <h5 style="margin: 0 0 0.5rem 0; color: var(--text); font-size: 1rem; font-weight: 600;">${cor.nome}</h5>
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem;">
+                      <div style="text-align: center;">
+                        <strong style="color: var(--text-secondary); font-size: 0.8rem;">PP/36</strong>
+                        <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${cor.pp || 0}</p>
+                      </div>
+                      <div style="text-align: center;">
+                        <strong style="color: var(--text-secondary); font-size: 0.8rem;">P/38</strong>
+                        <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${cor.p || 0}</p>
+                      </div>
+                      <div style="text-align: center;">
+                        <strong style="color: var(--text-secondary); font-size: 0.8rem;">M/40</strong>
+                        <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${cor.m || 0}</p>
+                      </div>
+                      <div style="text-align: center;">
+                        <strong style="color: var(--text-secondary); font-size: 0.8rem;">G/42</strong>
+                        <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${cor.g || 0}</p>
+                      </div>
+                      <div style="text-align: center;">
+                        <strong style="color: var(--text-secondary); font-size: 0.8rem;">GG/44</strong>
+                        <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${cor.gg || 0}</p>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Observações -->
+          ${ficha.observacoes ? `
+            <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
+              <h4 style="margin: 0 0 1rem 0; color: var(--text); font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                <span class="material-icons" style="color: var(--text-secondary); font-size: 1.2rem;">note</span>
+                Observações
+              </h4>
+              <p style="margin: 0; color: var(--text); line-height: 1.6;">${ficha.observacoes}</p>
+            </div>
+          ` : ''}
+        </div>
+      `;
+      
+      detailsContent.innerHTML = detailsHTML;
+      detailsModal.style.display = 'flex';
+    }
+
+    // Função para fechar modal de detalhes
+    function closeDetailsModal() {
+      const detailsModal = document.getElementById('details-modal');
+      detailsModal.style.display = 'none';
+    }
+
     function calcularValorTotalEdit() {
       const quantidade = Number(document.getElementById('edit-quantidade').value) || 0;
       const valorUnitario = Number(document.getElementById('edit-valorUnitario').value) || 0;
@@ -3419,6 +3577,16 @@
         closeEditModal();
       }
     };
+
+    // Fechar modal de detalhes ao clicar fora
+    const detailsModal = document.getElementById('details-modal');
+    if (detailsModal) {
+      detailsModal.onclick = function(e) {
+        if (e.target === detailsModal) {
+          closeDetailsModal();
+        }
+      };
+    }
 
     async function updateClusterFilter() {
       try {
