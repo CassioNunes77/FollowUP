@@ -85,14 +85,35 @@
   <script>
     let currentUser = null;
     
+    // Função para aguardar Firebase Auth estar pronto
+    async function waitForFirebaseAuth() {
+      let attempts = 0;
+      const maxAttempts = 50; // 5 segundos (50 * 100ms)
+      
+      while (!window.FirebaseAuth && attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+      
+      if (!window.FirebaseAuth) {
+        throw new Error('Firebase Auth não foi carregado após 5 segundos');
+      }
+      
+      return window.FirebaseAuth;
+    }
+    
     // Aguardar Firebase estar pronto
     window.addEventListener('load', async () => {
       try {
         updateStatus('🔄 Inicializando Firebase Auth...', 'info');
-        log('🚀 Firebase Auth carregado');
+        log('🚀 Aguardando Firebase Auth carregar...');
+        
+        // Aguardar Firebase Auth estar disponível
+        const FirebaseAuth = await waitForFirebaseAuth();
+        log('✅ Firebase Auth carregado com sucesso');
         
         // Verificar se usuário já está logado
-        const user = await window.FirebaseAuth.getCurrentUser();
+        const user = await FirebaseAuth.getCurrentUser();
         if (user) {
           currentUser = user;
           showUserInfo(user);
@@ -113,7 +134,8 @@
         updateStatus('🔄 Fazendo login com Google...', 'info');
         log('🔐 Iniciando login com Google...');
         
-        const user = await window.FirebaseAuth.signInWithGoogle();
+        const FirebaseAuth = await waitForFirebaseAuth();
+        const user = await FirebaseAuth.signInWithGoogle();
         currentUser = user;
         
         showUserInfo(user);
@@ -139,7 +161,8 @@
         updateStatus('🔄 Fazendo logout...', 'info');
         log('🚪 Iniciando logout...');
         
-        await window.FirebaseAuth.signOutUser();
+        const FirebaseAuth = await waitForFirebaseAuth();
+        await FirebaseAuth.signOutUser();
         currentUser = null;
         
         document.getElementById('user-info').style.display = 'none';
@@ -156,7 +179,8 @@
       try {
         log('👤 Verificando usuário atual...');
         
-        const user = await window.FirebaseAuth.getCurrentUser();
+        const FirebaseAuth = await waitForFirebaseAuth();
+        const user = await FirebaseAuth.getCurrentUser();
         if (user) {
           currentUser = user;
           showUserInfo(user);
