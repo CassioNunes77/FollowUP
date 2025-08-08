@@ -553,6 +553,15 @@
       .content-wrapper {
         margin-left: 0;
       }
+      .content-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+      #user-info {
+        width: 100%;
+        justify-content: space-between;
+      }
       .content-body {
         padding: 1rem;
       }
@@ -1445,11 +1454,28 @@
 
   <div class="content-wrapper md:ml-64 transition-all duration-300">
     <div class="content-header">
-      <div style="display: flex; align-items: center; gap: 1rem;">
-        <h2 id="page-title">Dashboard de Produção</h2>
-        <div id="empresa-info" style="display: none; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius); color: var(--primary-dark); font-size: 0.9rem; font-weight: 500;">
-          <span class="material-icons" style="font-size: 1rem;">business</span>
-          <span id="empresa-nome-display">Nome da Empresa</span>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <h2 id="page-title">Dashboard de Produção</h2>
+          <div id="empresa-info" style="display: none; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius); color: var(--primary-dark); font-size: 0.9rem; font-weight: 500;">
+            <span class="material-icons" style="font-size: 1rem;">business</span>
+            <span id="empresa-nome-display">Nome da Empresa</span>
+          </div>
+        </div>
+        
+        <!-- Informações do usuário logado -->
+        <div id="user-info" style="display: none; align-items: center; gap: 0.75rem; padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <img id="user-photo" src="" alt="Foto do usuário" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);" />
+            <div style="display: flex; flex-direction: column; gap: 0.125rem;">
+              <span id="user-name" style="font-weight: 600; color: var(--text); font-size: 0.9rem;">Nome do Usuário</span>
+              <span id="user-email" style="color: var(--text-secondary); font-size: 0.8rem;">email@exemplo.com</span>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; background: var(--primary-50); border-radius: 4px;">
+            <span class="material-icons" style="font-size: 0.875rem; color: var(--primary);">verified</span>
+            <span style="font-size: 0.75rem; color: var(--primary); font-weight: 500;">Logado</span>
+          </div>
         </div>
       </div>
     </div>
@@ -2140,35 +2166,61 @@
         
         // Logout do Firebase Auth
         if (window.FirebaseAuth) {
+          console.log('🔄 Fazendo logout do Firebase Auth...');
           await window.FirebaseAuth.signOutUser();
-          console.log('✅ Logout do Firebase realizado');
+          console.log('✅ Logout do Firebase realizado com sucesso');
+        } else {
+          console.log('⚠️ FirebaseAuth não disponível, pulando logout do Firebase');
         }
         
         // Limpar localStorage
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('currentUser');
-        localStorage.removeItem('loginTimestamp');
-        localStorage.removeItem('userDisplayName');
-        localStorage.removeItem('userPhotoURL');
+        console.log('🔄 Limpando localStorage...');
+        const keysToRemove = [
+          'isLoggedIn',
+          'currentUser', 
+          'loginTimestamp',
+          'userDisplayName',
+          'userPhotoURL'
+        ];
+        
+        keysToRemove.forEach(key => {
+          try {
+            localStorage.removeItem(key);
+            console.log(`✅ Removido do localStorage: ${key}`);
+          } catch (error) {
+            console.error(`❌ Erro ao remover ${key} do localStorage:`, error);
+          }
+        });
         
         // Limpar sessionStorage também
         if (typeof sessionStorage !== 'undefined') {
-          sessionStorage.removeItem('isLoggedIn');
-          sessionStorage.removeItem('currentUser');
-          sessionStorage.removeItem('loginTimestamp');
-          sessionStorage.removeItem('userDisplayName');
-          sessionStorage.removeItem('userPhotoURL');
+          console.log('🔄 Limpando sessionStorage...');
+          keysToRemove.forEach(key => {
+            try {
+              sessionStorage.removeItem(key);
+              console.log(`✅ Removido do sessionStorage: ${key}`);
+            } catch (error) {
+              console.error(`❌ Erro ao remover ${key} do sessionStorage:`, error);
+            }
+          });
         }
         
-        console.log('✅ Logout realizado, dados limpos');
+        console.log('✅ Logout realizado, todos os dados limpos');
         
-        // Redirecionar para login
-        window.location.href = 'index.html?t=' + Date.now();
+        // Pequeno delay para garantir que tudo foi processado
+        setTimeout(() => {
+          console.log('🔄 Redirecionando para página de login...');
+          const timestamp = Date.now();
+          const loginUrl = `index.html?t=${timestamp}&logout=true`;
+          window.location.href = loginUrl;
+        }, 500);
         
       } catch (error) {
         console.error('❌ Erro ao fazer logout:', error);
+        console.error('❌ Detalhes do erro:', error.message);
         
         // Mesmo com erro, limpar dados locais e redirecionar
+        console.log('🔄 Limpando dados locais mesmo com erro...');
         try {
           localStorage.removeItem('isLoggedIn');
           localStorage.removeItem('currentUser');
@@ -2176,10 +2228,16 @@
           localStorage.removeItem('userDisplayName');
           localStorage.removeItem('userPhotoURL');
         } catch (localError) {
-          console.error('Erro ao limpar localStorage:', localError);
+          console.error('❌ Erro ao limpar localStorage:', localError);
         }
         
-        window.location.href = 'index.html?t=' + Date.now();
+        // Redirecionar mesmo com erro
+        setTimeout(() => {
+          console.log('🔄 Redirecionando para login mesmo com erro...');
+          const timestamp = Date.now();
+          const loginUrl = `index.html?t=${timestamp}&logout=true&error=true`;
+          window.location.href = loginUrl;
+        }, 1000);
       }
     }
 
@@ -2261,15 +2319,11 @@
         return; // A função checkLogin já redireciona se necessário
       }
       
-      // Exibir usuário atual
+      // Exibir informações do usuário logado
       try {
-        const currentUser = localStorage.getItem('currentUser') || 'Admin';
-        const currentUserElement = document.getElementById('current-user');
-        if (currentUserElement) {
-          currentUserElement.textContent = currentUser;
-        }
+        await updateUserInfo();
       } catch (error) {
-        console.error('Erro ao exibir usuário:', error);
+        console.error('Erro ao exibir informações do usuário:', error);
       }
       
       // Carregar dados do Firebase
@@ -2279,6 +2333,52 @@
       }).catch(error => {
         console.error('❌ Erro no carregamento do Firebase:', error);
       });
+      
+      // Adicionar event listener para o botão de logout
+      const logoutButton = document.getElementById('logout-button');
+      if (logoutButton) {
+        console.log('✅ Botão de logout encontrado, adicionando event listener...');
+        logoutButton.addEventListener('click', async () => {
+          try {
+            console.log('🔄 Botão de logout clicado...');
+            
+            // Feedback visual - desabilitar botão
+            const originalText = logoutButton.innerHTML;
+            logoutButton.innerHTML = `
+              <span class="material-icons">hourglass_empty</span>
+              <span>Saindo...</span>
+            `;
+            logoutButton.style.pointerEvents = 'none';
+            logoutButton.style.opacity = '0.7';
+            
+            // Executar logout
+            await logout();
+            
+          } catch (error) {
+            console.error('❌ Erro ao fazer logout:', error);
+            console.error('❌ Detalhes do erro:', error.message);
+            
+            // Restaurar botão em caso de erro
+            logoutButton.innerHTML = `
+              <span class="material-icons">logout</span>
+              <span>Sair</span>
+            `;
+            logoutButton.style.pointerEvents = 'auto';
+            logoutButton.style.opacity = '1';
+            
+            // Mesmo com erro, redirecionar para login
+            setTimeout(() => {
+              console.log('🔄 Redirecionando para login após erro...');
+              const timestamp = Date.now();
+              const loginUrl = `index.html?t=${timestamp}&logout=true&error=true`;
+              window.location.href = loginUrl;
+            }, 1000);
+          }
+        });
+        console.log('✅ Event listener do logout adicionado com sucesso');
+      } else {
+        console.error('❌ Botão de logout não encontrado');
+      }
     });
 
     // Navegação entre telas
@@ -2414,6 +2514,74 @@
       }
     }
     
+    // Função para atualizar informações do usuário
+    async function updateUserInfo() {
+      try {
+        console.log('🔄 Atualizando informações do usuário...');
+        
+        const userInfoElement = document.getElementById('user-info');
+        const userNameElement = document.getElementById('user-name');
+        const userEmailElement = document.getElementById('user-email');
+        const userPhotoElement = document.getElementById('user-photo');
+        
+        if (!userInfoElement || !userNameElement || !userEmailElement || !userPhotoElement) {
+          console.error('❌ Elementos de usuário não encontrados');
+          return;
+        }
+        
+        let userDisplayName = '';
+        let userEmail = '';
+        let userPhotoURL = '';
+        
+        // Tentar obter informações do Firebase primeiro
+        if (window.FirebaseAuth) {
+          try {
+            const currentUser = await window.FirebaseAuth.getCurrentUser();
+            if (currentUser) {
+              console.log('✅ Usuário encontrado no Firebase:', currentUser.email);
+              userDisplayName = currentUser.displayName || currentUser.email;
+              userEmail = currentUser.email;
+              userPhotoURL = currentUser.photoURL || '';
+            }
+          } catch (firebaseError) {
+            console.error('❌ Erro ao obter usuário do Firebase:', firebaseError);
+          }
+        }
+        
+        // Fallback para localStorage se Firebase não disponível
+        if (!userDisplayName || !userEmail) {
+          console.log('🔄 Usando dados do localStorage...');
+          userDisplayName = localStorage.getItem('userDisplayName') || localStorage.getItem('currentUser') || 'Usuário';
+          userEmail = localStorage.getItem('currentUser') || 'email@exemplo.com';
+          userPhotoURL = localStorage.getItem('userPhotoURL') || '';
+        }
+        
+        // Atualizar elementos
+        userNameElement.textContent = userDisplayName;
+        userEmailElement.textContent = userEmail;
+        
+        if (userPhotoURL) {
+          userPhotoElement.src = userPhotoURL;
+          userPhotoElement.style.display = 'block';
+        } else {
+          // Usar ícone padrão se não há foto
+          userPhotoElement.style.display = 'none';
+          userPhotoElement.parentElement.innerHTML = `
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary);">
+              <span class="material-icons" style="color: white; font-size: 1rem;">person</span>
+            </div>
+          `;
+        }
+        
+        // Mostrar informações do usuário
+        userInfoElement.style.display = 'flex';
+        console.log('✅ Informações do usuário atualizadas:', { userDisplayName, userEmail });
+        
+      } catch (error) {
+        console.error('❌ Erro ao atualizar informações do usuário:', error);
+      }
+    }
+    
     // Função para aguardar Firebase Auth carregar
     async function waitForFirebaseAuth() {
       let attempts = 0;
@@ -2427,18 +2595,18 @@
       if (window.FirebaseAuth) {
         console.log('✅ FirebaseAuth carregado');
         await loadFichasFromFirebase();
+        await updateUserInfo(); // Atualizar informações do usuário
       } else {
         console.error('❌ FirebaseAuth não carregou após 5 segundos');
         // Fallback para localStorage
         fichas = JSON.parse(localStorage.getItem('fichas') || '[]');
         filteredFichas = [...fichas];
+        await updateUserInfo(); // Atualizar informações do usuário mesmo sem Firebase
       }
     }
 
-    // Menu mobile
-    mobileMenuToggle.onclick = function() {
-      sidebar.classList.toggle('open');
-    };
+    // Menu mobile - removido event listener duplicado
+    // O event listener correto está definido mais abaixo
 
     // Navegação lateral
     navItems.forEach(item => {
@@ -4388,9 +4556,14 @@
       sidebar.classList.remove('-translate-x-full');
     }
     mobileMenuToggle.addEventListener('click', function() {
+      console.log('🔄 Botão de menu mobile clicado');
+      console.log('📱 Estado atual da sidebar:', sidebar.classList.contains('-translate-x-full') ? 'fechada' : 'aberta');
+      
       if (sidebar.classList.contains('-translate-x-full')) {
+        console.log('📱 Abrindo sidebar...');
         openSidebar();
       } else {
+        console.log('📱 Fechando sidebar...');
         closeSidebar();
       }
     });
@@ -4411,11 +4584,40 @@
     document.getElementById('logout-button').addEventListener('click', async () => {
       try {
         console.log('🔄 Botão de logout clicado...');
+        
+        // Feedback visual - desabilitar botão
+        const logoutButton = document.getElementById('logout-button');
+        const originalText = logoutButton.innerHTML;
+        logoutButton.innerHTML = `
+          <span class="material-icons">hourglass_empty</span>
+          <span>Saindo...</span>
+        `;
+        logoutButton.style.pointerEvents = 'none';
+        logoutButton.style.opacity = '0.7';
+        
+        // Executar logout
         await logout();
+        
       } catch (error) {
         console.error('❌ Erro ao fazer logout:', error);
+        console.error('❌ Detalhes do erro:', error.message);
+        
+        // Restaurar botão em caso de erro
+        const logoutButton = document.getElementById('logout-button');
+        logoutButton.innerHTML = `
+          <span class="material-icons">logout</span>
+          <span>Sair</span>
+        `;
+        logoutButton.style.pointerEvents = 'auto';
+        logoutButton.style.opacity = '1';
+        
         // Mesmo com erro, redirecionar para login
-        window.location.href = 'index.html?t=' + Date.now();
+        setTimeout(() => {
+          console.log('🔄 Redirecionando para login após erro...');
+          const timestamp = Date.now();
+          const loginUrl = `index.html?t=${timestamp}&logout=true&error=true`;
+          window.location.href = loginUrl;
+        }, 1000);
       }
     });
 
