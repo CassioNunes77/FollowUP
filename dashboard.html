@@ -2310,6 +2310,50 @@
       }
     }
     
+    // Função para carregar clusters do Firebase
+    async function loadClustersFromFirebase() {
+      try {
+        console.log('🔄 Carregando clusters do Firebase...');
+        
+        if (window.FirebaseAuth) {
+          const firebaseClusters = await window.FirebaseAuth.getClusters();
+          const clustersData = firebaseClusters || [];
+          console.log('✅ Clusters carregados do Firebase:', clustersData.length);
+          return clustersData;
+        } else {
+          console.error('❌ FirebaseAuth não está disponível');
+          // Fallback para localStorage
+          return JSON.parse(localStorage.getItem('clustersCadastrados') || '[]');
+        }
+      } catch (error) {
+        console.error('❌ Erro ao carregar clusters do Firebase:', error);
+        // Fallback para localStorage
+        return JSON.parse(localStorage.getItem('clustersCadastrados') || '[]');
+      }
+    }
+    
+    // Função para carregar categorias do Firebase
+    async function loadCategoriasFromFirebase() {
+      try {
+        console.log('🔄 Carregando categorias do Firebase...');
+        
+        if (window.FirebaseAuth) {
+          const firebaseCategorias = await window.FirebaseAuth.getCategorias();
+          const categoriasData = firebaseCategorias || [];
+          console.log('✅ Categorias carregadas do Firebase:', categoriasData.length);
+          return categoriasData;
+        } else {
+          console.error('❌ FirebaseAuth não está disponível');
+          // Fallback para localStorage
+          return JSON.parse(localStorage.getItem('categoriasCadastradas') || '[]');
+        }
+      } catch (error) {
+        console.error('❌ Erro ao carregar categorias do Firebase:', error);
+        // Fallback para localStorage
+        return JSON.parse(localStorage.getItem('categoriasCadastradas') || '[]');
+      }
+    }
+    
     // Função para aguardar Firebase Auth carregar
     async function waitForFirebaseAuth() {
       let attempts = 0;
@@ -2493,17 +2537,64 @@
         };
         
         if (categoriaForm) {
-          categoriaForm.onsubmit = function(e) {
+          categoriaForm.onsubmit = async function(e) {
             e.preventDefault();
             const novaCategoria = novaCategoriaInput.value.trim();
-            if (novaCategoria && !categoriasCadastradas.includes(novaCategoria)) {
-              categoriasCadastradas.push(novaCategoria);
-              localStorage.setItem('categoriasCadastradas', JSON.stringify(categoriasCadastradas));
-              novaCategoriaInput.value = '';
-              renderCategorias();
-              updateCategoriaSelects();
-            } else if (categoriasCadastradas.includes(novaCategoria)) {
-              alert('Esta categoria já existe!');
+            
+            if (!novaCategoria) {
+              alert('Por favor, digite o nome da categoria');
+              return;
+            }
+            
+            try {
+              console.log('🔄 Salvando categoria no Firebase...');
+              
+              if (window.FirebaseAuth) {
+                // Carregar categorias existentes do Firebase
+                const categoriasExistentes = await loadCategoriasFromFirebase();
+                
+                if (categoriasExistentes.includes(novaCategoria)) {
+                  alert('Esta categoria já existe!');
+                  return;
+                }
+                
+                // Adicionar nova categoria
+                const novasCategorias = [...categoriasExistentes, novaCategoria];
+                await window.FirebaseAuth.saveCategorias(novasCategorias);
+                
+                console.log('✅ Categoria salva no Firebase');
+                novaCategoriaInput.value = '';
+                
+                // Recarregar e renderizar
+                await loadCategoriasFromFirebase();
+                renderCategorias();
+                await updateCategoriaSelects();
+                await updateCategoriaFilter();
+              } else {
+                console.error('❌ FirebaseAuth não está disponível');
+                // Fallback para localStorage
+                if (!categoriasCadastradas.includes(novaCategoria)) {
+                  categoriasCadastradas.push(novaCategoria);
+                  localStorage.setItem('categoriasCadastradas', JSON.stringify(categoriasCadastradas));
+                  novaCategoriaInput.value = '';
+                  renderCategorias();
+                  updateCategoriaSelects();
+                } else {
+                  alert('Esta categoria já existe!');
+                }
+              }
+            } catch (error) {
+              console.error('❌ Erro ao salvar categoria no Firebase:', error);
+              // Fallback para localStorage
+              if (!categoriasCadastradas.includes(novaCategoria)) {
+                categoriasCadastradas.push(novaCategoria);
+                localStorage.setItem('categoriasCadastradas', JSON.stringify(categoriasCadastradas));
+                novaCategoriaInput.value = '';
+                renderCategorias();
+                updateCategoriaSelects();
+              } else {
+                alert('Esta categoria já existe!');
+              }
             }
           };
         }
@@ -2630,18 +2721,66 @@
         };
         
         if (clusterForm) {
-          clusterForm.onsubmit = function(e) {
+          clusterForm.onsubmit = async function(e) {
             e.preventDefault();
             const novoCluster = novoClusterInput.value.trim();
-            if (novoCluster && !clustersCadastrados.includes(novoCluster)) {
-              clustersCadastrados.push(novoCluster);
-              localStorage.setItem('clustersCadastrados', JSON.stringify(clustersCadastrados));
-              novoClusterInput.value = '';
-              renderClusters();
-              updateClusterSelects();
-              updateClusterFilter();
-            } else if (clustersCadastrados.includes(novoCluster)) {
-              alert('Este cluster já existe!');
+            
+            if (!novoCluster) {
+              alert('Por favor, digite o nome do cluster');
+              return;
+            }
+            
+            try {
+              console.log('🔄 Salvando cluster no Firebase...');
+              
+              if (window.FirebaseAuth) {
+                // Carregar clusters existentes do Firebase
+                const clustersExistentes = await loadClustersFromFirebase();
+                
+                if (clustersExistentes.includes(novoCluster)) {
+                  alert('Este cluster já existe!');
+                  return;
+                }
+                
+                // Adicionar novo cluster
+                const novosClusters = [...clustersExistentes, novoCluster];
+                await window.FirebaseAuth.saveClusters(novosClusters);
+                
+                console.log('✅ Cluster salvo no Firebase');
+                novoClusterInput.value = '';
+                
+                // Recarregar e renderizar
+                await loadClustersFromFirebase();
+                renderClusters();
+                await updateClusterSelects();
+                await updateClusterFilter();
+              } else {
+                console.error('❌ FirebaseAuth não está disponível');
+                // Fallback para localStorage
+                if (!clustersCadastrados.includes(novoCluster)) {
+                  clustersCadastrados.push(novoCluster);
+                  localStorage.setItem('clustersCadastrados', JSON.stringify(clustersCadastrados));
+                  novoClusterInput.value = '';
+                  renderClusters();
+                  updateClusterSelects();
+                  updateClusterFilter();
+                } else {
+                  alert('Este cluster já existe!');
+                }
+              }
+            } catch (error) {
+              console.error('❌ Erro ao salvar cluster no Firebase:', error);
+              // Fallback para localStorage
+              if (!clustersCadastrados.includes(novoCluster)) {
+                clustersCadastrados.push(novoCluster);
+                localStorage.setItem('clustersCadastrados', JSON.stringify(clustersCadastrados));
+                novoClusterInput.value = '';
+                renderClusters();
+                updateClusterSelects();
+                updateClusterFilter();
+              } else {
+                alert('Este cluster já existe!');
+              }
             }
           };
         }
@@ -3003,30 +3142,56 @@
       }
     };
 
-    function updateClusterFilter() {
-      const clusters = [...new Set(fichas.map(f => f.cluster))];
-      clusterFilter.innerHTML = '<option value="">Todos os Clusters</option>';
-      clusters.forEach(cluster => {
-        const option = document.createElement('option');
-        option.value = cluster;
-        option.textContent = cluster;
-        clusterFilter.appendChild(option);
-      });
+    async function updateClusterFilter() {
+      try {
+        // Tentar carregar clusters do Firebase primeiro
+        const clustersCadastrados = await loadClustersFromFirebase();
+        clusterFilter.innerHTML = '<option value="">Todos os Clusters</option>';
+        clustersCadastrados.forEach(cluster => {
+          const option = document.createElement('option');
+          option.value = cluster;
+          option.textContent = cluster;
+          clusterFilter.appendChild(option);
+        });
+      } catch (error) {
+        // Fallback para clusters das fichas
+        const clusters = [...new Set(fichas.map(f => f.cluster))];
+        clusterFilter.innerHTML = '<option value="">Todos os Clusters</option>';
+        clusters.forEach(cluster => {
+          const option = document.createElement('option');
+          option.value = cluster;
+          option.textContent = cluster;
+          clusterFilter.appendChild(option);
+        });
+      }
     }
 
-    function updateCategoriaFilter() {
-      const categorias = [...new Set(fichas.map(f => f.categoria))];
-      categoriaFilter.innerHTML = '<option value="">Todas as Categorias</option>';
-      categorias.forEach(categoria => {
-        const option = document.createElement('option');
-        option.value = categoria;
-        option.textContent = categoria;
-        categoriaFilter.appendChild(option);
-      });
+    async function updateCategoriaFilter() {
+      try {
+        // Tentar carregar categorias do Firebase primeiro
+        const categoriasCadastradas = await loadCategoriasFromFirebase();
+        categoriaFilter.innerHTML = '<option value="">Todas as Categorias</option>';
+        categoriasCadastradas.forEach(categoria => {
+          const option = document.createElement('option');
+          option.value = categoria;
+          option.textContent = categoria;
+          categoriaFilter.appendChild(option);
+        });
+      } catch (error) {
+        // Fallback para categorias das fichas
+        const categorias = [...new Set(fichas.map(f => f.categoria))];
+        categoriaFilter.innerHTML = '<option value="">Todas as Categorias</option>';
+        categorias.forEach(categoria => {
+          const option = document.createElement('option');
+          option.value = categoria;
+          option.textContent = categoria;
+          categoriaFilter.appendChild(option);
+        });
+      }
     }
 
-    function updateCategoriaSelects() {
-      const categoriasCadastradas = JSON.parse(localStorage.getItem('categoriasCadastradas') || '[]');
+    async function updateCategoriaSelects() {
+      const categoriasCadastradas = await loadCategoriasFromFirebase();
       const categoriaSelect = document.getElementById('categoria');
       const editCategoriaSelect = document.getElementById('edit-categoria');
       
@@ -3053,8 +3218,8 @@
       }
     }
     
-    function updateClusterSelects() {
-      const clustersCadastrados = JSON.parse(localStorage.getItem('clustersCadastrados') || '[]');
+    async function updateClusterSelects() {
+      const clustersCadastrados = await loadClustersFromFirebase();
       const clusterSelect = document.getElementById('cluster');
       const editClusterSelect = document.getElementById('edit-cluster');
       
