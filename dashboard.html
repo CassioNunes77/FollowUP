@@ -2617,7 +2617,7 @@
       };
     });
 
-    function switchScreen(screen) {
+    async function switchScreen(screen) {
       console.log('Mudando para tela:', screen);
       if (screen === 'list') {
         listSection.style.display = 'block';
@@ -2895,11 +2895,18 @@
           try {
             console.log('🔄 Renderizando clusters...');
             
+            // Verificar se o elemento listaClusters existe
+            if (!listaClusters) {
+              console.error('❌ Elemento listaClusters não encontrado');
+              return;
+            }
+            
             // Carregar clusters do Firebase
             const clustersCadastrados = await loadClustersFromFirebase();
             console.log('📊 Clusters carregados:', clustersCadastrados);
             
             if (clustersCadastrados.length === 0) {
+              console.log('ℹ️ Nenhum cluster encontrado, exibindo mensagem');
               listaClusters.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 2rem;">Nenhum cluster cadastrado</p>';
               return;
             }
@@ -3033,7 +3040,9 @@
           };
         }
         
+        console.log('🔄 Chamando renderClusters...');
         await renderClusters();
+        console.log('✅ renderClusters concluído');
       } else if (screen === 'configuracoes') {
         listSection.style.display = 'none';
         createSection.style.display = 'none';
