@@ -1649,6 +1649,10 @@
                 <span class="material-icons" style="font-size: 1rem;">clear</span>
                 Limpar
               </button>
+              <button onclick="showDashboardReport()" style="background: var(--success); color: white; border: none; padding: 0.75rem 1.25rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow); display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                <span class="material-icons" style="font-size: 1rem;">assessment</span>
+                Relatório
+              </button>
             </div>
           </div>
         </div>
@@ -2011,6 +2015,21 @@
       </div>
       <div class="modal-body">
         <div id="ficha-details-content">
+          <!-- Conteúdo será preenchido dinamicamente -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Relatório do Dashboard -->
+  <div class="modal-overlay" id="report-modal" style="display: none;">
+    <div class="modal" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3>Relatório Detalhado - Dashboard de Produção</h3>
+        <button class="modal-close" onclick="closeReportModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="report-content">
           <!-- Conteúdo será preenchido dinamicamente -->
         </div>
       </div>
@@ -3392,6 +3411,217 @@
       detailsModal.style.display = 'none';
     }
 
+    // Função para mostrar relatório do dashboard
+    function showDashboardReport() {
+      const reportModal = document.getElementById('report-modal');
+      const reportContent = document.getElementById('report-content');
+      
+      // Obter dados filtrados atuais
+      const dataToUse = dashboardFilteredFichas.length > 0 && (currentClusterFilter || currentPeriodFilter) ? dashboardFilteredFichas : fichas;
+      
+      // Obter filtros ativos
+      const clusterFilter = document.getElementById('dashboard-cluster-filter').value;
+      const periodFilter = document.getElementById('dashboard-period-filter').value;
+      
+      // Formatar datas
+      const formatarData = (dataString) => {
+        if (!dataString) return '-';
+        const data = new Date(dataString);
+        return data.toLocaleDateString('pt-BR');
+      };
+      
+      // Formatar valor monetário
+      const formatarValor = (valor) => {
+        return `R$ ${Number(valor).toFixed(2)}`;
+      };
+      
+      // Calcular estatísticas
+      const totalPecas = dataToUse.reduce((sum, f) => sum + f.quantidade, 0);
+      const totalValor = dataToUse.reduce((sum, f) => sum + f.valorTotal, 0);
+      const mediaValor = dataToUse.length > 0 ? totalValor / dataToUse.length : 0;
+      const mediaPecas = dataToUse.length > 0 ? totalPecas / dataToUse.length : 0;
+      const clustersUnicos = [...new Set(dataToUse.map(f => f.cluster))];
+      const categoriasUnicas = [...new Set(dataToUse.map(f => f.categoria))];
+      
+      // Calcular estatísticas por cluster
+      const statsPorCluster = {};
+      dataToUse.forEach(f => {
+        if (!statsPorCluster[f.cluster]) {
+          statsPorCluster[f.cluster] = { fichas: 0, pecas: 0, valor: 0 };
+        }
+        statsPorCluster[f.cluster].fichas++;
+        statsPorCluster[f.cluster].pecas += f.quantidade;
+        statsPorCluster[f.cluster].valor += f.valorTotal;
+      });
+      
+      // Calcular estatísticas por categoria
+      const statsPorCategoria = {};
+      dataToUse.forEach(f => {
+        if (!statsPorCategoria[f.categoria]) {
+          statsPorCategoria[f.categoria] = { fichas: 0, pecas: 0, valor: 0 };
+        }
+        statsPorCategoria[f.categoria].fichas++;
+        statsPorCategoria[f.categoria].pecas += f.quantidade;
+        statsPorCategoria[f.categoria].valor += f.valorTotal;
+      });
+      
+      // Gerar HTML do relatório
+      const reportHTML = `
+        <div style="display: grid; gap: 2rem;">
+          <!-- Cabeçalho do Relatório -->
+          <div style="background: var(--primary-50); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--primary-200);">
+            <h4 style="margin: 0 0 1rem 0; color: var(--primary-dark); font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+              <span class="material-icons" style="color: var(--primary); font-size: 1.3rem;">assessment</span>
+              Filtros Aplicados
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+              <div>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Cluster:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${clusterFilter || 'Todos'}</p>
+              </div>
+              <div>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Período:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${periodFilter ? `${periodFilter} dias` : 'Todos'}</p>
+              </div>
+              <div>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Fichas Analisadas:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${dataToUse.length}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumo Executivo -->
+          <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
+            <h4 style="margin: 0 0 1rem 0; color: var(--text); font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+              <span class="material-icons" style="color: var(--success); font-size: 1.3rem;">trending_up</span>
+              Resumo Executivo
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+              <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border);">
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Total de Peças:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 600; font-size: 1.1rem;">${totalPecas.toLocaleString('pt-BR')}</p>
+              </div>
+              <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border);">
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Valor Total:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 600; font-size: 1.1rem;">${formatarValor(totalValor)}</p>
+              </div>
+              <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border);">
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Valor Médio por Ficha:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 600; font-size: 1.1rem;">${formatarValor(mediaValor)}</p>
+              </div>
+              <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border);">
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Média de Peças por Ficha:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 600; font-size: 1.1rem;">${Math.round(mediaPecas)}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Análise por Cluster -->
+          <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
+            <h4 style="margin: 0 0 1rem 0; color: var(--text); font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+              <span class="material-icons" style="color: var(--primary); font-size: 1.3rem;">groups</span>
+              Análise por Cluster
+            </h4>
+            <div style="display: grid; gap: 1rem;">
+              ${Object.entries(statsPorCluster).map(([cluster, stats]) => `
+                <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border);">
+                  <h5 style="margin: 0 0 0.5rem 0; color: var(--text); font-size: 1rem; font-weight: 600;">${cluster}</h5>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                    <div>
+                      <strong style="color: var(--text-secondary); font-size: 0.8rem;">Fichas:</strong>
+                      <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${stats.fichas}</p>
+                    </div>
+                    <div>
+                      <strong style="color: var(--text-secondary); font-size: 0.8rem;">Peças:</strong>
+                      <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${stats.pecas.toLocaleString('pt-BR')}</p>
+                    </div>
+                    <div>
+                      <strong style="color: var(--text-secondary); font-size: 0.8rem;">Valor Total:</strong>
+                      <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${formatarValor(stats.valor)}</p>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Análise por Categoria -->
+          <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
+            <h4 style="margin: 0 0 1rem 0; color: var(--text); font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+              <span class="material-icons" style="color: var(--warning); font-size: 1.3rem;">category</span>
+              Análise por Categoria
+            </h4>
+            <div style="display: grid; gap: 1rem;">
+              ${Object.entries(statsPorCategoria).map(([categoria, stats]) => `
+                <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border);">
+                  <h5 style="margin: 0 0 0.5rem 0; color: var(--text); font-size: 1rem; font-weight: 600;">${categoria}</h5>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                    <div>
+                      <strong style="color: var(--text-secondary); font-size: 0.8rem;">Fichas:</strong>
+                      <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${stats.fichas}</p>
+                    </div>
+                    <div>
+                      <strong style="color: var(--text-secondary); font-size: 0.8rem;">Peças:</strong>
+                      <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${stats.pecas.toLocaleString('pt-BR')}</p>
+                    </div>
+                    <div>
+                      <strong style="color: var(--text-secondary); font-size: 0.8rem;">Valor Total:</strong>
+                      <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${formatarValor(stats.valor)}</p>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Lista Detalhada de Fichas -->
+          <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
+            <h4 style="margin: 0 0 1rem 0; color: var(--text); font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+              <span class="material-icons" style="color: var(--text-secondary); font-size: 1.3rem;">list</span>
+              Lista Detalhada de Fichas
+            </h4>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                <thead>
+                  <tr style="background: var(--surface); border-bottom: 2px solid var(--border);">
+                    <th style="padding: 0.75rem; text-align: left; font-weight: 600; color: var(--text);">Cluster</th>
+                    <th style="padding: 0.75rem; text-align: left; font-weight: 600; color: var(--text);">Categoria</th>
+                    <th style="padding: 0.75rem; text-align: left; font-weight: 600; color: var(--text);">Referência</th>
+                    <th style="padding: 0.75rem; text-align: right; font-weight: 600; color: var(--text);">Quantidade</th>
+                    <th style="padding: 0.75rem; text-align: right; font-weight: 600; color: var(--text);">Valor Unit.</th>
+                    <th style="padding: 0.75rem; text-align: right; font-weight: 600; color: var(--text);">Valor Total</th>
+                    <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: var(--text);">Saída</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${dataToUse.map(ficha => `
+                    <tr style="border-bottom: 1px solid var(--border);">
+                      <td style="padding: 0.75rem; color: var(--text);">${ficha.cluster}</td>
+                      <td style="padding: 0.75rem; color: var(--text);">${ficha.categoria}</td>
+                      <td style="padding: 0.75rem; color: var(--text);">${ficha.referencia}</td>
+                      <td style="padding: 0.75rem; text-align: right; color: var(--text);">${ficha.quantidade.toLocaleString('pt-BR')}</td>
+                      <td style="padding: 0.75rem; text-align: right; color: var(--text);">${formatarValor(ficha.valorUnitario)}</td>
+                      <td style="padding: 0.75rem; text-align: right; color: var(--text); font-weight: 600;">${formatarValor(ficha.valorTotal)}</td>
+                      <td style="padding: 0.75rem; text-align: center; color: var(--text);">${formatarData(ficha.saida)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      reportContent.innerHTML = reportHTML;
+      reportModal.style.display = 'flex';
+    }
+
+    // Função para fechar modal de relatório
+    function closeReportModal() {
+      const reportModal = document.getElementById('report-modal');
+      reportModal.style.display = 'none';
+    }
+
     function calcularValorTotalEdit() {
       const quantidade = Number(document.getElementById('edit-quantidade').value) || 0;
       const valorUnitario = Number(document.getElementById('edit-valorUnitario').value) || 0;
@@ -3584,6 +3814,16 @@
       detailsModal.onclick = function(e) {
         if (e.target === detailsModal) {
           closeDetailsModal();
+        }
+      };
+    }
+
+    // Fechar modal de relatório ao clicar fora
+    const reportModal = document.getElementById('report-modal');
+    if (reportModal) {
+      reportModal.onclick = function(e) {
+        if (e.target === reportModal) {
+          closeReportModal();
         }
       };
     }
