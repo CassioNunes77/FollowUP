@@ -4336,17 +4336,31 @@
       
       document.getElementById('tempoProducaoChart').style.display = 'block';
 
-      // Calcular tempo de produção para cada ficha
-      const tempos = dataToUse.map(f => {
+      // Calcular tempo médio de produção por categoria
+      const categoriaTempos = {};
+      const categoriaCounts = {};
+      
+      dataToUse.forEach(f => {
         const entrada = new Date(f.entrada);
         const saida = new Date(f.saida);
         const diff = (saida - entrada) / (1000 * 60 * 60 * 24);
-        return isNaN(diff) ? 0 : Math.max(0, Math.round(diff));
+        const tempo = isNaN(diff) ? 0 : Math.max(0, Math.round(diff));
+        
+        if (!categoriaTempos[f.categoria]) {
+          categoriaTempos[f.categoria] = 0;
+          categoriaCounts[f.categoria] = 0;
+        }
+        categoriaTempos[f.categoria] += tempo;
+        categoriaCounts[f.categoria]++;
       });
 
-      // Labels: categoria + referência (limitado a 10 itens para melhor visualização)
-      const labels = dataToUse.slice(0, 10).map(f => `${f.categoria} - ${f.referencia}`);
-      const data = tempos.slice(0, 10);
+      // Calcular tempo médio por categoria
+      const labels = Object.keys(categoriaTempos);
+      const data = labels.map(categoria => {
+        const totalTempo = categoriaTempos[categoria];
+        const count = categoriaCounts[categoria];
+        return Math.round(totalTempo / count);
+      });
 
       tempoProducaoChart = new Chart(ctx, {
         type: 'bar',
@@ -4387,7 +4401,9 @@
                 },
                 label: function(context) {
                   const dias = context.parsed.x;
-                  return `${dias} dia${dias === 1 ? '' : 's'}`;
+                  const categoria = context[0].label;
+                  const count = categoriaCounts[categoria];
+                  return `${dias} dia${dias === 1 ? '' : 's'} (média de ${count} ficha${count === 1 ? '' : 's'})`;
                 }
               }
             }
