@@ -1436,7 +1436,7 @@
 </head>
 <body>
   <!-- Sidebar moderna -->
-  <div id="sidebar" class="fixed z-40 left-0 top-0 h-full w-64 bg-white/70 dark:bg-slate-900/80 backdrop-blur-md border-r border-white/20 dark:border-slate-700/40 shadow-2xl transition-transform duration-300 -translate-x-full md:translate-x-0 flex flex-col">
+  <div id="sidebar" class="fixed z-40 left-0 top-0 h-full w-64 bg-white/70 dark:bg-slate-900/80 backdrop-blur-md border-r border-white/20 dark:border-slate-700/40 shadow-2xl transition-transform duration-300 transform -translate-x-full md:translate-x-0 flex flex-col">
     <div class="sidebar-header flex items-center gap-2 px-6 py-6 border-b border-white/20 dark:border-slate-700/40">
       <span class="material-icons text-blue-600 text-3xl">dashboard</span>
       <h1 class="font-poppins text-xl font-bold text-slate-800 dark:text-white tracking-wide">Follow Up</h1>
@@ -5241,10 +5241,30 @@
     // Sidebar retrátil responsiva (usar variáveis já declaradas no início do script)
     function closeSidebar() {
       sidebar.classList.add('-translate-x-full');
+      sidebar.classList.remove('translate-x-0');
     }
     function openSidebar() {
       sidebar.classList.remove('-translate-x-full');
+      sidebar.classList.add('translate-x-0');
     }
+    
+    // Verificar se estamos em mobile
+    function isMobile() {
+      return window.innerWidth < 768;
+    }
+    
+    // Inicializar estado da sidebar baseado no tamanho da tela
+    function initializeSidebar() {
+      if (isMobile()) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    }
+    
+    // Inicializar sidebar
+    initializeSidebar();
+    
     mobileMenuToggle.addEventListener('click', function() {
       console.log('🔄 Botão de menu mobile clicado');
       console.log('📱 Estado atual da sidebar:', sidebar.classList.contains('-translate-x-full') ? 'fechada' : 'aberta');
@@ -5254,6 +5274,15 @@
         openSidebar();
       } else {
         console.log('📱 Fechando sidebar...');
+        closeSidebar();
+      }
+    });
+    
+    // Atualizar sidebar quando a tela é redimensionada
+    window.addEventListener('resize', function() {
+      if (!isMobile()) {
+        openSidebar();
+      } else {
         closeSidebar();
       }
     });
