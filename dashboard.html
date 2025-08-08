@@ -1506,7 +1506,7 @@
           </div>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <table class="min-w-[900px] w-full text-sm">
+          <table class="min-w-[800px] w-full text-sm">
           <thead>
               <tr class="bg-gray-50 border-b border-gray-200">
                 <th class="px-4 py-3 font-semibold text-gray-700 text-left">Cluster</th>
@@ -1518,12 +1518,6 @@
                 <th class="px-4 py-3 font-semibold text-gray-700 text-center">Pilotagem</th>
                 <th class="px-4 py-3 font-semibold text-gray-700 text-center">Saída</th>
                 <th class="px-4 py-3 font-semibold text-gray-700 text-center">Pagamento</th>
-                <th class="px-4 py-3 font-semibold text-gray-700 text-center">PP/36</th>
-                <th class="px-4 py-3 font-semibold text-gray-700 text-center">P/38</th>
-                <th class="px-4 py-3 font-semibold text-gray-700 text-center">M/40</th>
-                <th class="px-4 py-3 font-semibold text-gray-700 text-center">G/42</th>
-                <th class="px-4 py-3 font-semibold text-gray-700 text-center">GG/44</th>
-                <th class="px-4 py-3 font-semibold text-gray-700 text-left">Observações</th>
                 <th class="px-4 py-3 font-semibold text-gray-700 text-center">Ações</th>
             </tr>
           </thead>
@@ -2729,30 +2723,43 @@
         const categoriaForm = document.getElementById('categoria-form');
         const novaCategoriaInput = document.getElementById('nova-categoria');
         const listaCategorias = document.getElementById('lista-categorias');
-        let categoriasCadastradas = JSON.parse(localStorage.getItem('categoriasCadastradas') || '[]');
         
-        function renderCategorias() {
-          if (categoriasCadastradas.length === 0) {
-            listaCategorias.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 2rem;">Nenhuma categoria cadastrada</p>';
-            return;
+        async function renderCategorias() {
+          try {
+            console.log('🔄 Renderizando categorias...');
+            
+            // Carregar categorias do Firebase
+            const categoriasCadastradas = await loadCategoriasFromFirebase();
+            console.log('📊 Categorias carregadas:', categoriasCadastradas);
+            
+            if (categoriasCadastradas.length === 0) {
+              listaCategorias.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 2rem;">Nenhuma categoria cadastrada</p>';
+              return;
+            }
+            
+            listaCategorias.innerHTML = '';
+            categoriasCadastradas.forEach((cat, idx) => {
+              const div = document.createElement('div');
+              div.style.display = 'flex';
+              div.style.justifyContent = 'space-between';
+              div.style.alignItems = 'center';
+              div.style.padding = '0.8rem';
+              div.style.marginBottom = '0.5rem';
+              div.style.backgroundColor = 'var(--bg)';
+              div.style.borderRadius = '8px';
+              div.style.border = '1px solid var(--border)';
+              div.innerHTML = `
+                <span style="font-weight: 500; color: var(--text);">${cat}</span>
+                <button onclick="removerCategoria('${cat}')" style="background: #e53935; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Remover</button>
+              `;
+              listaCategorias.appendChild(div);
+            });
+            
+            console.log('✅ Categorias renderizadas com sucesso');
+          } catch (error) {
+            console.error('❌ Erro ao renderizar categorias:', error);
+            listaCategorias.innerHTML = '<p style="color: var(--error); text-align: center; padding: 2rem;">Erro ao carregar categorias</p>';
           }
-          listaCategorias.innerHTML = '';
-          categoriasCadastradas.forEach((cat, idx) => {
-            const div = document.createElement('div');
-            div.style.display = 'flex';
-            div.style.justifyContent = 'space-between';
-            div.style.alignItems = 'center';
-            div.style.padding = '0.8rem';
-            div.style.marginBottom = '0.5rem';
-            div.style.backgroundColor = 'var(--bg)';
-            div.style.borderRadius = '8px';
-            div.style.border = '1px solid var(--border)';
-            div.innerHTML = `
-              <span style="font-weight: 500; color: var(--text);">${cat}</span>
-              <button onclick="removerCategoria(${idx})" style="background: #e53935; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Remover</button>
-            `;
-            listaCategorias.appendChild(div);
-          });
         }
         
         window.removerCategoria = function(idx) {
@@ -3530,7 +3537,7 @@
       
       fichasList.innerHTML = '';
       if (filteredFichas.length === 0) {
-        fichasList.innerHTML = `<tr><td colspan="16" style="color:var(--muted);padding:2rem;">Nenhuma ficha encontrada.</td></tr>`;
+        fichasList.innerHTML = `<tr><td colspan="10" style="color:var(--muted);padding:2rem;">Nenhuma ficha encontrada.</td></tr>`;
         return;
       }
       filteredFichas.forEach((ficha, idx) => {
@@ -3546,34 +3553,19 @@
           <td>${ficha.saida || '-'}</td>
           <td>${ficha.pagamento || '-'}</td>
           <td>
-            <div><strong>${ficha.pp}</strong></div>
-            <div style="font-size:0.85em;color:var(--muted);">${ficha.cor_pp || ''}</div>
-          </td>
-          <td>
-            <div><strong>${ficha.p}</strong></div>
-            <div style="font-size:0.85em;color:var(--muted);">${ficha.cor_p || ''}</div>
-          </td>
-          <td>
-            <div><strong>${ficha.m}</strong></div>
-            <div style="font-size:0.85em;color:var(--muted);">${ficha.cor_m || ''}</div>
-          </td>
-          <td>
-            <div><strong>${ficha.g}</strong></div>
-            <div style="font-size:0.85em;color:var(--muted);">${ficha.cor_g || ''}</div>
-          </td>
-          <td>
-            <div><strong>${ficha.gg}</strong></div>
-            <div style="font-size:0.85em;color:var(--muted);">${ficha.cor_gg || ''}</div>
-          </td>
-          <td style="max-width: 200px; word-wrap: break-word;">
-            <div style="font-size: 0.9em; color: var(--text); line-height: 1.4;">
-              ${ficha.observacoes || '-'}
-            </div>
-          </td>
-          <td>
-            <div class="action-buttons">
-              <button class="edit-btn" title="Editar" onclick="editFicha(${idx})">edit</button>
-              <button class="delete-btn" title="Excluir" onclick="deleteFicha(${idx})">delete</button>
+            <div class="action-buttons" style="display: flex; gap: 0.5rem; justify-content: center;">
+              <button class="details-btn" title="Ver Detalhes" onclick="showFichaDetails(${idx})" style="background: var(--primary); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                <span class="material-icons" style="font-size: 0.875rem;">visibility</span>
+                Detalhes
+              </button>
+              <button class="edit-btn" title="Editar" onclick="editFicha(${idx})" style="background: var(--warning); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                <span class="material-icons" style="font-size: 0.875rem;">edit</span>
+                Editar
+              </button>
+              <button class="delete-btn" title="Excluir" onclick="deleteFicha(${idx})" style="background: var(--error); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                <span class="material-icons" style="font-size: 0.875rem;">delete</span>
+                Excluir
+              </button>
             </div>
           </td>
         `;
