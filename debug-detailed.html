@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Detalhado Firebase - FollowUP</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f8fafc;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .status {
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+    .success { background: #d1fae5; color: #065f46; }
+    .error { background: #fee2e2; color: #991b1b; }
+    .info { background: #dbeafe; color: #1e40af; }
+    .warning { background: #fef3c7; color: #92400e; }
+    .log {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 8px;
+      font-family: monospace;
+      max-height: 400px;
+      overflow-y: auto;
+      margin: 1rem 0;
+      white-space: pre-wrap;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    button:hover { background: #1d4ed8; }
+    .error-details {
+      background: #fee2e2;
+      border: 1px solid #f87171;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Debug Detalhado Firebase</h1>
+    <p>Esta página identifica problemas específicos de carregamento do Firebase.</p>
+    
+    <div id="status" class="status info">
+      Iniciando debug detalhado...
+    </div>
+    
+    <div>
+      <button onclick="checkScripts()">📜 Verificar Scripts</button>
+      <button onclick="checkImports()">📦 Verificar Imports</button>
+      <button onclick="checkConsole()">🐛 Verificar Console</button>
+      <button onclick="clearLog()">🗑️ Limpar Log</button>
+    </div>
+    
+    <div id="error-details" class="error-details" style="display: none;">
+      <h3>❌ Erros Detectados:</h3>
+      <div id="error-content"></div>
+    </div>
+    
+    <div class="log" id="log"></div>
+  </div>
+
+  <script type="module" src="firebase-auth.js"></script>
+  <script>
+    let errors = [];
+    
+    // Aguardar página carregar
+    window.addEventListener('load', () => {
+      log('🚀 Página carregada');
+      updateStatus('🔍 Iniciando debug detalhado...', 'info');
+      
+      // Verificar scripts carregados
+      setTimeout(() => {
+        checkScripts();
+      }, 1000);
+    });
+    
+    function checkScripts() {
+      log('📜 Verificando scripts carregados...');
+      
+      // Verificar se firebase-auth.js foi carregado
+      const scripts = document.querySelectorAll('script');
+      let firebaseScriptFound = false;
+      
+      scripts.forEach(script => {
+        if (script.src && script.src.includes('firebase-auth.js')) {
+          log('✅ Script firebase-auth.js encontrado');
+          firebaseScriptFound = true;
+        }
+      });
+      
+      if (!firebaseScriptFound) {
+        log('❌ Script firebase-auth.js não encontrado');
+        addError('Script firebase-auth.js não foi carregado');
+      }
+      
+      // Verificar se window.FirebaseAuth existe
+      if (window.FirebaseAuth) {
+        log('✅ window.FirebaseAuth encontrado');
+      } else {
+        log('❌ window.FirebaseAuth não encontrado');
+        addError('window.FirebaseAuth não foi definido');
+      }
+      
+      updateStatus('📜 Verificação de scripts concluída', 'info');
+    }
+    
+    function checkImports() {
+      log('📦 Verificando imports...');
+      
+      // Tentar acessar Firebase diretamente
+      try {
+        if (typeof firebase !== 'undefined') {
+          log('✅ Firebase global detectado');
+        } else {
+          log('⚠️ Firebase global não detectado (normal para ES6 modules)');
+        }
+      } catch (error) {
+        log('❌ Erro ao verificar Firebase global: ' + error.message);
+        addError('Erro ao verificar Firebase global: ' + error.message);
+      }
+      
+      // Verificar se módulos estão disponíveis
+      setTimeout(() => {
+        if (window.FirebaseAuth) {
+          log('✅ Firebase Auth disponível');
+          const functions = Object.keys(window.FirebaseAuth);
+          log('📋 Funções disponíveis: ' + functions.join(', '));
+        } else {
+          log('❌ Firebase Auth não disponível após timeout');
+          addError('Firebase Auth não carregou após timeout');
+        }
+      }, 2000);
+      
+      updateStatus('📦 Verificação de imports concluída', 'info');
+    }
+    
+    function checkConsole() {
+      log('🐛 Verificando console por erros...');
+      
+      // Capturar erros do console
+      const originalError = console.error;
+      const originalWarn = console.warn;
+      
+      console.error = function(...args) {
+        log('❌ Console Error: ' + args.join(' '));
+        addError('Console Error: ' + args.join(' '));
+        originalError.apply(console, args);
+      };
+      
+      console.warn = function(...args) {
+        log('⚠️ Console Warning: ' + args.join(' '));
+        originalWarn.apply(console, args);
+      };
+      
+      // Tentar recarregar Firebase
+      setTimeout(() => {
+        log('🔄 Tentando recarregar Firebase...');
+        
+        // Verificar se há erros de rede
+        const script = document.querySelector('script[src="firebase-auth.js"]');
+        if (script) {
+          log('✅ Script tag encontrada');
+          
+          // Verificar se script carregou
+          script.addEventListener('load', () => {
+            log('✅ Script carregado com sucesso');
+          });
+          
+          script.addEventListener('error', (error) => {
+            log('❌ Erro ao carregar script: ' + error.message);
+            addError('Erro ao carregar script: ' + error.message);
+          });
+        }
+      }, 1000);
+      
+      updateStatus('🐛 Verificação de console concluída', 'info');
+    }
+    
+    function addError(message) {
+      errors.push(message);
+      const errorDiv = document.getElementById('error-details');
+      const errorContent = document.getElementById('error-content');
+      
+      errorContent.innerHTML = errors.map(error => `<p>• ${error}</p>`).join('');
+      errorDiv.style.display = 'block';
+    }
+    
+    function updateStatus(message, type) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `status ${type}`;
+    }
+    
+    function log(message) {
+      const logDiv = document.getElementById('log');
+      const timestamp = new Date().toLocaleTimeString();
+      logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    
+    function clearLog() {
+      document.getElementById('log').innerHTML = '';
+      errors = [];
+      document.getElementById('error-details').style.display = 'none';
+      log('🗑️ Log limpo');
+    }
+  </script>
+</body>
+</html>
