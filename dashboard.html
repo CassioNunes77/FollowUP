@@ -2891,6 +2891,12 @@
         const novoClusterInput = document.getElementById('novo-cluster');
         const listaClusters = document.getElementById('lista-clusters');
         
+        console.log('🔍 Elementos de clusters encontrados:', {
+          clusterForm: !!clusterForm,
+          novoClusterInput: !!novoClusterInput,
+          listaClusters: !!listaClusters
+        });
+        
         async function renderClusters() {
           try {
             console.log('🔄 Renderizando clusters...');
