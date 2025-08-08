@@ -549,12 +549,47 @@
 
 
     
+    // Check if user is already logged in
+    async function checkExistingLogin() {
+      try {
+        console.log('🔍 Verificando login existente...');
+        
+        const FirebaseAuth = await waitForFirebaseAuth();
+        const currentUser = await FirebaseAuth.getCurrentUser();
+        
+        if (currentUser) {
+          console.log('✅ Usuário já logado:', currentUser.email);
+          
+          // Salvar dados do usuário no localStorage para compatibilidade
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('currentUser', currentUser.email);
+          localStorage.setItem('loginTimestamp', Date.now().toString());
+          localStorage.setItem('userDisplayName', currentUser.displayName || currentUser.email);
+          localStorage.setItem('userPhotoURL', currentUser.photoURL || '');
+          
+          // Redirecionar para dashboard
+          const timestamp = Date.now();
+          const redirectUrl = `dashboard.html?t=${timestamp}&user=${encodeURIComponent(currentUser.email)}&google=true`;
+          window.location.href = redirectUrl;
+          return;
+        }
+        
+        console.log('ℹ️ Nenhum usuário logado encontrado');
+      } catch (error) {
+        console.error('❌ Erro ao verificar login existente:', error);
+        // Em caso de erro, continuar normalmente na tela de login
+      }
+    }
+
     // Handle Google Login Button
     googleLoginButton.addEventListener('click', handleGoogleLogin);
 
-    // Auto-focus no botão Google
-    document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus no botão Google e verificar login existente
+    document.addEventListener('DOMContentLoaded', async function() {
       googleLoginButton.focus();
+      
+      // Verificar se usuário já está logado
+      await checkExistingLogin();
     });
   </script>
 </body>
