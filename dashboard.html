@@ -904,6 +904,28 @@
       max-width: 200px;
     }
     
+    /* Estilo para campos desabilitados */
+    #create-section #quantidade,
+    #create-section #valorTotal {
+      background-color: var(--bg-secondary) !important;
+      color: var(--text-muted) !important;
+      cursor: not-allowed !important;
+      border-color: var(--border-light) !important;
+    }
+    
+    #create-section #quantidade:focus,
+    #create-section #valorTotal:focus {
+      border-color: var(--border-light) !important;
+      box-shadow: none !important;
+      background-color: var(--bg-secondary) !important;
+    }
+    
+    #create-section #quantidade:hover,
+    #create-section #valorTotal:hover {
+      border-color: var(--border-light) !important;
+      background-color: var(--bg-secondary) !important;
+    }
+    
     #create-section textarea {
       font-family: 'Inter', sans-serif;
       line-height: 1.5;
