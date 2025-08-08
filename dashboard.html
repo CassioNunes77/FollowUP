@@ -2259,16 +2259,77 @@
     const categoriaFilter = document.getElementById('categoria-filter');
     const configForm = document.getElementById('config-form');
 
-    let fichas = JSON.parse(localStorage.getItem('fichas') || '[]');
-    let filteredFichas = [...fichas];
+    let fichas = [];
+    let filteredFichas = [];
     let editingIndex = -1;
     
     // Variáveis para gerenciar cores no modal de edição
     let editCoresArray = [];
     let editCorCounter = 0;
     
-    console.log('Fichas carregadas:', fichas.length);
-    console.log('Fichas filtradas:', filteredFichas.length);
+    // Função para carregar fichas do Firebase
+    async function loadFichasFromFirebase() {
+      try {
+        console.log('🔄 Carregando fichas do Firebase...');
+        
+        if (window.FirebaseAuth) {
+          const firebaseFichas = await window.FirebaseAuth.getFichas();
+          fichas = firebaseFichas || [];
+          filteredFichas = [...fichas];
+          
+          console.log('✅ Fichas carregadas do Firebase:', fichas.length);
+          console.log('✅ Fichas filtradas:', filteredFichas.length);
+          
+          // Atualizar dashboard se estiver na tela de dashboard
+          if (document.getElementById('dashboard-section').style.display === 'block') {
+            renderDashboard();
+          }
+          
+          // Atualizar lista se estiver na tela de lista
+          if (document.getElementById('list-section').style.display === 'block') {
+            renderFichas();
+          }
+          
+          // Atualizar filtros
+          updateClusterFilter();
+          updateCategoriaFilter();
+          updatePagamentoFilter();
+          updateClusterSelects();
+          updateCategoriaSelects();
+        } else {
+          console.error('❌ FirebaseAuth não está disponível');
+          // Fallback para localStorage
+          fichas = JSON.parse(localStorage.getItem('fichas') || '[]');
+          filteredFichas = [...fichas];
+        }
+      } catch (error) {
+        console.error('❌ Erro ao carregar fichas do Firebase:', error);
+        // Fallback para localStorage
+        fichas = JSON.parse(localStorage.getItem('fichas') || '[]');
+        filteredFichas = [...fichas];
+      }
+    }
+    
+    // Função para aguardar Firebase Auth carregar
+    async function waitForFirebaseAuth() {
+      let attempts = 0;
+      const maxAttempts = 50; // 5 segundos
+      
+      while (!window.FirebaseAuth && attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+      
+      if (window.FirebaseAuth) {
+        console.log('✅ FirebaseAuth carregado');
+        await loadFichasFromFirebase();
+      } else {
+        console.error('❌ FirebaseAuth não carregou após 5 segundos');
+        // Fallback para localStorage
+        fichas = JSON.parse(localStorage.getItem('fichas') || '[]');
+        filteredFichas = [...fichas];
+      }
+    }
 
     // Menu mobile
     mobileMenuToggle.onclick = function() {
@@ -3552,7 +3613,7 @@
       }
     }
 
-    fichaForm.onsubmit = function(e) {
+    fichaForm.onsubmit = async function(e) {
       e.preventDefault();
       
       // Validação dos campos obrigatórios
@@ -3643,15 +3704,33 @@
         gg: coresData.reduce((sum, cor) => sum + cor.gg, 0)
       };
       
-      // Adicionar ficha ao array
-      fichas.push(ficha);
-      localStorage.setItem('fichas', JSON.stringify(fichas));
-      filteredFichas = [...fichas];
-      
-      // Debug: verificar se a ficha foi adicionada
-      console.log('Ficha adicionada:', ficha);
-      console.log('Total de fichas:', fichas.length);
-      console.log('Fichas no localStorage:', JSON.parse(localStorage.getItem('fichas') || '[]').length);
+      // Adicionar ficha ao Firebase
+      try {
+        console.log('🔄 Salvando ficha no Firebase...');
+        
+        if (window.FirebaseAuth) {
+          const fichaId = await window.FirebaseAuth.addFicha(ficha);
+          console.log('✅ Ficha salva no Firebase com ID:', fichaId);
+          
+          // Recarregar fichas do Firebase
+          await loadFichasFromFirebase();
+        } else {
+          console.error('❌ FirebaseAuth não está disponível, salvando no localStorage');
+          // Fallback para localStorage
+          fichas.push(ficha);
+          localStorage.setItem('fichas', JSON.stringify(fichas));
+          filteredFichas = [...fichas];
+        }
+        
+        console.log('Ficha adicionada:', ficha);
+        console.log('Total de fichas:', fichas.length);
+      } catch (error) {
+        console.error('❌ Erro ao salvar ficha no Firebase:', error);
+        // Fallback para localStorage
+        fichas.push(ficha);
+        localStorage.setItem('fichas', JSON.stringify(fichas));
+        filteredFichas = [...fichas];
+      }
       
       // Limpar formulário
       fichaForm.reset();
