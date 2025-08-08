@@ -10,6 +10,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- jsPDF CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
   <!-- Firebase Configuration -->
   <script type="module" src="firebase-auth.js"></script>
   <style>
@@ -2019,7 +2022,13 @@
     <div class="modal" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
       <div class="modal-header">
         <h3>Detalhes da Ficha</h3>
-        <button class="modal-close" onclick="closeDetailsModal()">&times;</button>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button onclick="exportFichaToPDF()" style="background: var(--success); color: white; border: none; padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+            <span class="material-icons" style="font-size: 1rem;">download</span>
+            Exportar PDF
+          </button>
+          <button class="modal-close" onclick="closeDetailsModal()">&times;</button>
+        </div>
       </div>
       <div class="modal-body">
         <div id="ficha-details-content">
@@ -2034,7 +2043,13 @@
     <div class="modal" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
       <div class="modal-header">
         <h3>Relatório Detalhado - Dashboard de Produção</h3>
-        <button class="modal-close" onclick="closeReportModal()">&times;</button>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button onclick="exportReportToPDF()" style="background: var(--success); color: white; border: none; padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+            <span class="material-icons" style="font-size: 1rem;">download</span>
+            Exportar PDF
+          </button>
+          <button class="modal-close" onclick="closeReportModal()">&times;</button>
+        </div>
       </div>
       <div class="modal-body">
         <div id="report-content">
@@ -3272,6 +3287,9 @@
         return;
       }
       
+      // Armazenar ficha atual para exportação
+      window.currentFichaDetails = ficha;
+      
       // Formatar datas
       const formatarData = (dataString) => {
         if (!dataString) return '-';
@@ -3628,6 +3646,192 @@
     function closeReportModal() {
       const reportModal = document.getElementById('report-modal');
       reportModal.style.display = 'none';
+    }
+
+    // Função para exportar relatório para PDF
+    function exportReportToPDF() {
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Obter dados filtrados atuais
+        const dataToUse = dashboardFilteredFichas.length > 0 && (currentClusterFilter || currentPeriodFilter) ? dashboardFilteredFichas : fichas;
+        const clusterFilter = document.getElementById('dashboard-cluster-filter').value;
+        const periodFilter = document.getElementById('dashboard-period-filter').value;
+        
+        // Calcular estatísticas
+        const totalPecas = dataToUse.reduce((sum, f) => sum + f.quantidade, 0);
+        const totalValor = dataToUse.reduce((sum, f) => sum + f.valorTotal, 0);
+        const mediaValor = dataToUse.length > 0 ? totalValor / dataToUse.length : 0;
+        const mediaPecas = dataToUse.length > 0 ? totalPecas / dataToUse.length : 0;
+        
+        // Configurar fonte
+        doc.setFont('helvetica');
+        doc.setFontSize(16);
+        
+        // Título
+        doc.text('Relatório Detalhado - Dashboard de Produção', 20, 20);
+        
+        // Informações dos filtros
+        doc.setFontSize(12);
+        doc.text(`Filtros Aplicados:`, 20, 40);
+        doc.setFontSize(10);
+        doc.text(`Cluster: ${clusterFilter || 'Todos'}`, 30, 50);
+        doc.text(`Período: ${periodFilter ? `${periodFilter} dias` : 'Todos'}`, 30, 60);
+        doc.text(`Fichas Analisadas: ${dataToUse.length}`, 30, 70);
+        
+        // Resumo executivo
+        doc.setFontSize(12);
+        doc.text('Resumo Executivo:', 20, 90);
+        doc.setFontSize(10);
+        doc.text(`Total de Peças: ${totalPecas.toLocaleString('pt-BR')}`, 30, 100);
+        doc.text(`Valor Total: R$ ${totalValor.toFixed(2)}`, 30, 110);
+        doc.text(`Valor Médio por Ficha: R$ ${mediaValor.toFixed(2)}`, 30, 120);
+        doc.text(`Média de Peças por Ficha: ${Math.round(mediaPecas)}`, 30, 130);
+        
+        // Tabela de fichas
+        doc.setFontSize(12);
+        doc.text('Lista Detalhada de Fichas:', 20, 160);
+        
+        const tableData = dataToUse.map(ficha => [
+          ficha.cluster,
+          ficha.categoria,
+          ficha.referencia,
+          ficha.quantidade.toString(),
+          `R$ ${ficha.valorUnitario.toFixed(2)}`,
+          `R$ ${ficha.valorTotal.toFixed(2)}`,
+          ficha.saida ? new Date(ficha.saida).toLocaleDateString('pt-BR') : '-'
+        ]);
+        
+        doc.autoTable({
+          startY: 170,
+          head: [['Cluster', 'Categoria', 'Referência', 'Quantidade', 'Valor Unit.', 'Valor Total', 'Saída']],
+          body: tableData,
+          theme: 'grid',
+          headStyles: { fillColor: [37, 99, 235] },
+          styles: { fontSize: 8 }
+        });
+        
+        // Gerar nome do arquivo
+        const timestamp = new Date().toISOString().slice(0, 10);
+        const fileName = `relatorio_dashboard_${timestamp}.pdf`;
+        
+        // Salvar PDF
+        doc.save(fileName);
+        
+        console.log('✅ Relatório exportado com sucesso');
+      } catch (error) {
+        console.error('❌ Erro ao exportar relatório:', error);
+        alert('Erro ao exportar relatório. Verifique o console para mais detalhes.');
+      }
+    }
+
+    // Função para exportar ficha para PDF
+    function exportFichaToPDF() {
+      try {
+        // Obter dados da ficha atual (precisamos armazenar a ficha atual)
+        const currentFicha = window.currentFichaDetails;
+        
+        if (!currentFicha) {
+          alert('Nenhuma ficha selecionada para exportar.');
+          return;
+        }
+        
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Formatar datas
+        const formatarData = (dataString) => {
+          if (!dataString) return '-';
+          const data = new Date(dataString);
+          return data.toLocaleDateString('pt-BR');
+        };
+        
+        // Formatar valor monetário
+        const formatarValor = (valor) => {
+          return `R$ ${Number(valor).toFixed(2)}`;
+        };
+        
+        // Configurar fonte
+        doc.setFont('helvetica');
+        doc.setFontSize(16);
+        
+        // Título
+        doc.text('Detalhes da Ficha', 20, 20);
+        
+        // Informações básicas
+        doc.setFontSize(12);
+        doc.text('Informações Básicas:', 20, 40);
+        doc.setFontSize(10);
+        doc.text(`Cluster: ${currentFicha.cluster}`, 30, 50);
+        doc.text(`Categoria: ${currentFicha.categoria}`, 30, 60);
+        doc.text(`Referência: ${currentFicha.referencia}`, 30, 70);
+        doc.text(`Quantidade: ${currentFicha.quantidade} peças`, 30, 80);
+        
+        // Informações financeiras
+        doc.setFontSize(12);
+        doc.text('Informações Financeiras:', 20, 100);
+        doc.setFontSize(10);
+        doc.text(`Valor Unitário: ${formatarValor(currentFicha.valorUnitario)}`, 30, 110);
+        doc.text(`Valor Total: ${formatarValor(currentFicha.valorTotal)}`, 30, 120);
+        
+        // Datas e prazos
+        doc.setFontSize(12);
+        doc.text('Datas e Prazos:', 20, 140);
+        doc.setFontSize(10);
+        doc.text(`Data de Entrada: ${formatarData(currentFicha.entrada)}`, 30, 150);
+        doc.text(`Data de Saída: ${formatarData(currentFicha.saida)}`, 30, 160);
+        doc.text(`Data de Pagamento: ${formatarData(currentFicha.pagamento)}`, 30, 170);
+        doc.text(`Pilotagem: ${formatarData(currentFicha.pilotagem)}`, 30, 180);
+        
+        // Cores e tamanhos (se houver)
+        if (currentFicha.cores && currentFicha.cores.length > 0) {
+          doc.setFontSize(12);
+          doc.text('Cores e Tamanhos:', 20, 200);
+          doc.setFontSize(10);
+          
+          let yPosition = 210;
+          currentFicha.cores.forEach((cor, index) => {
+            if (yPosition > 250) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            
+            doc.text(`${cor.nome}:`, 30, yPosition);
+            yPosition += 10;
+            doc.text(`PP/36: ${cor.pp || 0}`, 40, yPosition);
+            yPosition += 5;
+            doc.text(`P/38: ${cor.p || 0}`, 40, yPosition);
+            yPosition += 5;
+            doc.text(`M/40: ${cor.m || 0}`, 40, yPosition);
+            yPosition += 5;
+            doc.text(`G/42: ${cor.g || 0}`, 40, yPosition);
+            yPosition += 5;
+            doc.text(`GG/44: ${cor.gg || 0}`, 40, yPosition);
+            yPosition += 10;
+          });
+        }
+        
+        // Observações (se houver)
+        if (currentFicha.observacoes) {
+          doc.setFontSize(12);
+          doc.text('Observações:', 20, doc.lastAutoTable.finalY + 20);
+          doc.setFontSize(10);
+          doc.text(currentFicha.observacoes, 30, doc.lastAutoTable.finalY + 30);
+        }
+        
+        // Gerar nome do arquivo
+        const timestamp = new Date().toISOString().slice(0, 10);
+        const fileName = `ficha_${currentFicha.referencia}_${timestamp}.pdf`;
+        
+        // Salvar PDF
+        doc.save(fileName);
+        
+        console.log('✅ Ficha exportada com sucesso');
+      } catch (error) {
+        console.error('❌ Erro ao exportar ficha:', error);
+        alert('Erro ao exportar ficha. Verifique o console para mais detalhes.');
+      }
     }
 
     function calcularValorTotalEdit() {
