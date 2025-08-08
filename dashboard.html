@@ -2001,9 +2001,41 @@
     }
 
     // Verificação de login robusta para Firefox
-    function checkLogin() {
+    async function checkLogin() {
       try {
-        console.log('Iniciando verificação de login para Firefox...');
+        console.log('Iniciando verificação de login...');
+        
+        // Primeiro, tentar verificar Firebase Auth
+        if (window.FirebaseAuth) {
+          try {
+            console.log('🔄 Verificando Firebase Auth...');
+            const currentUser = await window.FirebaseAuth.getCurrentUser();
+            
+            if (currentUser) {
+              console.log('✅ Usuário autenticado no Firebase:', currentUser.email);
+              
+              // Salvar dados no localStorage para compatibilidade
+              try {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('currentUser', currentUser.email);
+                localStorage.setItem('loginTimestamp', Date.now().toString());
+                localStorage.setItem('userDisplayName', currentUser.displayName || currentUser.email);
+                localStorage.setItem('userPhotoURL', currentUser.photoURL || '');
+              } catch (localError) {
+                console.log('⚠️ Não foi possível salvar no localStorage:', localError);
+              }
+              
+              return true;
+            } else {
+              console.log('❌ Usuário não autenticado no Firebase');
+            }
+          } catch (firebaseError) {
+            console.error('❌ Erro ao verificar Firebase Auth:', firebaseError);
+          }
+        }
+        
+        // Fallback para verificação local
+        console.log('🔄 Verificando login local...');
         
         // Verificar se localStorage está disponível
         if (typeof localStorage === 'undefined') {
@@ -2152,7 +2184,7 @@
     }
 
     // Verificar login após o DOM estar carregado
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
       console.log('DOM carregado, verificando login...');
       
       // Verificar se localStorage está disponível
@@ -2224,7 +2256,8 @@
         }
       }
       
-      if (!checkLogin()) {
+      const isLoggedIn = await checkLogin();
+      if (!isLoggedIn) {
         return; // A função checkLogin já redireciona se necessário
       }
       
@@ -2238,6 +2271,14 @@
       } catch (error) {
         console.error('Erro ao exibir usuário:', error);
       }
+      
+      // Carregar dados do Firebase
+      console.log('🔄 Iniciando carregamento do Firebase...');
+      waitForFirebaseAuth().then(() => {
+        console.log('✅ Carregamento do Firebase concluído');
+      }).catch(error => {
+        console.error('❌ Erro no carregamento do Firebase:', error);
+      });
     });
 
     // Navegação entre telas
@@ -2273,29 +2314,47 @@
         console.log('🔄 Carregando fichas do Firebase...');
         
         if (window.FirebaseAuth) {
+          console.log('✅ FirebaseAuth disponível, verificando usuário...');
+          
+          // Verificar se há usuário autenticado
+          const currentUser = await window.FirebaseAuth.getCurrentUser();
+          console.log('👤 Usuário atual:', currentUser ? currentUser.email : 'Não autenticado');
+          
+          if (!currentUser) {
+            console.error('❌ Usuário não autenticado');
+            // Fallback para localStorage
+            fichas = JSON.parse(localStorage.getItem('fichas') || '[]');
+            filteredFichas = [...fichas];
+            return;
+          }
+          
           const firebaseFichas = await window.FirebaseAuth.getFichas();
           fichas = firebaseFichas || [];
           filteredFichas = [...fichas];
           
           console.log('✅ Fichas carregadas do Firebase:', fichas.length);
           console.log('✅ Fichas filtradas:', filteredFichas.length);
+          console.log('📊 Dados das fichas:', fichas);
           
           // Atualizar dashboard se estiver na tela de dashboard
           if (document.getElementById('dashboard-section').style.display === 'block') {
+            console.log('🔄 Atualizando dashboard...');
             renderDashboard();
           }
           
           // Atualizar lista se estiver na tela de lista
           if (document.getElementById('list-section').style.display === 'block') {
+            console.log('🔄 Atualizando lista de fichas...');
             renderFichas();
           }
           
           // Atualizar filtros
-          updateClusterFilter();
-          updateCategoriaFilter();
+          console.log('🔄 Atualizando filtros...');
+          await updateClusterFilter();
+          await updateCategoriaFilter();
           updatePagamentoFilter();
-          updateClusterSelects();
-          updateCategoriaSelects();
+          await updateClusterSelects();
+          await updateCategoriaSelects();
         } else {
           console.error('❌ FirebaseAuth não está disponível');
           // Fallback para localStorage
@@ -2304,6 +2363,7 @@
         }
       } catch (error) {
         console.error('❌ Erro ao carregar fichas do Firebase:', error);
+        console.error('❌ Detalhes do erro:', error.message);
         // Fallback para localStorage
         fichas = JSON.parse(localStorage.getItem('fichas') || '[]');
         filteredFichas = [...fichas];
