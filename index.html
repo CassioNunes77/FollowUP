@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" src="firebase-auth.js"></script>
   <style>
     :root {
       --primary: #2563eb;
@@ -218,6 +219,77 @@
       box-shadow: var(--shadow);
     }
     
+    /* Google Login Button */
+    .google-login-section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .google-login-button {
+      width: 100%;
+      background: white;
+      color: var(--text);
+      border: 2px solid var(--border);
+      padding: 1rem 2rem;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      font-family: 'Inter', sans-serif;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+    
+    .google-login-button:hover {
+      background: var(--accent);
+      border-color: var(--border-dark);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .google-login-button:active {
+      transform: translateY(0);
+      box-shadow: var(--shadow);
+    }
+    
+    .google-login-button:disabled {
+      background: var(--text-light);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: var(--shadow);
+    }
+    
+    .google-icon {
+      width: 18px;
+      height: 18px;
+    }
+    
+    .login-divider {
+      text-align: center;
+      margin: 1.5rem 0;
+      position: relative;
+    }
+    
+    .login-divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--border);
+    }
+    
+    .login-divider span {
+      background: var(--surface);
+      padding: 0 1rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+    
     .error-message {
       background: var(--error-light);
       color: var(--error);
@@ -347,52 +419,66 @@
       <span id="success-text"></span>
     </div>
     
-    <form class="login-form" id="login-form">
-      <div class="form-group">
-        <label for="username">Usuário</label>
-        <input 
-          type="text" 
-          id="username" 
-          name="username" 
-          placeholder="Digite seu usuário"
-          required
-          autocomplete="username"
-        />
+    <div class="login-form">
+      <div class="google-login-section">
+        <button id="google-login-button" class="google-login-button">
+          <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="google-icon">
+          <span id="google-login-text">Entrar com Google</span>
+          <span id="google-login-spinner" class="loading-spinner" style="display: none;"></span>
+        </button>
       </div>
       
-      <div class="form-group">
-        <label for="password">Senha</label>
-        <div class="password-input">
+      <div class="login-divider">
+        <span>ou</span>
+      </div>
+      
+      <form class="login-form" id="login-form">
+        <div class="form-group">
+          <label for="username">Usuário</label>
           <input 
-            type="password" 
-            id="password" 
-            name="password" 
-            placeholder="Digite sua senha"
+            type="text" 
+            id="username" 
+            name="username" 
+            placeholder="Digite seu usuário"
             required
-            autocomplete="current-password"
+            autocomplete="username"
           />
-          <button 
-            type="button" 
-            class="password-toggle" 
-            id="password-toggle"
-            onclick="togglePassword()"
-          >
-            <span class="material-icons" id="password-icon">visibility</span>
-          </button>
         </div>
-      </div>
-      
-      <button type="submit" class="login-button" id="login-button">
-        <span id="login-text">Entrar</span>
-        <span id="login-spinner" class="loading-spinner" style="display: none;"></span>
-      </button>
-    </form>
+        
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <div class="password-input">
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              placeholder="Digite sua senha"
+              required
+              autocomplete="current-password"
+            />
+            <button 
+              type="button" 
+              class="password-toggle" 
+              id="password-toggle"
+              onclick="togglePassword()"
+            >
+              <span class="material-icons" id="password-icon">visibility</span>
+            </button>
+          </div>
+        </div>
+        
+        <button type="submit" class="login-button" id="login-button">
+          <span id="login-text">Entrar</span>
+          <span id="login-spinner" class="loading-spinner" style="display: none;"></span>
+        </button>
+      </form>
+    </div>
     
     <div class="demo-credentials">
-      <h4>👥 Credenciais de Demonstração</h4>
+      <h4>🔐 Opções de Login</h4>
       <p>
-        <strong>Usuário:</strong> admin<br>
-        <strong>Senha:</strong> admin123
+        <strong>Recomendado:</strong> Login com Google<br>
+        <strong>Alternativo:</strong> Usuário: admin / Senha: admin123
       </p>
     </div>
   </div>
@@ -410,6 +496,11 @@
     const successText = document.getElementById('success-text');
     const passwordToggle = document.getElementById('password-toggle');
     const passwordIcon = document.getElementById('password-icon');
+    
+    // Google Login Elements
+    const googleLoginButton = document.getElementById('google-login-button');
+    const googleLoginText = document.getElementById('google-login-text');
+    const googleLoginSpinner = document.getElementById('google-login-spinner');
 
     // Toggle password visibility
     function togglePassword() {
@@ -448,6 +539,80 @@
         loginButton.disabled = false;
         loginText.style.display = 'inline';
         loginSpinner.style.display = 'none';
+      }
+    }
+    
+    // Set Google loading state
+    function setGoogleLoading(loading) {
+      if (loading) {
+        googleLoginButton.disabled = true;
+        googleLoginText.style.display = 'none';
+        googleLoginSpinner.style.display = 'inline-block';
+      } else {
+        googleLoginButton.disabled = false;
+        googleLoginText.style.display = 'inline';
+        googleLoginSpinner.style.display = 'none';
+      }
+    }
+    
+    // Wait for Firebase Auth to be ready
+    async function waitForFirebaseAuth() {
+      let attempts = 0;
+      const maxAttempts = 50;
+      
+      while (!window.FirebaseAuth && attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+      
+      if (!window.FirebaseAuth) {
+        throw new Error('Firebase Auth não foi carregado após 5 segundos');
+      }
+      
+      return window.FirebaseAuth;
+    }
+    
+    // Handle Google Login
+    async function handleGoogleLogin() {
+      try {
+        hideMessages();
+        setGoogleLoading(true);
+        
+        console.log('🔐 Iniciando login com Google...');
+        
+        const FirebaseAuth = await waitForFirebaseAuth();
+        const user = await FirebaseAuth.signInWithGoogle();
+        
+        console.log('✅ Login com Google realizado:', user.email);
+        showSuccess('Login realizado com sucesso! Redirecionando...');
+        
+        // Salvar dados do usuário
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('currentUser', user.email);
+        localStorage.setItem('loginTimestamp', Date.now().toString());
+        localStorage.setItem('userDisplayName', user.displayName || user.email);
+        localStorage.setItem('userPhotoURL', user.photoURL || '');
+        
+        // Redirecionar para dashboard
+        setTimeout(() => {
+          const timestamp = Date.now();
+          const redirectUrl = `dashboard.html?t=${timestamp}&user=${encodeURIComponent(user.email)}&google=true`;
+          window.location.href = redirectUrl;
+        }, 1500);
+        
+      } catch (error) {
+        console.error('❌ Erro no login com Google:', error);
+        setGoogleLoading(false);
+        
+        if (error.code === 'auth/popup-blocked') {
+          showError('Popup bloqueado pelo navegador. Permita popups para este site.');
+        } else if (error.code === 'auth/unauthorized-domain') {
+          showError('Domínio não autorizado. Verifique configuração do Firebase.');
+        } else if (error.code === 'auth/operation-not-allowed') {
+          showError('Login Google não habilitado. Verifique configuração do Firebase.');
+        } else {
+          showError('Erro no login com Google: ' + error.message);
+        }
       }
     }
 
@@ -593,6 +758,9 @@
         }
       });
     });
+    
+    // Handle Google Login Button
+    googleLoginButton.addEventListener('click', handleGoogleLogin);
 
     // Verificar se foi redirecionado do dashboard
     document.addEventListener('DOMContentLoaded', function() {

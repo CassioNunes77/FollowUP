@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste Login Google - Index</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f8fafc;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .status {
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+    .success { background: #d1fae5; color: #065f46; }
+    .error { background: #fee2e2; color: #991b1b; }
+    .info { background: #dbeafe; color: #1e40af; }
+    .log {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 8px;
+      font-family: monospace;
+      max-height: 300px;
+      overflow-y: auto;
+      margin: 1rem 0;
+      white-space: pre-wrap;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    button:hover { background: #1d4ed8; }
+    .test-section {
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Teste Login Google - Index</h1>
+    <p>Esta página testa se o login Google está funcionando corretamente na index.html.</p>
+    
+    <div id="status" class="status info">
+      Aguardando inicialização...
+    </div>
+    
+    <div>
+      <button onclick="testIndexPage()">🔍 Testar Página Index</button>
+      <button onclick="testGoogleButton()">🔐 Testar Botão Google</button>
+      <button onclick="testFirebaseAuth()">🔥 Testar Firebase Auth</button>
+      <button onclick="clearLog()">🗑️ Limpar Log</button>
+    </div>
+    
+    <div class="test-section">
+      <h3>📋 Checklist de Verificação:</h3>
+      <ul id="checklist">
+        <li>⏳ Aguardando verificação...</li>
+      </ul>
+    </div>
+    
+    <div class="log" id="log"></div>
+  </div>
+
+  <script type="module" src="firebase-auth.js"></script>
+  <script>
+    let checkCount = 0;
+    let checklist = [];
+    
+    // Aguardar página carregar
+    window.addEventListener('load', () => {
+      log('🚀 Página carregada');
+      updateStatus('⏳ Aguardando Firebase carregar...', 'info');
+      
+      // Verificar Firebase a cada 500ms
+      const checkInterval = setInterval(() => {
+        checkCount++;
+        log(`🔍 Tentativa ${checkCount}: Verificando window.FirebaseAuth...`);
+        
+        if (window.FirebaseAuth) {
+          clearInterval(checkInterval);
+          log('✅ window.FirebaseAuth encontrado!');
+          updateStatus('✅ Firebase carregado com sucesso!', 'success');
+          
+          // Executar testes
+          setTimeout(() => {
+            testIndexPage();
+            testGoogleButton();
+            testFirebaseAuth();
+          }, 1000);
+          
+        } else if (checkCount >= 20) { // 10 segundos
+          clearInterval(checkInterval);
+          log('❌ Timeout: window.FirebaseAuth não encontrado após 10 segundos');
+          updateStatus('❌ Firebase não carregou', 'error');
+        }
+      }, 500);
+    });
+    
+    function testIndexPage() {
+      log('🔍 Testando página index.html...');
+      
+      // Verificar se index.html existe
+      fetch('index.html')
+        .then(response => {
+          if (response.ok) {
+            log('✅ index.html encontrada');
+            addChecklistItem('✅ index.html encontrada', 'success');
+          } else {
+            log('❌ index.html não encontrada');
+            addChecklistItem('❌ index.html não encontrada', 'error');
+          }
+        })
+        .catch(error => {
+          log('❌ Erro ao acessar index.html: ' + error.message);
+          addChecklistItem('❌ Erro ao acessar index.html', 'error');
+        });
+    }
+    
+    function testGoogleButton() {
+      log('🔐 Testando botão Google...');
+      
+      // Verificar se elementos do Google existem
+      const googleButton = document.getElementById('google-login-button');
+      const googleText = document.getElementById('google-login-text');
+      const googleSpinner = document.getElementById('google-login-spinner');
+      
+      if (googleButton && googleText && googleSpinner) {
+        log('✅ Elementos do botão Google encontrados');
+        addChecklistItem('✅ Elementos do botão Google encontrados', 'success');
+      } else {
+        log('❌ Elementos do botão Google não encontrados');
+        addChecklistItem('❌ Elementos do botão Google não encontrados', 'error');
+      }
+    }
+    
+    async function testFirebaseAuth() {
+      try {
+        log('🔥 Testando Firebase Auth...');
+        
+        if (!window.FirebaseAuth) {
+          log('❌ Firebase Auth não disponível');
+          addChecklistItem('❌ Firebase Auth não disponível', 'error');
+          return;
+        }
+        
+        const functions = Object.keys(window.FirebaseAuth);
+        log('📋 Funções disponíveis: ' + functions.join(', '));
+        
+        if (functions.includes('signInWithGoogle')) {
+          log('✅ signInWithGoogle disponível');
+          addChecklistItem('✅ signInWithGoogle disponível', 'success');
+        } else {
+          log('❌ signInWithGoogle não disponível');
+          addChecklistItem('❌ signInWithGoogle não disponível', 'error');
+        }
+        
+        if (functions.includes('getCurrentUser')) {
+          log('✅ getCurrentUser disponível');
+          addChecklistItem('✅ getCurrentUser disponível', 'success');
+        } else {
+          log('❌ getCurrentUser não disponível');
+          addChecklistItem('❌ getCurrentUser não disponível', 'error');
+        }
+        
+        updateStatus('✅ Testes concluídos', 'success');
+        
+      } catch (error) {
+        log('❌ Erro no teste Firebase Auth: ' + error.message);
+        addChecklistItem('❌ Erro no teste Firebase Auth', 'error');
+      }
+    }
+    
+    function addChecklistItem(text, type) {
+      const checklist = document.getElementById('checklist');
+      const li = document.createElement('li');
+      li.textContent = text;
+      li.style.color = type === 'success' ? '#065f46' : '#991b1b';
+      checklist.appendChild(li);
+    }
+    
+    function updateStatus(message, type) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `status ${type}`;
+    }
+    
+    function log(message) {
+      const logDiv = document.getElementById('log');
+      const timestamp = new Date().toLocaleTimeString();
+      logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    
+    function clearLog() {
+      document.getElementById('log').innerHTML = '';
+      document.getElementById('checklist').innerHTML = '<li>⏳ Aguardando verificação...</li>';
+      log('🗑️ Log limpo');
+    }
+  </script>
+</body>
+</html>

@@ -11,7 +11,7 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Firebase Configuration -->
-  <script type="module" src="firebase-config.js"></script>
+  <script type="module" src="firebase-auth.js"></script>
   <style>
     :root {
       /* Nova paleta de cores moderna e legível */
@@ -1424,6 +1424,17 @@
         <span class="material-icons">settings</span>
         <span>Configurações</span>
       </div>
+      
+      <!-- Separador -->
+      <div class="flex-1"></div>
+      
+      <!-- Botão de Logout -->
+      <div class="border-t border-white/20 dark:border-slate-700/40 pt-4 mt-4">
+        <div id="logout-button" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition hover:bg-red-100/70 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 font-medium">
+          <span class="material-icons">logout</span>
+          <span>Sair</span>
+        </div>
+      </div>
     </nav>
   </div>
 
@@ -2091,26 +2102,53 @@
     }
 
     // Função de logout
-    function logout() {
+    async function logout() {
       try {
+        console.log('🔄 Iniciando logout...');
+        
+        // Logout do Firebase Auth
+        if (window.FirebaseAuth) {
+          await window.FirebaseAuth.signOutUser();
+          console.log('✅ Logout do Firebase realizado');
+        }
+        
         // Limpar localStorage
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem('currentUser');
         localStorage.removeItem('loginTimestamp');
+        localStorage.removeItem('userDisplayName');
+        localStorage.removeItem('userPhotoURL');
         
         // Limpar sessionStorage também
         if (typeof sessionStorage !== 'undefined') {
           sessionStorage.removeItem('isLoggedIn');
           sessionStorage.removeItem('currentUser');
           sessionStorage.removeItem('loginTimestamp');
+          sessionStorage.removeItem('userDisplayName');
+          sessionStorage.removeItem('userPhotoURL');
         }
         
-        console.log('Logout realizado, dados limpos');
+        console.log('✅ Logout realizado, dados limpos');
+        
+        // Redirecionar para login
+        window.location.href = 'index.html?t=' + Date.now();
+        
       } catch (error) {
-        console.error('Erro ao fazer logout:', error);
+        console.error('❌ Erro ao fazer logout:', error);
+        
+        // Mesmo com erro, limpar dados locais e redirecionar
+        try {
+          localStorage.removeItem('isLoggedIn');
+          localStorage.removeItem('currentUser');
+          localStorage.removeItem('loginTimestamp');
+          localStorage.removeItem('userDisplayName');
+          localStorage.removeItem('userPhotoURL');
+        } catch (localError) {
+          console.error('Erro ao limpar localStorage:', localError);
+        }
+        
+        window.location.href = 'index.html?t=' + Date.now();
       }
-      
-      window.location.href = 'index.html?t=' + Date.now();
     }
 
     // Verificar login após o DOM estar carregado
@@ -4063,6 +4101,18 @@
       item.addEventListener('click', () => {
         if (window.innerWidth < 768) closeSidebar();
       });
+    });
+    
+    // Event listener para o botão de logout
+    document.getElementById('logout-button').addEventListener('click', async () => {
+      try {
+        console.log('🔄 Botão de logout clicado...');
+        await logout();
+      } catch (error) {
+        console.error('❌ Erro ao fazer logout:', error);
+        // Mesmo com erro, redirecionar para login
+        window.location.href = 'index.html?t=' + Date.now();
+      }
     });
 
     // Função para animar entrada dos gráficos
