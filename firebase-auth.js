@@ -6,14 +6,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// Import the functions you need from the SDKs you need
-//import { initializeApp } from "firebase/app";
-//import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// ✅ CONFIGURAÇÃO REAL DO FIREBASE - FollowUP
 const firebaseConfig = {
   apiKey: "AIzaSyA49KE7EtC3pPxNt_qcVcCzxJx6XZ2Q2H0",
   authDomain: "followup-8772b.firebaseapp.com",
@@ -23,10 +16,6 @@ const firebaseConfig = {
   appId: "1:809401173456:web:35eeb177496db4044de5d5",
   measurementId: "G-NHSHXV6LLW"
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
