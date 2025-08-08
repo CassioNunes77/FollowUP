@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teste de Login - Follow Up</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .test-result {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover { background: #0056b3; }
+    .log {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 10px 0;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🧪 Teste de Login - Follow Up</h1>
+    <p>Este teste verifica se o localStorage está funcionando corretamente no Firefox.</p>
+    
+    <div id="test-results"></div>
+    
+    <div>
+      <button onclick="runTests()">Executar Testes</button>
+      <button onclick="clearLog()">Limpar Log</button>
+      <button onclick="clearLocalStorage()">Limpar localStorage</button>
+    </div>
+    
+    <h3>Log de Testes:</h3>
+    <div id="log" class="log"></div>
+  </div>
+
+  <script>
+    const logElement = document.getElementById('log');
+    const resultsElement = document.getElementById('test-results');
+    
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = document.createElement('div');
+      logEntry.textContent = `[${timestamp}] ${message}`;
+      logEntry.style.color = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#007bff';
+      logElement.appendChild(logEntry);
+      logElement.scrollTop = logElement.scrollHeight;
+      console.log(message);
+    }
+    
+    function clearLog() {
+      logElement.innerHTML = '';
+    }
+    
+    function addResult(message, type) {
+      const resultDiv = document.createElement('div');
+      resultDiv.className = `test-result ${type}`;
+      resultDiv.textContent = message;
+      resultsElement.appendChild(resultDiv);
+    }
+    
+    function testLocalStorage() {
+      log('Iniciando teste de localStorage...');
+      
+      try {
+        // Teste 1: Verificar se localStorage está disponível
+        if (typeof localStorage === 'undefined') {
+          addResult('❌ localStorage não está disponível', 'error');
+          log('localStorage não está disponível', 'error');
+          return false;
+        }
+        
+        addResult('✅ localStorage está disponível', 'success');
+        log('localStorage está disponível', 'success');
+        
+        // Teste 2: Testar escrita e leitura
+        const testKey = 'test_' + Date.now();
+        const testValue = 'test_value_' + Date.now();
+        
+        log(`Testando escrita: ${testKey} = ${testValue}`);
+        localStorage.setItem(testKey, testValue);
+        
+        log(`Testando leitura: ${testKey}`);
+        const retrievedValue = localStorage.getItem(testKey);
+        
+        if (retrievedValue === testValue) {
+          addResult('✅ Escrita e leitura funcionando', 'success');
+          log('Escrita e leitura funcionando', 'success');
+        } else {
+          addResult('❌ Falha na escrita/leitura', 'error');
+          log(`Falha na escrita/leitura. Esperado: ${testValue}, Obtido: ${retrievedValue}`, 'error');
+          return false;
+        }
+        
+        // Limpar teste
+        localStorage.removeItem(testKey);
+        
+        // Teste 3: Testar dados de login
+        log('Testando dados de login...');
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('currentUser', 'admin');
+        
+        const savedLogin = localStorage.getItem('isLoggedIn');
+        const savedUser = localStorage.getItem('currentUser');
+        
+        if (savedLogin === 'true' && savedUser === 'admin') {
+          addResult('✅ Dados de login salvos corretamente', 'success');
+          log('Dados de login salvos corretamente', 'success');
+        } else {
+          addResult('❌ Falha ao salvar dados de login', 'error');
+          log(`Falha ao salvar dados de login. Login: ${savedLogin}, User: ${savedUser}`, 'error');
+          return false;
+        }
+        
+        // Limpar dados de teste
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('currentUser');
+        
+        addResult('✅ Todos os testes passaram!', 'success');
+        log('Todos os testes passaram!', 'success');
+        return true;
+        
+      } catch (error) {
+        addResult(`❌ Erro durante teste: ${error.message}`, 'error');
+        log(`Erro durante teste: ${error.message}`, 'error');
+        return false;
+      }
+    }
+    
+    function runTests() {
+      log('=== INICIANDO TESTES ===');
+      resultsElement.innerHTML = '';
+      
+      // Aguardar um pouco antes de executar os testes
+      setTimeout(() => {
+        const success = testLocalStorage();
+        
+        if (success) {
+          log('=== TESTES CONCLUÍDOS COM SUCESSO ===');
+        } else {
+          log('=== TESTES FALHARAM ===');
+        }
+      }, 100);
+    }
+    
+    function clearLocalStorage() {
+      try {
+        localStorage.clear();
+        log('localStorage limpo com sucesso', 'success');
+        addResult('✅ localStorage limpo com sucesso', 'success');
+      } catch (error) {
+        log(`Erro ao limpar localStorage: ${error.message}`, 'error');
+        addResult(`❌ Erro ao limpar localStorage: ${error.message}`, 'error');
+      }
+    }
+    
+    // Executar testes automaticamente ao carregar a página
+    document.addEventListener('DOMContentLoaded', function() {
+      log('Página carregada, executando testes automáticos...');
+      setTimeout(runTests, 500);
+    });
+  </script>
+</body>
+</html>

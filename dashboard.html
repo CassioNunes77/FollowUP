@@ -10,6 +10,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Firebase Configuration -->
+  <script type="module" src="firebase-config.js"></script>
   <style>
     :root {
       /* Nova paleta de cores moderna e legível */
@@ -882,6 +884,20 @@
       border-color: var(--border-dark);
     }
     
+    #create-section textarea {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.5;
+    }
+    
+    #create-section textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-100);
+    }
+    
+    #create-section textarea:hover {
+      border-color: var(--border-dark);
+    }
+    
     /* Inputs de tamanhos responsivos e agrupados atualizados */
     #create-section .sizes-table {
       width: 100%;
@@ -1328,6 +1344,40 @@
       }
     }
     
+    /* Estilos para filtros do dashboard */
+    #dashboard-cluster-filter:focus,
+    #dashboard-period-filter:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-100);
+      outline: none;
+    }
+    
+    #dashboard-cluster-filter:hover,
+    #dashboard-period-filter:hover {
+      border-color: var(--border-dark);
+    }
+    
+    /* Responsividade para filtros do dashboard */
+    @media (max-width: 768px) {
+      #dashboard-section > div:first-child > div {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      #dashboard-section > div:first-child > div > div {
+        min-width: 100%;
+      }
+      
+      #dashboard-section > div:first-child > div > div:last-child {
+        justify-content: stretch;
+      }
+      
+      #dashboard-section > div:first-child > div > div:last-child button {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+    
     @media (max-width: 480px) {
       .action-buttons {
         gap: 0.2rem;
@@ -1408,6 +1458,14 @@
                 <option value="">Todas as Categorias</option>
               </select>
             </div>
+            <div class="flex items-center gap-3 min-w-[200px]">
+              <label for="pagamento-filter" class="font-medium text-gray-700 text-sm">Pagamentos:</label>
+              <select id="pagamento-filter" class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm">
+                <option value="">Todos os Pagamentos</option>
+                <option value="pago">Pago</option>
+                <option value="nao-pago">Não Pago</option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -1428,6 +1486,7 @@
                 <th class="px-4 py-3 font-semibold text-gray-700 text-center">M/40</th>
                 <th class="px-4 py-3 font-semibold text-gray-700 text-center">G/42</th>
                 <th class="px-4 py-3 font-semibold text-gray-700 text-center">GG/44</th>
+                <th class="px-4 py-3 font-semibold text-gray-700 text-left">Observações</th>
                 <th class="px-4 py-3 font-semibold text-gray-700 text-center">Ações</th>
             </tr>
           </thead>
@@ -1477,7 +1536,7 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="entrada">Data de entrada</label>
-                <input type="date" id="entrada" required />
+                <input type="date" id="entrada" />
               </div>
               <div class="form-group">
                 <label for="pilotagem">Pilotagem</label>
@@ -1492,7 +1551,7 @@
               </div>
               <div class="form-group">
                 <label for="pagamento">Pagamento / data</label>
-                <input type="date" id="pagamento" required />
+                <input type="date" id="pagamento" />
               </div>
             </div>
           </div>
@@ -1514,6 +1573,15 @@
               </div>
             </div>
           </div>
+          <div class="form-section">
+            <h2>📝 Observações</h2>
+            <div class="form-row">
+              <div class="form-group" style="flex: 1 1 100%;">
+                <label for="observacoes">Observações</label>
+                <textarea id="observacoes" rows="4" placeholder="Digite observações adicionais sobre a ficha (opcional)" style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.95rem; background: var(--surface); transition: all var(--transition); outline: none; font-family: 'Inter', sans-serif; color: var(--text); resize: vertical; min-height: 100px;"></textarea>
+              </div>
+            </div>
+          </div>
           <div class="actions">
             <button type="submit">Cadastrar</button>
             <button type="button" class="secondary" id="cancelar-btn">Cancelar</button>
@@ -1521,8 +1589,41 @@
         </form>
       </section>
       <section id="dashboard-section" class="hidden">
+        <!-- Filtros do Dashboard -->
+        <div style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 2rem;">
+          <div style="display: flex; align-items: end; gap: 1.5rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px;">
+              <label for="dashboard-cluster-filter" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">Cluster:</label>
+              <select id="dashboard-cluster-filter" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;">
+                <option value="">Todos os Clusters</option>
+              </select>
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+              <label for="dashboard-period-filter" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">Período:</label>
+              <select id="dashboard-period-filter" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;">
+                <option value="">Todos os Períodos</option>
+                <option value="7">Últimos 7 dias</option>
+                <option value="30">Últimos 30 dias</option>
+                <option value="90">Últimos 90 dias</option>
+                <option value="180">Últimos 6 meses</option>
+                <option value="365">Último ano</option>
+              </select>
+            </div>
+            <div style="display: flex; gap: 0.75rem; align-items: end;">
+              <button onclick="applyDashboardFilters()" style="background: var(--primary); color: white; border: none; padding: 0.75rem 1.25rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow); display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                <span class="material-icons" style="font-size: 1rem;">filter_alt</span>
+                Aplicar
+              </button>
+              <button onclick="clearDashboardFilters()" style="background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); padding: 0.75rem 1.25rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                <span class="material-icons" style="font-size: 1rem;">clear</span>
+                Limpar
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Resumo Técnico -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-8">
           <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex items-center gap-4 transition-all duration-200 hover:shadow-md hover:border-primary-200">
             <div class="bg-primary-100 p-3 rounded-xl">
               <span class="material-icons text-2xl text-primary">inventory_2</span>
@@ -1593,6 +1694,15 @@
             <div class="text-left">
               <div class="font-poppins text-2xl font-bold text-gray-900 mb-1" id="pilotagem-sim">0</div>
               <div class="text-gray-600 text-sm font-medium">Fichas com Pilotagem</div>
+            </div>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex items-center gap-4 transition-all duration-200 hover:shadow-md hover:border-primary-200">
+            <div class="bg-teal-100 p-3 rounded-xl">
+              <span class="material-icons text-2xl text-teal-600">monetization_on</span>
+            </div>
+            <div class="text-left">
+              <div class="font-poppins text-2xl font-bold text-gray-900 mb-1" id="valor-medio-peca">R$ 0,00</div>
+              <div class="text-gray-600 text-sm font-medium">Valor Médio por Peça</div>
             </div>
           </div>
         </div>
@@ -1806,7 +1916,7 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="edit-entrada">Data de entrada</label>
-                <input type="date" id="edit-entrada" required />
+                <input type="date" id="edit-entrada" />
               </div>
               <div class="form-group">
                 <label for="edit-pilotagem">Pilotagem</label>
@@ -1821,7 +1931,7 @@
               </div>
               <div class="form-group">
                 <label for="edit-pagamento">Pagamento / data</label>
-                <input type="date" id="edit-pagamento" required />
+                <input type="date" id="edit-pagamento" />
               </div>
             </div>
           </div>
@@ -1843,6 +1953,15 @@
               </div>
             </div>
           </div>
+          <div class="form-section">
+            <h2>📝 Observações</h2>
+            <div class="form-row">
+              <div class="form-group" style="flex: 1 1 100%;">
+                <label for="edit-observacoes">Observações</label>
+                <textarea id="edit-observacoes" rows="4" placeholder="Digite observações adicionais sobre a ficha (opcional)" style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.95rem; background: var(--surface); transition: all var(--transition); outline: none; font-family: 'Inter', sans-serif; color: var(--text); resize: vertical; min-height: 100px;"></textarea>
+              </div>
+            </div>
+          </div>
           <div class="actions">
             <button type="submit">Salvar Alterações</button>
             <button type="button" class="secondary" onclick="closeEditModal()">Cancelar</button>
@@ -1853,38 +1972,144 @@
   </div>
 
   <script>
-    // Verificação de login
-    function checkLogin() {
+    // Função para testar localStorage
+    function testLocalStorage() {
       try {
-        const isLoggedIn = localStorage.getItem('isLoggedIn');
-        const currentUser = localStorage.getItem('currentUser');
-        console.log('Verificando login:', { isLoggedIn, currentUser });
+        const testKey = 'test_' + Date.now();
+        const testValue = 'test_value_' + Date.now();
         
-        // Verificação mais robusta para Firefox
-        if (!isLoggedIn || isLoggedIn !== 'true' || !currentUser) {
-          console.log('Usuário não logado, redirecionando...');
-          // Pequeno delay para garantir que o localStorage foi processado
-          setTimeout(() => {
-            window.location.href = 'index.html?t=' + Date.now();
-          }, 100);
-          return false;
-        }
-        console.log('Usuário logado, continuando...');
-        return true;
+        localStorage.setItem(testKey, testValue);
+        const retrievedValue = localStorage.getItem(testKey);
+        localStorage.removeItem(testKey);
+        
+        return retrievedValue === testValue;
       } catch (error) {
-        console.error('Erro ao verificar login:', error);
-        // Em caso de erro, redireciona para login
-        setTimeout(() => {
-          window.location.href = 'index.html?t=' + Date.now();
-        }, 100);
+        console.error('Erro ao testar localStorage:', error);
         return false;
       }
     }
 
+    // Verificação de login robusta para Firefox
+    function checkLogin() {
+      try {
+        console.log('Iniciando verificação de login para Firefox...');
+        
+        // Verificar se localStorage está disponível
+        if (typeof localStorage === 'undefined') {
+          console.error('localStorage não está disponível');
+          redirectToLogin();
+          return false;
+        }
+        
+        // Testar localStorage primeiro
+        if (!testLocalStorage()) {
+          console.error('localStorage não está funcionando corretamente');
+          redirectToLogin();
+          return false;
+        }
+        
+        // Verificar dados de login no localStorage
+        let isLoggedIn = localStorage.getItem('isLoggedIn');
+        let currentUser = localStorage.getItem('currentUser');
+        let loginTimestamp = localStorage.getItem('loginTimestamp');
+        
+        console.log('Verificação localStorage:', { isLoggedIn, currentUser, loginTimestamp });
+        
+        // Se localStorage falhou, tentar sessionStorage
+        if (!isLoggedIn || isLoggedIn !== 'true' || !currentUser) {
+          console.log('localStorage falhou, tentando sessionStorage...');
+          
+          if (typeof sessionStorage !== 'undefined') {
+            const sessionLogin = sessionStorage.getItem('isLoggedIn');
+            const sessionUser = sessionStorage.getItem('currentUser');
+            const sessionTimestamp = sessionStorage.getItem('loginTimestamp');
+            
+            console.log('Verificação sessionStorage:', { sessionLogin, sessionUser, sessionTimestamp });
+            
+            if (sessionLogin === 'true' && sessionUser) {
+              console.log('Login encontrado no sessionStorage');
+              // Migrar para localStorage se possível
+              try {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('currentUser', sessionUser);
+                localStorage.setItem('loginTimestamp', sessionTimestamp || Date.now().toString());
+                console.log('Dados migrados para localStorage');
+              } catch (migrationError) {
+                console.log('Não foi possível migrar para localStorage, continuando com sessionStorage');
+              }
+              return true;
+            }
+          }
+          
+          // Se ambos falharam, tentar verificar novamente após delay
+          console.log('Ambas verificações falharam, tentando novamente após delay...');
+          
+          setTimeout(() => {
+            const retryLocalLogin = localStorage.getItem('isLoggedIn');
+            const retryLocalUser = localStorage.getItem('currentUser');
+            const retrySessionLogin = sessionStorage.getItem('isLoggedIn');
+            const retrySessionUser = sessionStorage.getItem('currentUser');
+            
+            console.log('Verificação após delay:', {
+              localStorage: { login: retryLocalLogin, user: retryLocalUser },
+              sessionStorage: { login: retrySessionLogin, user: retrySessionUser }
+            });
+            
+            if ((retryLocalLogin === 'true' && retryLocalUser) || 
+                (retrySessionLogin === 'true' && retrySessionUser)) {
+              console.log('Login encontrado após delay');
+            } else {
+              console.log('Login não encontrado após delay, redirecionando...');
+              redirectToLogin();
+            }
+          }, 500);
+          
+          return false;
+        }
+        
+        console.log('Usuário logado via localStorage, continuando...');
+        return true;
+      } catch (error) {
+        console.error('Erro ao verificar login:', error);
+        redirectToLogin();
+        return false;
+      }
+    }
+    
+    // Função para redirecionar para login
+    function redirectToLogin() {
+      // Adicionar timestamp para evitar cache
+      const timestamp = Date.now();
+      const loginUrl = `index.html?t=${timestamp}&redirected=true`;
+      
+      console.log('Redirecionando para login:', loginUrl);
+      
+      // Pequeno delay para garantir que tudo foi processado
+      setTimeout(() => {
+        window.location.href = loginUrl;
+      }, 100);
+    }
+
     // Função de logout
     function logout() {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('currentUser');
+      try {
+        // Limpar localStorage
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('loginTimestamp');
+        
+        // Limpar sessionStorage também
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.removeItem('isLoggedIn');
+          sessionStorage.removeItem('currentUser');
+          sessionStorage.removeItem('loginTimestamp');
+        }
+        
+        console.log('Logout realizado, dados limpos');
+      } catch (error) {
+        console.error('Erro ao fazer logout:', error);
+      }
+      
       window.location.href = 'index.html?t=' + Date.now();
     }
 
@@ -1895,8 +2120,70 @@
       // Verificar se localStorage está disponível
       if (typeof localStorage === 'undefined') {
         console.error('localStorage não está disponível');
-        window.location.href = 'index.html?t=' + Date.now();
+        redirectToLogin();
         return;
+      }
+      
+      // Verificar se foi redirecionado do login
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirected = urlParams.get('redirected');
+      const user = urlParams.get('user');
+      const firefox = urlParams.get('firefox');
+      
+      if (redirected === 'true' && user) {
+        console.log('Usuário redirecionado do login:', user);
+        // Verificar se o login foi salvo corretamente
+        const savedLogin = localStorage.getItem('isLoggedIn');
+        const savedUser = localStorage.getItem('currentUser');
+        
+        if (savedLogin === 'true' && savedUser === user) {
+          console.log('Login verificado após redirecionamento');
+        } else {
+          console.log('Login não encontrado após redirecionamento, salvando...');
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('currentUser', user);
+          localStorage.setItem('loginTimestamp', Date.now().toString());
+        }
+      }
+      
+      // Verificação específica para Firefox
+      if (firefox === 'true' && user) {
+        console.log('Detectado redirecionamento do Firefox, verificando login...');
+        
+        // Verificar localStorage primeiro
+        let savedLogin = localStorage.getItem('isLoggedIn');
+        let savedUser = localStorage.getItem('currentUser');
+        
+        if (savedLogin === 'true' && savedUser === user) {
+          console.log('Login encontrado no localStorage');
+        } else {
+          // Verificar sessionStorage
+          const sessionLogin = sessionStorage.getItem('isLoggedIn');
+          const sessionUser = sessionStorage.getItem('currentUser');
+          
+          if (sessionLogin === 'true' && sessionUser === user) {
+            console.log('Login encontrado no sessionStorage, migrando para localStorage...');
+            try {
+              localStorage.setItem('isLoggedIn', 'true');
+              localStorage.setItem('currentUser', user);
+              localStorage.setItem('loginTimestamp', Date.now().toString());
+            } catch (error) {
+              console.log('Não foi possível migrar para localStorage');
+            }
+          } else {
+            console.log('Login não encontrado, salvando...');
+            try {
+              localStorage.setItem('isLoggedIn', 'true');
+              localStorage.setItem('currentUser', user);
+              localStorage.setItem('loginTimestamp', Date.now().toString());
+            } catch (error) {
+              console.log('Falha ao salvar no localStorage, tentando sessionStorage...');
+              sessionStorage.setItem('isLoggedIn', 'true');
+              sessionStorage.setItem('currentUser', user);
+              sessionStorage.setItem('loginTimestamp', Date.now().toString());
+            }
+          }
+        }
       }
       
       if (!checkLogin()) {
@@ -2313,6 +2600,7 @@
       document.getElementById('edit-saida').value = ficha.saida;
       document.getElementById('edit-pagamento').value = ficha.pagamento;
       document.getElementById('edit-entrada').value = ficha.entrada;
+      document.getElementById('edit-observacoes').value = ficha.observacoes || '';
       
       // Carregar cores existentes se houver
       if (ficha.cores && Array.isArray(ficha.cores)) {
@@ -2481,8 +2769,9 @@
         valorTotal: Number(document.getElementById('edit-valorUnitario').value) * totalQuantidade,
         pilotagem: document.getElementById('edit-pilotagem').value,
         saida: document.getElementById('edit-saida').value,
-        pagamento: document.getElementById('edit-pagamento').value,
-        entrada: document.getElementById('edit-entrada').value,
+        pagamento: document.getElementById('edit-pagamento').value || '',
+        entrada: document.getElementById('edit-entrada').value || '',
+        observacoes: document.getElementById('edit-observacoes').value.trim(),
         // Dados das cores
         cores: coresData,
         // Totais para compatibilidade
@@ -2501,6 +2790,7 @@
       renderFichas();
       updateClusterFilter();
       updateCategoriaFilter();
+      updatePagamentoFilter();
       updateClusterSelects();
       updateCategoriaSelects();
     };
@@ -2700,14 +2990,38 @@
       aplicarFiltros();
     };
 
+    // Event listener para filtro de pagamentos
+    document.getElementById('pagamento-filter').onchange = function() {
+      aplicarFiltros();
+    };
+
+    function updatePagamentoFilter() {
+      const pagamentoFilter = document.getElementById('pagamento-filter');
+      if (pagamentoFilter) {
+        // O filtro de pagamentos não precisa ser atualizado dinamicamente
+        // pois as opções são fixas: Todos, Pago, Não Pago
+        pagamentoFilter.value = '';
+      }
+    }
+
     function aplicarFiltros() {
       const selectedCluster = clusterFilter.value;
       const selectedCategoria = categoriaFilter.value;
+      const selectedPagamento = document.getElementById('pagamento-filter').value;
       
       filteredFichas = fichas.filter(f => {
         const matchCluster = selectedCluster === '' || f.cluster === selectedCluster;
         const matchCategoria = selectedCategoria === '' || f.categoria === selectedCategoria;
-        return matchCluster && matchCategoria;
+        
+        // Filtro de pagamento
+        let matchPagamento = true;
+        if (selectedPagamento === 'pago') {
+          matchPagamento = f.pagamento && f.pagamento.trim() !== '';
+        } else if (selectedPagamento === 'nao-pago') {
+          matchPagamento = !f.pagamento || f.pagamento.trim() === '';
+        }
+        
+        return matchCluster && matchCategoria && matchPagamento;
       });
       
       renderFichas();
@@ -2724,7 +3038,7 @@
       
       fichasList.innerHTML = '';
       if (filteredFichas.length === 0) {
-        fichasList.innerHTML = `<tr><td colspan="15" style="color:var(--muted);padding:2rem;">Nenhuma ficha encontrada.</td></tr>`;
+        fichasList.innerHTML = `<tr><td colspan="16" style="color:var(--muted);padding:2rem;">Nenhuma ficha encontrada.</td></tr>`;
         return;
       }
       filteredFichas.forEach((ficha, idx) => {
@@ -2737,8 +3051,8 @@
           <td>R$ ${Number(ficha.valorUnitario).toFixed(2)}</td>
           <td>R$ ${Number(ficha.valorTotal).toFixed(2)}</td>
           <td>${ficha.pilotagem}</td>
-          <td>${ficha.saida}</td>
-          <td>${ficha.pagamento}</td>
+          <td>${ficha.saida || '-'}</td>
+          <td>${ficha.pagamento || '-'}</td>
           <td>
             <div><strong>${ficha.pp}</strong></div>
             <div style="font-size:0.85em;color:var(--muted);">${ficha.cor_pp || ''}</div>
@@ -2759,6 +3073,11 @@
             <div><strong>${ficha.gg}</strong></div>
             <div style="font-size:0.85em;color:var(--muted);">${ficha.cor_gg || ''}</div>
           </td>
+          <td style="max-width: 200px; word-wrap: break-word;">
+            <div style="font-size: 0.9em; color: var(--text); line-height: 1.4;">
+              ${ficha.observacoes || '-'}
+            </div>
+          </td>
           <td>
             <div class="action-buttons">
               <button class="edit-btn" title="Editar" onclick="editFicha(${idx})">edit</button>
@@ -2770,7 +3089,95 @@
       });
     }
 
+    // Variáveis para filtros do dashboard
+    let dashboardFilteredFichas = [...fichas];
+    let currentClusterFilter = '';
+    let currentPeriodFilter = '';
+
+    // Função para aplicar filtros do dashboard
+    function applyDashboardFilters() {
+      const clusterFilter = document.getElementById('dashboard-cluster-filter').value;
+      const periodFilter = document.getElementById('dashboard-period-filter').value;
+
+      // Salvar filtros atuais
+      currentClusterFilter = clusterFilter;
+      currentPeriodFilter = periodFilter;
+
+      // Filtrar fichas
+      dashboardFilteredFichas = fichas.filter(ficha => {
+        // Filtro por cluster
+        const matchCluster = !clusterFilter || ficha.cluster === clusterFilter;
+
+        // Filtro por período
+        let matchPeriod = true;
+        if (periodFilter) {
+          const fichaDate = new Date(ficha.saida);
+          const daysDiff = (Date.now() - fichaDate.getTime()) / (1000 * 60 * 60 * 24);
+          matchPeriod = daysDiff <= parseInt(periodFilter);
+        }
+
+        return matchCluster && matchPeriod;
+      });
+
+      console.log('Filtros aplicados:', {
+        cluster: clusterFilter,
+        period: periodFilter,
+        fichasFiltradas: dashboardFilteredFichas.length,
+        totalFichas: fichas.length
+      });
+
+      // Atualizar dashboard com dados filtrados
+      updateResumoTecnico();
+      renderPieChart();
+      renderLineChart();
+      renderPieCategoriaChart();
+      renderTempoProducaoChart();
+    }
+
+    // Função para limpar filtros do dashboard
+    function clearDashboardFilters() {
+      document.getElementById('dashboard-cluster-filter').value = '';
+      document.getElementById('dashboard-period-filter').value = '';
+
+      // Resetar filtros
+      currentClusterFilter = '';
+      currentPeriodFilter = '';
+      dashboardFilteredFichas = [...fichas];
+
+      console.log('Filtros limpos, mostrando todos os dados');
+
+      // Atualizar dashboard com todos os dados
+      updateResumoTecnico();
+      renderPieChart();
+      renderLineChart();
+      renderPieCategoriaChart();
+      renderTempoProducaoChart();
+    }
+
+    // Função para atualizar filtro de cluster
+    function updateDashboardClusterFilter() {
+      const clusterFilter = document.getElementById('dashboard-cluster-filter');
+      const clusters = [...new Set(fichas.map(f => f.cluster))];
+      
+      clusterFilter.innerHTML = '<option value="">Todos os Clusters</option>';
+      clusters.forEach(cluster => {
+        const option = document.createElement('option');
+        option.value = cluster;
+        option.textContent = cluster;
+        clusterFilter.appendChild(option);
+      });
+    }
+
+
+
     function renderDashboard() {
+      // Atualizar filtros
+      updateDashboardClusterFilter();
+      
+      // Adicionar event listeners para filtros
+      document.getElementById('dashboard-cluster-filter').addEventListener('change', applyDashboardFilters);
+      document.getElementById('dashboard-period-filter').addEventListener('change', applyDashboardFilters);
+
       updateResumoTecnico();
       
       // Animar entrada dos gráficos
@@ -2793,14 +3200,20 @@
     }
 
     function updateResumoTecnico() {
-      const totalPecas = fichas.reduce((sum, f) => sum + f.quantidade, 0);
-      const totalFichas = fichas.length;
-      const totalValor = fichas.reduce((sum, f) => sum + f.valorTotal, 0);
-      const totalClusters = new Set(fichas.map(f => f.cluster)).size;
-      const totalCategorias = new Set(fichas.map(f => f.categoria)).size;
+      // Usar dados filtrados se houver filtros ativos
+      const dataToUse = dashboardFilteredFichas.length > 0 && (currentClusterFilter || currentPeriodFilter) ? dashboardFilteredFichas : fichas;
+      
+      const totalPecas = dataToUse.reduce((sum, f) => sum + f.quantidade, 0);
+      const totalFichas = dataToUse.length;
+      const totalValor = dataToUse.reduce((sum, f) => sum + f.valorTotal, 0);
+      const totalClusters = new Set(dataToUse.map(f => f.cluster)).size;
+      const totalCategorias = new Set(dataToUse.map(f => f.categoria)).size;
       const mediaValor = totalFichas > 0 ? totalValor / totalFichas : 0;
       const mediaPecas = totalFichas > 0 ? totalPecas / totalFichas : 0;
-      const pilotagemSim = fichas.filter(f => f.pilotagem === 'Sim').length;
+      const pilotagemSim = dataToUse.filter(f => f.pilotagem === 'Sim').length;
+      
+      // Calcular valor médio por peça
+      const valorMedioPeca = totalPecas > 0 ? totalValor / totalPecas : 0;
 
       document.getElementById('total-pecas').textContent = totalPecas.toLocaleString();
       document.getElementById('total-fichas').textContent = totalFichas;
@@ -2810,6 +3223,7 @@
       document.getElementById('media-valor').textContent = `R$ ${mediaValor.toFixed(2).replace('.', ',')}`;
       document.getElementById('media-pecas').textContent = Math.round(mediaPecas);
       document.getElementById('pilotagem-sim').textContent = pilotagemSim;
+      document.getElementById('valor-medio-peca').textContent = `R$ ${valorMedioPeca.toFixed(2).replace('.', ',')}`;
     }
 
     // Variáveis globais para os gráficos Chart.js
@@ -2823,7 +3237,10 @@
         pieChart.destroy();
       }
       
-      if (fichas.length === 0) {
+      // Usar dados filtrados se houver filtros ativos
+      const dataToUse = dashboardFilteredFichas.length > 0 && (currentClusterFilter || currentPeriodFilter) ? dashboardFilteredFichas : fichas;
+      
+      if (dataToUse.length === 0) {
         document.getElementById('pieChart').style.display = 'none';
         document.getElementById('chart-legend').innerHTML = '<p style="text-align: center; color: var(--text-muted);">Nenhum dado disponível</p>';
         return;
@@ -2835,7 +3252,7 @@
       const clusterData = {};
       let totalPecas = 0;
       
-      fichas.forEach(ficha => {
+      dataToUse.forEach(ficha => {
         if (!clusterData[ficha.cluster]) {
           clusterData[ficha.cluster] = 0;
         }
@@ -2948,7 +3365,10 @@
         lineChart.destroy();
       }
       
-      if (fichas.length === 0) {
+      // Usar dados filtrados se houver filtros ativos
+      const dataToUse = dashboardFilteredFichas.length > 0 && (currentClusterFilter || currentPeriodFilter) ? dashboardFilteredFichas : fichas;
+      
+      if (dataToUse.length === 0) {
         document.getElementById('lineChart').style.display = 'none';
         return;
       }
@@ -2957,7 +3377,7 @@
 
       // Agrupar dados por mês
       const monthlyData = {};
-      fichas.forEach(ficha => {
+      dataToUse.forEach(ficha => {
         const date = new Date(ficha.saida);
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         if (!monthlyData[monthKey]) {
@@ -3088,6 +3508,7 @@
         renderFichas();
         updateClusterFilter();
         updateCategoriaFilter();
+        updatePagamentoFilter();
         updateClusterSelects();
         updateCategoriaSelects();
       }
@@ -3106,6 +3527,7 @@
       const pilotagem = document.getElementById('pilotagem').value;
       const valorUnitario = Number(document.getElementById('valorUnitario').value);
       const quantidade = Number(document.getElementById('quantidade').value);
+      const observacoes = document.getElementById('observacoes').value.trim();
       
       // Verificar campos obrigatórios
       if (!cluster) {
@@ -3123,19 +3545,9 @@
         document.getElementById('referencia').focus();
         return;
       }
-      if (!entrada) {
-        alert('Por favor, preencha a data de entrada');
-        document.getElementById('entrada').focus();
-        return;
-      }
       if (!saida) {
         alert('Por favor, preencha a data de saída');
         document.getElementById('saida').focus();
-        return;
-      }
-      if (!pagamento) {
-        alert('Por favor, preencha a data de pagamento');
-        document.getElementById('pagamento').focus();
         return;
       }
       if (!pilotagem) {
@@ -3181,8 +3593,9 @@
         valorTotal: Number(document.getElementById('valorTotal').value),
         pilotagem: pilotagem,
         saida: saida,
-        pagamento: pagamento,
-        entrada: entrada,
+        pagamento: pagamento || '',
+        entrada: entrada || '',
+        observacoes: observacoes,
         cores: coresData,
         // Manter compatibilidade com dados antigos
         pp: coresData.reduce((sum, cor) => sum + cor.pp, 0),
@@ -3223,12 +3636,16 @@
       document.getElementById('quantidade').value = '0';
       document.getElementById('valorTotal').value = '0.00';
       
+      // Limpar campo de observações
+      document.getElementById('observacoes').value = '';
+      
       // Mostrar mensagem de sucesso
       alert('Ficha cadastrada com sucesso!');
       
       // Atualizar filtros e selects
       updateClusterFilter();
       updateCategoriaFilter();
+      updatePagamentoFilter();
       
       // Redirecionar para a lista
       switchScreen('list');
@@ -3297,6 +3714,7 @@
     renderFichas();
     updateClusterFilter();
     updateCategoriaFilter();
+    updatePagamentoFilter();
                 alert('Dados importados com sucesso!');
               } else {
                 alert('O arquivo selecionado não contém um array de fichas válido.');
@@ -3319,6 +3737,7 @@
         renderFichas();
         updateClusterFilter();
         updateCategoriaFilter();
+        updatePagamentoFilter();
         alert('Todos os dados foram removidos com sucesso!');
         // Atualizar a última atualização
         document.getElementById('ultima-atualizacao').textContent = new Date().toLocaleDateString();
@@ -3350,6 +3769,7 @@
     switchScreen('dashboard');
     updateClusterFilter();
     updateCategoriaFilter();
+    updatePagamentoFilter();
     updateCategoriaSelects();
     updateClusterSelects();
     
@@ -3379,7 +3799,10 @@
         tempoProducaoChart.destroy();
       }
       
-      if (fichas.length === 0) {
+      // Usar dados filtrados se houver filtros ativos
+      const dataToUse = dashboardFilteredFichas.length > 0 && (currentClusterFilter || currentPeriodFilter) ? dashboardFilteredFichas : fichas;
+      
+      if (dataToUse.length === 0) {
         document.getElementById('tempoProducaoChart').style.display = 'none';
         return;
       }
@@ -3387,7 +3810,7 @@
       document.getElementById('tempoProducaoChart').style.display = 'block';
 
       // Calcular tempo de produção para cada ficha
-      const tempos = fichas.map(f => {
+      const tempos = dataToUse.map(f => {
         const entrada = new Date(f.entrada);
         const saida = new Date(f.saida);
         const diff = (saida - entrada) / (1000 * 60 * 60 * 24);
@@ -3395,7 +3818,7 @@
       });
 
       // Labels: categoria + referência (limitado a 10 itens para melhor visualização)
-      const labels = fichas.slice(0, 10).map(f => `${f.categoria} - ${f.referencia}`);
+      const labels = dataToUse.slice(0, 10).map(f => `${f.categoria} - ${f.referencia}`);
       const data = tempos.slice(0, 10);
 
       tempoProducaoChart = new Chart(ctx, {
@@ -3493,7 +3916,10 @@
         pieCategoriaChart.destroy();
       }
       
-      if (fichas.length === 0) {
+      // Usar dados filtrados se houver filtros ativos
+      const dataToUse = dashboardFilteredFichas.length > 0 && (currentClusterFilter || currentPeriodFilter) ? dashboardFilteredFichas : fichas;
+      
+      if (dataToUse.length === 0) {
         document.getElementById('pieCategoriaChart').style.display = 'none';
         document.getElementById('pie-categoria-legend').innerHTML = '<p style="text-align: center; color: var(--text-muted);">Nenhum dado disponível</p>';
         return;
@@ -3505,7 +3931,7 @@
       const categoriaData = {};
       let totalPecas = 0;
       
-      fichas.forEach(ficha => {
+      dataToUse.forEach(ficha => {
         if (!categoriaData[ficha.categoria]) {
           categoriaData[ficha.categoria] = 0;
         }

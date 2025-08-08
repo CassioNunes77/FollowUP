@@ -477,32 +477,105 @@
       if (username === 'admin' && password === 'admin123') {
         showSuccess('Login realizado com sucesso! Redirecionando...');
         
-        // Store login status
-        try {
-          localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('currentUser', username);
-          
-          // Verificar se foi salvo corretamente
-          const savedLogin = localStorage.getItem('isLoggedIn');
-          const savedUser = localStorage.getItem('currentUser');
-          
-          console.log('Login salvo no localStorage:', {
-            isLoggedIn: savedLogin,
-            currentUser: savedUser
-          });
-          
-          // Verificar se salvou corretamente antes de redirecionar
-          if (savedLogin === 'true' && savedUser === username) {
-            // Redirect to dashboard
-            setTimeout(() => {
-              console.log('Redirecionando para dashboard...');
-              window.location.href = 'dashboard.html?t=' + Date.now();
-            }, 1500);
-          } else {
-            throw new Error('Falha ao salvar login no localStorage');
+        // Função para testar e salvar dados de login de forma robusta
+        async function saveLoginData() {
+          try {
+            // Testar localStorage primeiro
+            const testKey = 'firefox_test_' + Date.now();
+            const testValue = 'test_value_' + Date.now();
+            
+            console.log('Testando localStorage no Firefox...');
+            localStorage.setItem(testKey, testValue);
+            const retrievedValue = localStorage.getItem(testKey);
+            localStorage.removeItem(testKey);
+            
+            if (retrievedValue !== testValue) {
+              throw new Error('localStorage não está funcionando corretamente');
+            }
+            
+            console.log('localStorage funcionando, salvando dados de login...');
+            
+            // Salvar dados de login com múltiplas tentativas
+            let attempts = 0;
+            const maxAttempts = 3;
+            
+            while (attempts < maxAttempts) {
+              attempts++;
+              console.log(`Tentativa ${attempts} de salvar login...`);
+              
+              // Salvar dados
+              localStorage.setItem('isLoggedIn', 'true');
+              localStorage.setItem('currentUser', username);
+              localStorage.setItem('loginTimestamp', Date.now().toString());
+              
+              // Aguardar um pouco
+              await new Promise(resolve => setTimeout(resolve, 200));
+              
+              // Verificar se salvou corretamente
+              const savedLogin = localStorage.getItem('isLoggedIn');
+              const savedUser = localStorage.getItem('currentUser');
+              const savedTimestamp = localStorage.getItem('loginTimestamp');
+              
+              console.log(`Verificação ${attempts}:`, {
+                isLoggedIn: savedLogin,
+                currentUser: savedUser,
+                timestamp: savedTimestamp
+              });
+              
+              if (savedLogin === 'true' && savedUser === username && savedTimestamp) {
+                console.log('Login salvo com sucesso na tentativa', attempts);
+                return true;
+              }
+              
+              if (attempts < maxAttempts) {
+                console.log('Falha na tentativa', attempts, ', tentando novamente...');
+                await new Promise(resolve => setTimeout(resolve, 300));
+              }
+            }
+            
+            throw new Error('Falha ao salvar login após múltiplas tentativas');
+            
+          } catch (error) {
+            console.error('Erro ao salvar login:', error);
+            
+            // Fallback: tentar usar sessionStorage
+            try {
+              console.log('Tentando fallback com sessionStorage...');
+              sessionStorage.setItem('isLoggedIn', 'true');
+              sessionStorage.setItem('currentUser', username);
+              sessionStorage.setItem('loginTimestamp', Date.now().toString());
+              
+              const sessionLogin = sessionStorage.getItem('isLoggedIn');
+              const sessionUser = sessionStorage.getItem('currentUser');
+              
+              if (sessionLogin === 'true' && sessionUser === username) {
+                console.log('Login salvo com sucesso no sessionStorage');
+                return true;
+              }
+            } catch (sessionError) {
+              console.error('Erro no fallback sessionStorage:', sessionError);
+            }
+            
+            return false;
           }
-        } catch (error) {
-          console.error('Erro ao salvar login:', error);
+        }
+        
+        // Executar salvamento de login
+        const loginSaved = await saveLoginData();
+        
+        if (loginSaved) {
+          console.log('Login verificado com sucesso, redirecionando...');
+          
+          // Adicionar timestamp e parâmetros para evitar cache
+          const timestamp = Date.now();
+          const redirectUrl = `dashboard.html?t=${timestamp}&user=${encodeURIComponent(username)}&firefox=true`;
+          
+          // Pequeno delay para garantir que tudo foi processado
+          setTimeout(() => {
+            console.log('Redirecionando para:', redirectUrl);
+            window.location.href = redirectUrl;
+          }, 1000);
+        } else {
           showError('Erro ao fazer login. Tente novamente.');
           setLoading(false);
         }
@@ -519,6 +592,23 @@
           loginForm.dispatchEvent(new Event('submit'));
         }
       });
+    });
+
+    // Verificar se foi redirecionado do dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirected = urlParams.get('redirected');
+      
+      if (redirected === 'true') {
+        console.log('Usuário redirecionado do dashboard, limpando dados de login...');
+        // Limpar dados de login para forçar novo login
+        try {
+          localStorage.removeItem('isLoggedIn');
+          localStorage.removeItem('currentUser');
+        } catch (error) {
+          console.error('Erro ao limpar dados de login:', error);
+        }
+      }
     });
 
     // Auto-focus username input

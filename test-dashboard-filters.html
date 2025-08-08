@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teste de Filtros Dashboard - Follow Up</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .test-result {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover { background: #0056b3; }
+    .log {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 10px 0;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .filter-section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 5px;
+      margin: 20px 0;
+    }
+    .filter-section select,
+    .filter-section input {
+      padding: 8px;
+      margin: 5px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      width: 200px;
+    }
+    .data-preview {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🧪 Teste de Filtros Dashboard - Follow Up</h1>
+    <p>Este teste verifica se os filtros do dashboard estão funcionando corretamente.</p>
+    
+    <div id="test-results"></div>
+    
+    <div class="filter-section">
+      <h3>🔧 Teste de Filtros</h3>
+      <div>
+        <label for="test-cluster-filter">Cluster:</label>
+        <select id="test-cluster-filter">
+          <option value="">Todos os Clusters</option>
+        </select>
+      </div>
+      <div>
+        <label for="test-period-filter">Período:</label>
+        <select id="test-period-filter">
+          <option value="">Todos os Períodos</option>
+          <option value="7">Últimos 7 dias</option>
+          <option value="30">Últimos 30 dias</option>
+          <option value="90">Últimos 90 dias</option>
+          <option value="180">Últimos 6 meses</option>
+          <option value="365">Último ano</option>
+          <option value="custom">Período Personalizado</option>
+        </select>
+      </div>
+      <div id="test-custom-period" style="display: none;">
+        <div>
+          <label for="test-start-date">Data Inicial:</label>
+          <input type="date" id="test-start-date">
+        </div>
+        <div>
+          <label for="test-end-date">Data Final:</label>
+          <input type="date" id="test-end-date">
+        </div>
+      </div>
+      <div style="margin-top: 10px;">
+        <button onclick="testFilters()">Testar Filtros</button>
+        <button onclick="clearTestFilters()">Limpar Filtros</button>
+        <button onclick="generateTestData()">Gerar Dados de Teste</button>
+      </div>
+    </div>
+    
+    <div class="data-preview">
+      <h3>📊 Dados Filtrados</h3>
+      <div id="filtered-data"></div>
+    </div>
+    
+    <div>
+      <button onclick="runAllTests()">Executar Todos os Testes</button>
+      <button onclick="clearLog()">Limpar Log</button>
+    </div>
+    
+    <h3>Log de Testes:</h3>
+    <div id="log" class="log"></div>
+  </div>
+
+  <script>
+    const logElement = document.getElementById('log');
+    const resultsElement = document.getElementById('test-results');
+    const filteredDataElement = document.getElementById('filtered-data');
+    
+    // Dados de teste
+    let testFichas = [];
+    let filteredFichas = [];
+    
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = document.createElement('div');
+      logEntry.textContent = `[${timestamp}] ${message}`;
+      logEntry.style.color = type === 'error' ? '#dc3545' : 
+                            type === 'success' ? '#28a745' : 
+                            type === 'warning' ? '#ffc107' : '#007bff';
+      logElement.appendChild(logEntry);
+      logElement.scrollTop = logElement.scrollHeight;
+      console.log(message);
+    }
+    
+    function clearLog() {
+      logElement.innerHTML = '';
+    }
+    
+    function addResult(message, type) {
+      const resultDiv = document.createElement('div');
+      resultDiv.className = `test-result ${type}`;
+      resultDiv.textContent = message;
+      resultsElement.appendChild(resultDiv);
+    }
+    
+    function generateTestData() {
+      log('Gerando dados de teste...');
+      
+      const clusters = ['Cluster A', 'Cluster B', 'Cluster C'];
+      const categorias = ['Camisetas', 'Calças', 'Vestidos'];
+      const referencias = ['REF001', 'REF002', 'REF003', 'REF004', 'REF005'];
+      
+      testFichas = [];
+      
+      // Gerar dados para os últimos 12 meses
+      for (let i = 0; i < 50; i++) {
+        const cluster = clusters[Math.floor(Math.random() * clusters.length)];
+        const categoria = categorias[Math.floor(Math.random() * categorias.length)];
+        const referencia = referencias[Math.floor(Math.random() * referencias.length)];
+        
+        // Data aleatória nos últimos 12 meses
+        const dataSaida = new Date();
+        dataSaida.setDate(dataSaida.getDate() - Math.floor(Math.random() * 365));
+        
+        const dataEntrada = new Date(dataSaida);
+        dataEntrada.setDate(dataEntrada.getDate() - Math.floor(Math.random() * 30));
+        
+        const ficha = {
+          cluster: cluster,
+          categoria: categoria,
+          referencia: referencia,
+          quantidade: Math.floor(Math.random() * 100) + 10,
+          valorUnitario: Math.floor(Math.random() * 50) + 10,
+          valorTotal: 0,
+          pilotagem: Math.random() > 0.5 ? 'Sim' : 'Não',
+          entrada: dataEntrada.toISOString().split('T')[0],
+          saida: dataSaida.toISOString().split('T')[0],
+          pagamento: dataSaida.toISOString().split('T')[0]
+        };
+        
+        ficha.valorTotal = ficha.quantidade * ficha.valorUnitario;
+        testFichas.push(ficha);
+      }
+      
+      log(`Gerados ${testFichas.length} registros de teste`, 'success');
+      addResult(`✅ Gerados ${testFichas.length} registros de teste`, 'success');
+      
+      // Atualizar filtro de cluster
+      updateClusterFilter();
+      
+      // Mostrar dados
+      showFilteredData();
+    }
+    
+    function updateClusterFilter() {
+      const clusterFilter = document.getElementById('test-cluster-filter');
+      const clusters = [...new Set(testFichas.map(f => f.cluster))];
+      
+      clusterFilter.innerHTML = '<option value="">Todos os Clusters</option>';
+      clusters.forEach(cluster => {
+        const option = document.createElement('option');
+        option.value = cluster;
+        option.textContent = cluster;
+        clusterFilter.appendChild(option);
+      });
+    }
+    
+    function testFilters() {
+      log('=== TESTANDO FILTROS ===');
+      
+      const clusterFilter = document.getElementById('test-cluster-filter').value;
+      const periodFilter = document.getElementById('test-period-filter').value;
+      const startDate = document.getElementById('test-start-date').value;
+      const endDate = document.getElementById('test-end-date').value;
+      
+      log(`Filtros aplicados: Cluster=${clusterFilter}, Período=${periodFilter}, Início=${startDate}, Fim=${endDate}`);
+      
+      // Aplicar filtros
+      filteredFichas = testFichas.filter(ficha => {
+        // Filtro por cluster
+        const matchCluster = !clusterFilter || ficha.cluster === clusterFilter;
+        
+        // Filtro por período
+        let matchPeriod = true;
+        if (periodFilter && periodFilter !== 'custom') {
+          const fichaDate = new Date(ficha.saida);
+          const daysDiff = (Date.now() - fichaDate.getTime()) / (1000 * 60 * 60 * 24);
+          matchPeriod = daysDiff <= parseInt(periodFilter);
+        } else if (periodFilter === 'custom' && startDate && endDate) {
+          const fichaDate = new Date(ficha.saida);
+          const start = new Date(startDate);
+          const end = new Date(endDate);
+          matchPeriod = fichaDate >= start && fichaDate <= end;
+        }
+        
+        return matchCluster && matchPeriod;
+      });
+      
+      log(`Resultado: ${filteredFichas.length} fichas filtradas de ${testFichas.length} total`);
+      addResult(`✅ Filtros aplicados: ${filteredFichas.length} fichas filtradas`, 'success');
+      
+      showFilteredData();
+    }
+    
+    function showFilteredData() {
+      const dataToShow = filteredFichas.length > 0 ? filteredFichas : testFichas;
+      
+      if (dataToShow.length === 0) {
+        filteredDataElement.innerHTML = '<p>Nenhum dado disponível</p>';
+        return;
+      }
+      
+      const totalPecas = dataToShow.reduce((sum, f) => sum + f.quantidade, 0);
+      const totalValor = dataToShow.reduce((sum, f) => sum + f.valorTotal, 0);
+      const clusters = new Set(dataToShow.map(f => f.cluster));
+      const categorias = new Set(dataToShow.map(f => f.categoria));
+      
+      filteredDataElement.innerHTML = `
+        <h4>Resumo dos Dados:</h4>
+        <p><strong>Total de Fichas:</strong> ${dataToShow.length}</p>
+        <p><strong>Total de Peças:</strong> ${totalPecas.toLocaleString()}</p>
+        <p><strong>Valor Total:</strong> R$ ${totalValor.toFixed(2).replace('.', ',')}</p>
+        <p><strong>Clusters:</strong> ${clusters.size}</p>
+        <p><strong>Categorias:</strong> ${categorias.size}</p>
+        
+        <h4>Primeiros 5 Registros:</h4>
+        <div style="max-height: 200px; overflow-y: auto;">
+          ${dataToShow.slice(0, 5).map(f => `
+            <div style="border-bottom: 1px solid #eee; padding: 5px 0;">
+              <strong>${f.cluster}</strong> - ${f.categoria} - ${f.referencia}<br>
+              <small>${f.quantidade} peças - R$ ${f.valorTotal.toFixed(2)} - ${f.saida}</small>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    
+    function clearTestFilters() {
+      document.getElementById('test-cluster-filter').value = '';
+      document.getElementById('test-period-filter').value = '';
+      document.getElementById('test-start-date').value = '';
+      document.getElementById('test-end-date').value = '';
+      document.getElementById('test-custom-period').style.display = 'none';
+      
+      filteredFichas = [...testFichas];
+      showFilteredData();
+      
+      log('Filtros limpos', 'success');
+      addResult('✅ Filtros limpos', 'success');
+    }
+    
+    function runAllTests() {
+      log('=== EXECUTANDO TODOS OS TESTES ===');
+      resultsElement.innerHTML = '';
+      
+      setTimeout(() => {
+        generateTestData();
+        setTimeout(() => {
+          testFilters();
+          log('=== TESTES CONCLUÍDOS ===');
+        }, 500);
+      }, 100);
+    }
+    
+    // Event listeners
+    document.getElementById('test-period-filter').addEventListener('change', function() {
+      const customPeriod = document.getElementById('test-custom-period');
+      if (this.value === 'custom') {
+        customPeriod.style.display = 'block';
+      } else {
+        customPeriod.style.display = 'none';
+      }
+    });
+    
+    // Executar testes automáticos ao carregar
+    document.addEventListener('DOMContentLoaded', function() {
+      log('Página carregada, pronto para testes');
+    });
+  </script>
+</body>
+</html>

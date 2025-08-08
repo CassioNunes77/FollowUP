@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste de Autenticação - FollowUP</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f8fafc;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .status {
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+    .success { background: #d1fae5; color: #065f46; }
+    .error { background: #fee2e2; color: #991b1b; }
+    .info { background: #dbeafe; color: #1e40af; }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    button:hover { background: #1d4ed8; }
+    .log {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 8px;
+      font-family: monospace;
+      max-height: 300px;
+      overflow-y: auto;
+      margin: 1rem 0;
+    }
+    .user-info {
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Teste de Autenticação Google</h1>
+    <p>Esta página testa se a autenticação Google está configurada corretamente.</p>
+    
+    <div id="status" class="status info">
+      Aguardando inicialização...
+    </div>
+    
+    <div>
+      <button onclick="testGoogleAuth()">🔐 Testar Login Google</button>
+      <button onclick="testLogout()">🚪 Testar Logout</button>
+      <button onclick="checkUser()">👤 Verificar Usuário</button>
+      <button onclick="clearLog()">🗑️ Limpar Log</button>
+    </div>
+    
+    <div id="user-info" class="user-info" style="display: none;">
+      <h3>Informações do Usuário</h3>
+      <p><strong>Nome:</strong> <span id="user-name">-</span></p>
+      <p><strong>Email:</strong> <span id="user-email">-</span></p>
+      <p><strong>UID:</strong> <span id="user-uid">-</span></p>
+      <p><strong>Foto:</strong> <span id="user-photo">-</span></p>
+    </div>
+    
+    <div class="log" id="log"></div>
+  </div>
+
+  <script type="module" src="firebase-auth.js"></script>
+  <script>
+    let currentUser = null;
+    
+    // Aguardar Firebase estar pronto
+    window.addEventListener('load', async () => {
+      try {
+        updateStatus('🔄 Inicializando Firebase Auth...', 'info');
+        log('🚀 Firebase Auth carregado');
+        
+        // Verificar se usuário já está logado
+        const user = await window.FirebaseAuth.getCurrentUser();
+        if (user) {
+          currentUser = user;
+          showUserInfo(user);
+          updateStatus('✅ Usuário já logado', 'success');
+          log('✅ Usuário encontrado: ' + user.email);
+        } else {
+          updateStatus('ℹ️ Nenhum usuário logado', 'info');
+          log('ℹ️ Nenhum usuário logado');
+        }
+      } catch (error) {
+        updateStatus('❌ Erro ao inicializar: ' + error.message, 'error');
+        log('❌ Erro: ' + error.message);
+      }
+    });
+    
+    async function testGoogleAuth() {
+      try {
+        updateStatus('🔄 Fazendo login com Google...', 'info');
+        log('🔐 Iniciando login com Google...');
+        
+        const user = await window.FirebaseAuth.signInWithGoogle();
+        currentUser = user;
+        
+        showUserInfo(user);
+        updateStatus('✅ Login realizado com sucesso!', 'success');
+        log('✅ Login bem-sucedido: ' + user.email);
+        
+      } catch (error) {
+        updateStatus('❌ Erro no login: ' + error.message, 'error');
+        log('❌ Erro no login: ' + error.message);
+        
+        // Log detalhado do erro
+        if (error.code) {
+          log('Código do erro: ' + error.code);
+        }
+        if (error.message) {
+          log('Mensagem: ' + error.message);
+        }
+      }
+    }
+    
+    async function testLogout() {
+      try {
+        updateStatus('🔄 Fazendo logout...', 'info');
+        log('🚪 Iniciando logout...');
+        
+        await window.FirebaseAuth.signOutUser();
+        currentUser = null;
+        
+        document.getElementById('user-info').style.display = 'none';
+        updateStatus('✅ Logout realizado com sucesso!', 'success');
+        log('✅ Logout bem-sucedido');
+        
+      } catch (error) {
+        updateStatus('❌ Erro no logout: ' + error.message, 'error');
+        log('❌ Erro no logout: ' + error.message);
+      }
+    }
+    
+    async function checkUser() {
+      try {
+        log('👤 Verificando usuário atual...');
+        
+        const user = await window.FirebaseAuth.getCurrentUser();
+        if (user) {
+          currentUser = user;
+          showUserInfo(user);
+          updateStatus('✅ Usuário logado: ' + user.email, 'success');
+          log('✅ Usuário encontrado: ' + user.email);
+        } else {
+          document.getElementById('user-info').style.display = 'none';
+          updateStatus('ℹ️ Nenhum usuário logado', 'info');
+          log('ℹ️ Nenhum usuário logado');
+        }
+        
+      } catch (error) {
+        updateStatus('❌ Erro ao verificar usuário: ' + error.message, 'error');
+        log('❌ Erro: ' + error.message);
+      }
+    }
+    
+    function showUserInfo(user) {
+      document.getElementById('user-name').textContent = user.displayName || 'N/A';
+      document.getElementById('user-email').textContent = user.email || 'N/A';
+      document.getElementById('user-uid').textContent = user.uid || 'N/A';
+      document.getElementById('user-photo').textContent = user.photoURL || 'N/A';
+      document.getElementById('user-info').style.display = 'block';
+    }
+    
+    function updateStatus(message, type) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `status ${type}`;
+    }
+    
+    function log(message) {
+      const logDiv = document.getElementById('log');
+      const timestamp = new Date().toLocaleTimeString();
+      logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    
+    function clearLog() {
+      document.getElementById('log').innerHTML = '';
+      log('🗑️ Log limpo');
+    }
+  </script>
+</body>
+</html>

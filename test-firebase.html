@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste Firebase - FollowUP</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f8fafc;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .status {
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+    .success { background: #d1fae5; color: #065f46; }
+    .error { background: #fee2e2; color: #991b1b; }
+    .info { background: #dbeafe; color: #1e40af; }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    button:hover { background: #1d4ed8; }
+    .log {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 8px;
+      font-family: monospace;
+      max-height: 300px;
+      overflow-y: auto;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Teste de Conexão Firebase</h1>
+    <p>Esta página testa a conexão com o Firebase e as funcionalidades básicas.</p>
+    
+    <div id="status" class="status info">
+      Aguardando inicialização...
+    </div>
+    
+    <div>
+      <button onclick="testConnection()">🔗 Testar Conexão</button>
+      <button onclick="testAddFicha()">➕ Testar Adicionar Ficha</button>
+      <button onclick="testGetFichas()">📋 Testar Carregar Fichas</button>
+      <button onclick="testConfig()">⚙️ Testar Configuração</button>
+      <button onclick="clearLog()">🗑️ Limpar Log</button>
+    </div>
+    
+    <div class="log" id="log"></div>
+  </div>
+
+  <script type="module" src="firebase-config.js"></script>
+  <script>
+    let isFirebaseReady = false;
+    
+    // Aguardar Firebase estar pronto
+    window.addEventListener('load', async () => {
+      try {
+        await window.FirebaseService.initializeAuth();
+        isFirebaseReady = true;
+        updateStatus('✅ Firebase inicializado com sucesso', 'success');
+        log('🚀 Firebase configurado e pronto para uso');
+      } catch (error) {
+        updateStatus('❌ Erro ao inicializar Firebase', 'error');
+        log('❌ Erro: ' + error.message);
+      }
+    });
+    
+    function updateStatus(message, type) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `status ${type}`;
+    }
+    
+    function log(message) {
+      const logDiv = document.getElementById('log');
+      const timestamp = new Date().toLocaleTimeString();
+      logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    
+    async function testConnection() {
+      if (!isFirebaseReady) {
+        updateStatus('❌ Firebase não está pronto', 'error');
+        return;
+      }
+      
+      try {
+        log('🔗 Testando conexão com Firebase...');
+        const fichas = await window.FirebaseService.getFichas();
+        log(`✅ Conexão OK! Fichas encontradas: ${fichas.length}`);
+        updateStatus('✅ Conexão com Firebase funcionando', 'success');
+      } catch (error) {
+        log('❌ Erro na conexão: ' + error.message);
+        updateStatus('❌ Erro na conexão com Firebase', 'error');
+      }
+    }
+    
+    async function testAddFicha() {
+      if (!isFirebaseReady) {
+        updateStatus('❌ Firebase não está pronto', 'error');
+        return;
+      }
+      
+      try {
+        log('➕ Testando adição de ficha...');
+        const testFicha = {
+          cluster: 'Teste Cluster',
+          categoria: 'Teste Categoria',
+          referencia: 'TEST-001',
+          quantidade: 10,
+          valorUnitario: 25.50,
+          valorTotal: 255.00,
+          pilotagem: 'Sim',
+          saida: '2024-01-15',
+          pagamento: '2024-01-20',
+          entrada: '2024-01-10',
+          observacoes: 'Ficha de teste para Firebase',
+          cores: [
+            {
+              id: 'test-cor-1',
+              nome: 'Branca',
+              pp: 2, p: 3, m: 2, g: 2, gg: 1
+            }
+          ],
+          pp: 2, p: 3, m: 2, g: 2, gg: 1
+        };
+        
+        const fichaId = await window.FirebaseService.addFicha(testFicha);
+        log(`✅ Ficha adicionada com ID: ${fichaId}`);
+        updateStatus('✅ Ficha adicionada com sucesso', 'success');
+      } catch (error) {
+        log('❌ Erro ao adicionar ficha: ' + error.message);
+        updateStatus('❌ Erro ao adicionar ficha', 'error');
+      }
+    }
+    
+    async function testGetFichas() {
+      if (!isFirebaseReady) {
+        updateStatus('❌ Firebase não está pronto', 'error');
+        return;
+      }
+      
+      try {
+        log('📋 Testando carregamento de fichas...');
+        const fichas = await window.FirebaseService.getFichas();
+        log(`✅ Fichas carregadas: ${fichas.length}`);
+        
+        if (fichas.length > 0) {
+          log('📄 Primeira ficha:');
+          log(JSON.stringify(fichas[0], null, 2));
+        }
+        
+        updateStatus(`✅ ${fichas.length} fichas carregadas`, 'success');
+      } catch (error) {
+        log('❌ Erro ao carregar fichas: ' + error.message);
+        updateStatus('❌ Erro ao carregar fichas', 'error');
+      }
+    }
+    
+    async function testConfig() {
+      if (!isFirebaseReady) {
+        updateStatus('❌ Firebase não está pronto', 'error');
+        return;
+      }
+      
+      try {
+        log('⚙️ Testando configuração...');
+        
+        // Testar salvar configuração
+        const testConfig = {
+          empresaNome: 'Empresa Teste',
+          empresaCnpj: '12.345.678/0001-90',
+          empresaEndereco: 'Rua Teste, 123',
+          empresaTelefone: '(11) 99999-9999'
+        };
+        
+        await window.FirebaseService.saveConfig(testConfig);
+        log('✅ Configuração salva');
+        
+        // Testar carregar configuração
+        const config = await window.FirebaseService.getConfig();
+        log('✅ Configuração carregada:');
+        log(JSON.stringify(config, null, 2));
+        
+        updateStatus('✅ Configuração testada com sucesso', 'success');
+      } catch (error) {
+        log('❌ Erro ao testar configuração: ' + error.message);
+        updateStatus('❌ Erro ao testar configuração', 'error');
+      }
+    }
+    
+    function clearLog() {
+      document.getElementById('log').innerHTML = '';
+      log('🗑️ Log limpo');
+    }
+  </script>
+</body>
+</html>
