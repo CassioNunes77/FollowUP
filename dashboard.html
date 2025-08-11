@@ -2988,22 +2988,32 @@
           console.log('🔍 Verificação foto:', empresaData.fotoUrl && empresaData.fotoUrl.trim() !== '');
           
           if (empresaData.fotoUrl && empresaData.fotoUrl.trim() !== '') {
-            console.log('🖼️ Empresa TEM foto - mostrando apenas ícone da imagem');
-            // Se tem foto, mostrar apenas o ícone da imagem
+            console.log('🖼️ Empresa TEM foto - mostrando foto + nome + descrição');
+            // Se tem foto, mostrar foto + nome + descrição
             empresaMenuInfoElement.innerHTML = `
               <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <img id="empresa-menu-photo" src="${empresaData.fotoUrl}" alt="Logo da empresa" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--success);" />
+                <div style="display: flex; flex-direction: column; gap: 0.125rem;">
+                  <span id="empresa-menu-nome" style="font-weight: 600; color: var(--success-dark); font-size: 0.9rem;">${empresaData.nome}</span>
+                  <span style="color: var(--success-secondary); font-size: 0.8rem;">Empresa Cadastrada</span>
+                </div>
               </div>
             `;
           } else {
-            console.log('📝 Empresa NÃO tem foto - ocultando elemento');
-            // Se não tem foto, ocultar completamente o elemento
-            empresaMenuInfoElement.style.display = 'none';
-            return;
+            console.log('📝 Empresa NÃO tem foto - mostrando apenas nome + descrição');
+            // Se não tem foto, mostrar apenas nome + descrição (sem ícone)
+            empresaMenuInfoElement.innerHTML = `
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.125rem;">
+                  <span id="empresa-menu-nome" style="font-weight: 600; color: var(--success-dark); font-size: 0.9rem;">${empresaData.nome}</span>
+                  <span style="color: var(--success-secondary); font-size: 0.8rem;">Empresa Cadastrada</span>
+                </div>
+              </div>
+            `;
           }
           
           empresaMenuInfoElement.style.display = 'flex';
-          console.log('✅ Elemento empresa-menu-info exibido (apenas ícone)');
+          console.log('✅ Elemento empresa-menu-info exibido');
         } else {
           console.log('ℹ️ Nenhuma empresa cadastrada encontrada');
           empresaMenuInfoElement.style.display = 'none';
