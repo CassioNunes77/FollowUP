@@ -5795,82 +5795,104 @@
       }
     }
     
-    // Event listener para o formulário de configurações
-    configForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
+    // Função para adicionar event listener ao formulário
+    function adicionarEventListenerFormulario() {
+      console.log('🔗 Adicionando event listener ao formulário...');
       
-      try {
-        // Obter valores dos campos
-        const nome = document.getElementById('empresa-nome').value.trim();
-        const cnpj = document.getElementById('empresa-cnpj').value.trim();
-        const endereco = document.getElementById('empresa-endereco').value.trim();
-        const telefone = document.getElementById('empresa-telefone').value.trim();
-        const fotoUrl = document.getElementById('empresa-foto-preview').src || '';
-        
-        // Validar campo obrigatório
-        if (!nome) {
-          alert('O campo "Nome da Empresa" é obrigatório!');
-          document.getElementById('empresa-nome').focus();
-          return;
-        }
-        
-        const configEmpresa = {
-          nome: nome,
-          cnpj: cnpj || '',
-          endereco: endereco || '',
-          telefone: telefone || '',
-          fotoUrl: fotoUrl
-        };
-        
-        console.log('📝 Dados da empresa para salvar:', configEmpresa);
-        
-        // Salvar no Firebase se disponível
-        if (window.FirebaseAuth) {
-          console.log('🔥 Salvando no Firebase...');
-          console.log('📋 Função saveEmpresaConfig:', typeof window.FirebaseAuth.saveEmpresaConfig);
-          
-          try {
-            await window.FirebaseAuth.saveEmpresaConfig(configEmpresa);
-            console.log('✅ Configurações da empresa salvas no Firebase');
-          } catch (firebaseError) {
-            console.error('❌ Erro específico do Firebase:', firebaseError);
-            console.error('❌ Stack trace:', firebaseError.stack);
-            throw firebaseError;
-          }
-        } else {
-          console.log('⚠️ Firebase não disponível, salvando apenas no localStorage');
-        }
-        
-        // Salvar no localStorage como backup
-        localStorage.setItem('configEmpresa', JSON.stringify(configEmpresa));
-        console.log('💾 Dados salvos no localStorage');
-        
-        // Atualizar exibição na barra superior
-        atualizarNomeEmpresaHeader(configEmpresa.nome);
-        
-        // Mostrar informações da empresa
-        mostrarInformacoesEmpresa(configEmpresa);
-        
-        // Ocultar botão de emergência
-        const emergencyButton = document.getElementById('emergency-button');
-        if (emergencyButton) {
-          emergencyButton.style.display = 'none';
-        }
-        
-        // Atualizar texto do botão para indicar que é uma edição
-        const submitButton = document.querySelector('#config-form button[type="submit"]');
-        if (submitButton) {
-          submitButton.textContent = 'Salvar Configurações';
-        }
-        
-        // Feedback visual
-        alert('Configurações da empresa salvas com sucesso!');
-        
-      } catch (error) {
-        console.error('❌ Erro ao salvar configurações:', error);
-        alert('Erro ao salvar configurações: ' + error.message);
+      const configForm = document.getElementById('config-form');
+      if (!configForm) {
+        console.error('❌ Formulário não encontrado para adicionar event listener');
+        return;
       }
-    });
+      
+      console.log('✅ Formulário encontrado, adicionando event listener...');
+      
+      // Remover event listeners existentes
+      const newForm = configForm.cloneNode(true);
+      configForm.parentNode.replaceChild(newForm, configForm);
+      
+      // Adicionar novo event listener
+      newForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        console.log('🎯 Event listener do formulário disparado!');
+        
+        try {
+          // Obter valores dos campos
+          const nome = document.getElementById('empresa-nome').value.trim();
+          const cnpj = document.getElementById('empresa-cnpj').value.trim();
+          const endereco = document.getElementById('empresa-endereco').value.trim();
+          const telefone = document.getElementById('empresa-telefone').value.trim();
+          const fotoUrl = document.getElementById('empresa-foto-preview').src || '';
+          
+          console.log('📝 Valores dos campos:', { nome, cnpj, endereco, telefone, fotoUrl });
+          
+          // Validar campo obrigatório
+          if (!nome) {
+            alert('O campo "Nome da Empresa" é obrigatório!');
+            document.getElementById('empresa-nome').focus();
+            return;
+          }
+          
+          const configEmpresa = {
+            nome: nome,
+            cnpj: cnpj || '',
+            endereco: endereco || '',
+            telefone: telefone || '',
+            fotoUrl: fotoUrl
+          };
+          
+          console.log('📝 Dados da empresa para salvar:', configEmpresa);
+          
+          // Salvar no Firebase se disponível
+          if (window.FirebaseAuth) {
+            console.log('🔥 Salvando no Firebase...');
+            console.log('📋 Função saveEmpresaConfig:', typeof window.FirebaseAuth.saveEmpresaConfig);
+            
+            try {
+              await window.FirebaseAuth.saveEmpresaConfig(configEmpresa);
+              console.log('✅ Configurações da empresa salvas no Firebase');
+            } catch (firebaseError) {
+              console.error('❌ Erro específico do Firebase:', firebaseError);
+              console.error('❌ Stack trace:', firebaseError.stack);
+              throw firebaseError;
+            }
+          } else {
+            console.log('⚠️ Firebase não disponível, salvando apenas no localStorage');
+          }
+          
+          // Salvar no localStorage como backup
+          localStorage.setItem('configEmpresa', JSON.stringify(configEmpresa));
+          console.log('💾 Dados salvos no localStorage');
+          
+          // Atualizar exibição na barra superior
+          atualizarNomeEmpresaHeader(configEmpresa.nome);
+          
+          // Mostrar informações da empresa
+          mostrarInformacoesEmpresa(configEmpresa);
+          
+          // Ocultar botão de emergência
+          const emergencyButton = document.getElementById('emergency-button');
+          if (emergencyButton) {
+            emergencyButton.style.display = 'none';
+          }
+          
+          // Atualizar texto do botão para indicar que é uma edição
+          const submitButton = document.querySelector('#config-form button[type="submit"]');
+          if (submitButton) {
+            submitButton.textContent = 'Salvar Configurações';
+          }
+          
+          // Feedback visual
+          alert('Configurações da empresa salvas com sucesso!');
+          
+        } catch (error) {
+          console.error('❌ Erro ao salvar configurações:', error);
+          alert('Erro ao salvar configurações: ' + error.message);
+        }
+      });
+      
+      console.log('✅ Event listener adicionado com sucesso!');
+    }
     
     // Função para lidar com upload de imagem
     function handleImageUpload(file) {
@@ -5971,6 +5993,9 @@
       if (submitButton) {
         submitButton.textContent = 'Cadastrar Empresa';
       }
+      
+      // Adicionar event listener ao formulário
+      adicionarEventListenerFormulario();
     }
     
     // Função para adicionar empresa
@@ -6365,6 +6390,9 @@
         // Limpar imagem
         limparImagemEmpresa();
         
+        // Adicionar event listener ao formulário
+        adicionarEventListenerFormulario();
+        
         console.log('✅ Formulário de cadastro da empresa exibido com sucesso!');
       } else {
         console.error('❌ Formulário não encontrado!');
@@ -6472,12 +6500,9 @@
         console.log('🔍 Verificação adicional...');
         forcarExibicaoInicial();
         
-        // Forçar event listener se necessário
-        const configForm = document.getElementById('config-form');
-        if (configForm && configForm.style.display !== 'none') {
-          console.log('🔗 Verificando event listener do formulário...');
-          forcarEventListener();
-        }
+        // Adicionar event listener ao formulário
+        console.log('🔗 Adicionando event listener ao formulário...');
+        adicionarEventListenerFormulario();
       }, 2000);
       
       // Adicionar máscaras aos campos CNPJ e Telefone
