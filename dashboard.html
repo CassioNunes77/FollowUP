@@ -192,7 +192,7 @@
       box-shadow: var(--shadow);
       border-bottom: 1px solid var(--border);
       font-family: 'Inter', sans-serif;
-      height: 100px;
+      height: 85px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -1771,15 +1771,7 @@
               <div class="text-gray-600 text-sm font-medium">Média de Peças por Ficha</div>
             </div>
           </div>
-          <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex items-center gap-4 transition-all duration-200 hover:shadow-md hover:border-primary-200">
-            <div class="bg-emerald-100 p-3 rounded-xl">
-              <span class="material-icons text-2xl text-emerald-600">check_circle</span>
-            </div>
-            <div class="text-left">
-              <div class="font-poppins text-2xl font-bold text-gray-900 mb-1" id="pilotagem-sim">0</div>
-              <div class="text-gray-600 text-sm font-medium">Fichas com Pilotagem</div>
-            </div>
-          </div>
+
           <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex items-center gap-4 transition-all duration-200 hover:shadow-md hover:border-primary-200">
             <div class="bg-teal-100 p-3 rounded-xl">
               <span class="material-icons text-2xl text-teal-600">monetization_on</span>
@@ -4721,7 +4713,7 @@
       const totalCategorias = new Set(dataToUse.map(f => f.categoria)).size;
       const mediaValor = totalFichas > 0 ? totalValor / totalFichas : 0;
       const mediaPecas = totalFichas > 0 ? totalPecas / totalFichas : 0;
-      const pilotagemSim = dataToUse.filter(f => f.pilotagem === 'Sim').length;
+
       
       // Calcular valor médio por peça
       const valorMedioPeca = totalPecas > 0 ? totalValor / totalPecas : 0;
@@ -4733,7 +4725,7 @@
       document.getElementById('total-categorias').textContent = totalCategorias;
       document.getElementById('media-valor').textContent = `R$ ${mediaValor.toFixed(2).replace('.', ',')}`;
       document.getElementById('media-pecas').textContent = Math.round(mediaPecas);
-      document.getElementById('pilotagem-sim').textContent = pilotagemSim;
+
       document.getElementById('valor-medio-peca').textContent = `R$ ${valorMedioPeca.toFixed(2).replace('.', ',')}`;
     }
 
