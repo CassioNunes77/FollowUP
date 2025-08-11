@@ -1827,11 +1827,12 @@
             </h3>
             
             <!-- Botão de emergência para forçar exibição -->
-            <div id="emergency-button" style="display: none; text-align: center; padding: 1rem; margin-bottom: 1rem; background: var(--error-light); border: 1px solid var(--error); border-radius: var(--radius);">
-              <p style="color: var(--error); margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 600;">Interface não carregou corretamente</p>
-              <button type="button" onclick="forcarExibicaoFormulario()" style="background: var(--error); color: white; border: none; padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; margin: 0 auto;">
-                <span class="material-icons" style="font-size: 0.9rem;">emergency</span>
-                Forçar Exibição do Formulário
+            <div id="emergency-button" style="display: block; text-align: center; padding: 1rem; margin-bottom: 1rem; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius);">
+              <p style="color: var(--primary-dark); margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 600;">Configurações da Empresa</p>
+              <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.85rem;">Clique no botão abaixo para cadastrar os dados da sua empresa</p>
+              <button type="button" onclick="forcarExibicaoFormulario()" style="background: var(--primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; margin: 0 auto;">
+                <span class="material-icons" style="font-size: 1rem;">add_business</span>
+                Cadastrar Empresa
               </button>
             </div>
             
@@ -6028,10 +6029,12 @@
       // Ocultar todos os elementos
       const empresaInfoDisplay = document.getElementById('empresa-info-display');
       const empresaAddButton = document.getElementById('empresa-add-button');
+      const emergencyButton = document.getElementById('emergency-button');
       const configForm = document.getElementById('config-form');
       
       if (empresaInfoDisplay) empresaInfoDisplay.style.display = 'none';
       if (empresaAddButton) empresaAddButton.style.display = 'none';
+      if (emergencyButton) emergencyButton.style.display = 'none';
       
       // Mostrar formulário
       if (configForm) {
@@ -6064,7 +6067,7 @@
         // Limpar imagem
         limparImagemEmpresa();
         
-        alert('Formulário de cadastro da empresa foi forçado para exibição!');
+        console.log('✅ Formulário de cadastro da empresa exibido com sucesso!');
       } else {
         console.error('❌ Formulário não encontrado!');
         alert('Erro: Formulário não encontrado. Verifique o console para mais detalhes.');
@@ -6115,7 +6118,7 @@
       
       // Função para forçar exibição inicial
       function forcarExibicaoInicial() {
-        console.log('🔧 Forçando exibição inicial...');
+        console.log('🔧 Verificando interface inicial...');
         
         // Verificar se algum elemento está visível
         const empresaInfoDisplay = document.getElementById('empresa-info-display');
@@ -6127,50 +6130,21 @@
         console.log('- empresa-info-display:', empresaInfoDisplay ? empresaInfoDisplay.style.display : 'NÃO ENCONTRADO');
         console.log('- empresa-add-button:', empresaAddButton ? empresaAddButton.style.display : 'NÃO ENCONTRADO');
         console.log('- config-form:', configForm ? configForm.style.display : 'NÃO ENCONTRADO');
+        console.log('- emergency-button:', emergencyButton ? emergencyButton.style.display : 'NÃO ENCONTRADO');
         
-        // Se nenhum elemento estiver visível, mostrar o formulário
+        // Se nenhum elemento estiver visível, mostrar o botão de emergência
         const algoVisivel = (empresaInfoDisplay && empresaInfoDisplay.style.display !== 'none') ||
                            (empresaAddButton && empresaAddButton.style.display !== 'none') ||
-                           (configForm && configForm.style.display !== 'none');
+                           (configForm && configForm.style.display !== 'none') ||
+                           (emergencyButton && emergencyButton.style.display !== 'none');
         
         if (!algoVisivel) {
-          console.log('⚠️ Nenhuma interface visível - tentando forçar exibição do formulário');
-          
-          // Ocultar todos os elementos primeiro
-          if (empresaInfoDisplay) empresaInfoDisplay.style.display = 'none';
-          if (empresaAddButton) empresaAddButton.style.display = 'none';
-          if (configForm) configForm.style.display = 'none';
-          if (emergencyButton) emergencyButton.style.display = 'none';
-          
-          // Tentar mostrar o formulário
-          if (configForm) {
-            configForm.style.display = 'block';
-            console.log('✅ Formulário exibido');
-            
-            // Mostrar instruções
-            const formInstructions = document.getElementById('form-instructions');
-            if (formInstructions) {
-              formInstructions.style.display = 'block';
-            }
-            
-            // Atualizar texto do botão
-            const submitButton = document.querySelector('#config-form button[type="submit"]');
-            if (submitButton) {
-              submitButton.textContent = 'Cadastrar Empresa';
-            }
-          } else {
-            // Se o formulário não foi encontrado, mostrar botão de emergência
-            console.error('❌ Formulário não encontrado - mostrando botão de emergência');
-            if (emergencyButton) {
-              emergencyButton.style.display = 'block';
-            }
+          console.log('⚠️ Nenhuma interface visível - mostrando botão de emergência');
+          if (emergencyButton) {
+            emergencyButton.style.display = 'block';
           }
         } else {
-          console.log('✅ Interface já está visível');
-          // Ocultar botão de emergência se interface está visível
-          if (emergencyButton) {
-            emergencyButton.style.display = 'none';
-          }
+          console.log('✅ Interface visível detectada');
         }
       }
       
