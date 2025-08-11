@@ -401,11 +401,42 @@ async function getEmpresaConfig() {
     if (!querySnapshot.empty) {
       const empresaDoc = querySnapshot.docs[0];
       console.log('✅ Configuração da empresa carregada');
-      return empresaDoc.data();
+      return {
+        id: empresaDoc.id,
+        ...empresaDoc.data()
+      };
     }
     return null;
   } catch (error) {
     console.error('❌ Erro ao carregar configuração da empresa:', error);
+    throw error;
+  }
+}
+
+async function deleteEmpresaConfig() {
+  const user = await getCurrentUser();
+  if (!user) {
+    throw new Error('Usuário não autenticado');
+  }
+
+  try {
+    // Buscar documento da empresa
+    const userQuery = query(
+      collection(db, COLLECTIONS.EMPRESA), 
+      where("userId", "==", user.uid)
+    );
+    const querySnapshot = await getDocs(userQuery);
+    
+    if (!querySnapshot.empty) {
+      // Excluir todos os documentos da empresa do usuário
+      const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
+      await Promise.all(deletePromises);
+      console.log('✅ Configuração da empresa excluída');
+    } else {
+      console.log('ℹ️ Nenhuma configuração da empresa encontrada para excluir');
+    }
+  } catch (error) {
+    console.error('❌ Erro ao excluir configuração da empresa:', error);
     throw error;
   }
 }
@@ -426,7 +457,8 @@ window.FirebaseAuth = {
   saveClusters,
   getClusters,
   saveEmpresaConfig,
-  getEmpresaConfig
+  getEmpresaConfig,
+  deleteEmpresaConfig
 };
 
 console.log('🔐 Firebase Auth configurado para FollowUP - Sistema de Login Google');

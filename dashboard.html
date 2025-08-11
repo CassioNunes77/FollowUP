@@ -1833,38 +1833,60 @@
                   <span class="material-icons" style="font-size: 1.25rem;">business</span>
                   Informações da Empresa
                 </h4>
-                <button type="button" onclick="editarEmpresa()" style="background: var(--primary); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
-                  <span class="material-icons" style="font-size: 1rem;">edit</span>
-                  Editar
-                </button>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button type="button" onclick="editarEmpresa()" style="background: var(--primary); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                    <span class="material-icons" style="font-size: 1rem;">edit</span>
+                    Editar
+                  </button>
+                  <button type="button" onclick="excluirEmpresa()" style="background: var(--error); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                    <span class="material-icons" style="font-size: 1rem;">delete</span>
+                    Excluir
+                  </button>
+                </div>
               </div>
               
-              <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; align-items: start;">
+              <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; align-items: start;">
                 <!-- Logo da Empresa -->
                 <div style="text-align: center;">
-                  <div id="empresa-logo-display" style="width: 80px; height: 80px; margin: 0 auto; border: 2px solid var(--primary-200); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; background: white;">
-                    <img id="empresa-logo-img" src="" alt="Logo da empresa" style="max-width: 100%; max-height: 100%; border-radius: var(--radius); display: none;" />
-                    <span id="empresa-logo-placeholder" class="material-icons" style="color: var(--text-muted); font-size: 2rem;">business</span>
+                  <div id="empresa-logo-display" style="width: 100px; height: 100px; margin: 0 auto; border: 2px solid var(--primary-200); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; background: white; box-shadow: var(--shadow);">
+                    <img id="empresa-logo-img" src="" alt="Logo da empresa" style="max-width: 100%; max-height: 100%; border-radius: var(--radius); display: none; object-fit: cover;" />
+                    <span id="empresa-logo-placeholder" class="material-icons" style="color: var(--text-muted); font-size: 2.5rem;">business</span>
                   </div>
+                  <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">Logo da Empresa</p>
                 </div>
                 
                 <!-- Informações da Empresa -->
-                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                  <div>
-                    <strong style="color: var(--text); font-size: 0.9rem;">Nome:</strong>
-                    <span id="empresa-nome-display-info" style="color: var(--text-secondary); font-size: 0.9rem; margin-left: 0.5rem;">-</span>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                  <div style="padding: 0.75rem; background: white; border-radius: var(--radius); border: 1px solid var(--border-light);">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                      <span class="material-icons" style="color: var(--primary); font-size: 1rem;">business</span>
+                      <strong style="color: var(--text); font-size: 0.9rem;">Nome da Empresa</strong>
+                    </div>
+                    <span id="empresa-nome-display-info" style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;">-</span>
                   </div>
-                  <div>
-                    <strong style="color: var(--text); font-size: 0.9rem;">CNPJ:</strong>
-                    <span id="empresa-cnpj-display-info" style="color: var(--text-secondary); font-size: 0.9rem; margin-left: 0.5rem;">-</span>
+                  
+                  <div style="padding: 0.75rem; background: white; border-radius: var(--radius); border: 1px solid var(--border-light);">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                      <span class="material-icons" style="color: var(--primary); font-size: 1rem;">receipt</span>
+                      <strong style="color: var(--text); font-size: 0.9rem;">CNPJ</strong>
+                    </div>
+                    <span id="empresa-cnpj-display-info" style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;">-</span>
                   </div>
-                  <div>
-                    <strong style="color: var(--text); font-size: 0.9rem;">Endereço:</strong>
-                    <span id="empresa-endereco-display-info" style="color: var(--text-secondary); font-size: 0.9rem; margin-left: 0.5rem;">-</span>
+                  
+                  <div style="padding: 0.75rem; background: white; border-radius: var(--radius); border: 1px solid var(--border-light);">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                      <span class="material-icons" style="color: var(--primary); font-size: 1rem;">location_on</span>
+                      <strong style="color: var(--text); font-size: 0.9rem;">Endereço</strong>
+                    </div>
+                    <span id="empresa-endereco-display-info" style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;">-</span>
                   </div>
-                  <div>
-                    <strong style="color: var(--text); font-size: 0.9rem;">Telefone:</strong>
-                    <span id="empresa-telefone-display-info" style="color: var(--text-secondary); font-size: 0.9rem; margin-left: 0.5rem;">-</span>
+                  
+                  <div style="padding: 0.75rem; background: white; border-radius: var(--radius); border: 1px solid var(--border-light);">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                      <span class="material-icons" style="color: var(--primary); font-size: 1rem;">phone</span>
+                      <strong style="color: var(--text); font-size: 0.9rem;">Telefone</strong>
+                    </div>
+                    <span id="empresa-telefone-display-info" style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;">-</span>
                   </div>
                 </div>
               </div>
@@ -1974,6 +1996,16 @@
               }
               
               #empresa-foto + div button:active {
+                transform: translateY(0);
+              }
+              
+              /* Estilos para os botões de ação da empresa */
+              #empresa-info-display button:hover {
+                transform: translateY(-1px);
+                box-shadow: var(--shadow-md);
+              }
+              
+              #empresa-info-display button:active {
                 transform: translateY(0);
               }
               
@@ -5809,6 +5841,44 @@
     function cancelarEdicao() {
       // Recarregar dados originais
       carregarConfiguracoesEmpresa();
+    }
+    
+    // Função para excluir empresa
+    async function excluirEmpresa() {
+      if (!confirm('Tem certeza que deseja excluir as configurações da empresa? Esta ação não pode ser desfeita.')) {
+        return;
+      }
+      
+      try {
+        console.log('🗑️ Excluindo configurações da empresa...');
+        
+        // Excluir do Firebase se disponível
+        if (window.FirebaseAuth) {
+          await window.FirebaseAuth.deleteEmpresaConfig();
+          console.log('✅ Configurações da empresa excluídas do Firebase');
+        }
+        
+        // Limpar localStorage
+        localStorage.removeItem('configEmpresa');
+        
+        // Limpar formulário
+        document.getElementById('empresa-nome').value = '';
+        document.getElementById('empresa-cnpj').value = '';
+        document.getElementById('empresa-endereco').value = '';
+        document.getElementById('empresa-telefone').value = '';
+        limparImagemEmpresa();
+        
+        // Atualizar interface
+        atualizarNomeEmpresaHeader('');
+        mostrarBotaoAdicionar();
+        
+        // Feedback visual
+        alert('Configurações da empresa excluídas com sucesso!');
+        
+      } catch (error) {
+        console.error('❌ Erro ao excluir configurações da empresa:', error);
+        alert('Erro ao excluir configurações da empresa. Tente novamente.');
+      }
     }
     
     // Carregar configurações ao iniciar

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste Completo Empresa - FollowUP</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f8fafc;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .status {
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+    .success { background: #d1fae5; color: #065f46; }
+    .error { background: #fee2e2; color: #991b1b; }
+    .info { background: #dbeafe; color: #1e40af; }
+    .warning { background: #fef3c7; color: #92400e; }
+    .log {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 8px;
+      font-family: monospace;
+      max-height: 300px;
+      overflow-y: auto;
+      margin: 1rem 0;
+      white-space: pre-wrap;
+      font-size: 0.85rem;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    button:hover { background: #1d4ed8; }
+    .btn-danger {
+      background: #ef4444;
+    }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-success {
+      background: #10b981;
+    }
+    .btn-success:hover { background: #059669; }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .test-section {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .empresa-display {
+      background: #f8fafc;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      margin: 1rem 0;
+    }
+    .empresa-info {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    .empresa-logo {
+      text-align: center;
+    }
+    .empresa-logo img {
+      width: 100px;
+      height: 100px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 2px solid #e2e8f0;
+    }
+    .info-item {
+      padding: 0.75rem;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 0.5rem;
+    }
+    .info-label {
+      font-weight: 600;
+      color: #374151;
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+    .info-value {
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏢 Teste Completo - Configurações da Empresa</h1>
+    <p>Esta página testa todas as funcionalidades: listagem, edição e exclusão das configurações da empresa.</p>
+    
+    <div id="status" class="status info">
+      Aguardando inicialização...
+    </div>
+    
+    <div>
+      <button onclick="testFirebaseConnection()">🔗 Testar Conexão</button>
+      <button onclick="testLoadEmpresa()">📋 Carregar Empresa</button>
+      <button onclick="testSaveEmpresa()">💾 Salvar Empresa</button>
+      <button onclick="testDeleteEmpresa()" class="btn-danger">🗑️ Excluir Empresa</button>
+      <button onclick="clearLog()">🗑️ Limpar Log</button>
+    </div>
+    
+    <!-- Seção de Visualização da Empresa -->
+    <div class="test-section">
+      <h3>📊 Visualização da Empresa</h3>
+      <div id="empresa-display" class="empresa-display hidden">
+        <div class="empresa-info">
+          <div class="empresa-logo">
+            <img id="empresa-logo-display" src="" alt="Logo da empresa" />
+            <p style="color: #6b7280; font-size: 0.8rem; margin-top: 0.5rem;">Logo da Empresa</p>
+          </div>
+          <div>
+            <div class="info-item">
+              <div class="info-label">Nome da Empresa</div>
+              <div id="empresa-nome-display" class="info-value">-</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">CNPJ</div>
+              <div id="empresa-cnpj-display" class="info-value">-</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Endereço</div>
+              <div id="empresa-endereco-display" class="info-value">-</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Telefone</div>
+              <div id="empresa-telefone-display" class="info-value">-</div>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <button onclick="editEmpresa()" class="btn-success">✏️ Editar</button>
+          <button onclick="deleteEmpresa()" class="btn-danger">🗑️ Excluir</button>
+        </div>
+      </div>
+      <div id="empresa-empty" class="empresa-display">
+        <p style="text-align: center; color: #6b7280;">Nenhuma empresa cadastrada</p>
+        <div style="text-align: center; margin-top: 1rem;">
+          <button onclick="showForm()" class="btn-success">➕ Adicionar Empresa</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Formulário de Edição -->
+    <div class="test-section">
+      <h3>✏️ Formulário de Edição</h3>
+      <form id="empresa-form" class="hidden">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div class="form-group">
+            <label for="nome">Nome da Empresa:</label>
+            <input type="text" id="nome" placeholder="Digite o nome da empresa" />
+          </div>
+          <div class="form-group">
+            <label for="cnpj">CNPJ:</label>
+            <input type="text" id="cnpj" placeholder="00.000.000/0000-00" maxlength="18" />
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div class="form-group">
+            <label for="endereco">Endereço:</label>
+            <textarea id="endereco" placeholder="Digite o endereço completo" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="telefone">Telefone:</label>
+            <input type="text" id="telefone" placeholder="(00) 00000-0000" maxlength="15" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="foto">Logo/Foto:</label>
+          <input type="file" id="foto" accept="image/*" />
+          <div id="foto-preview" style="margin-top: 0.5rem;"></div>
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn-success">💾 Salvar</button>
+          <button type="button" onclick="cancelEdit()">❌ Cancelar</button>
+        </div>
+      </form>
+    </div>
+    
+    <div class="log" id="log"></div>
+  </div>
+
+  <script type="module" src="firebase-auth.js"></script>
+  <script>
+    let checkCount = 0;
+    let firebaseReady = false;
+    let currentEmpresa = null;
+    
+    // Aguardar página carregar
+    window.addEventListener('load', () => {
+      log('🚀 Página carregada');
+      updateStatus('⏳ Aguardando Firebase carregar...', 'info');
+      
+      // Verificar Firebase a cada 500ms
+      const checkInterval = setInterval(() => {
+        checkCount++;
+        log(`🔍 Tentativa ${checkCount}: Verificando window.FirebaseAuth...`);
+        
+        if (window.FirebaseAuth) {
+          clearInterval(checkInterval);
+          firebaseReady = true;
+          log('✅ window.FirebaseAuth encontrado!');
+          updateStatus('✅ Firebase carregado com sucesso!', 'success');
+          
+          // Carregar empresa existente
+          loadEmpresa();
+          
+        } else if (checkCount >= 20) { // 10 segundos
+          clearInterval(checkInterval);
+          log('❌ Timeout: window.FirebaseAuth não encontrado após 10 segundos');
+          updateStatus('❌ Firebase não carregou', 'error');
+        }
+      }, 500);
+    });
+    
+    async function loadEmpresa() {
+      try {
+        log('📋 Carregando empresa...');
+        
+        if (!firebaseReady) {
+          log('❌ Firebase não está pronto');
+          return;
+        }
+        
+        const empresa = await window.FirebaseAuth.getEmpresaConfig();
+        
+        if (empresa) {
+          currentEmpresa = empresa;
+          displayEmpresa(empresa);
+          log('✅ Empresa carregada com sucesso');
+        } else {
+          showEmptyState();
+          log('ℹ️ Nenhuma empresa encontrada');
+        }
+        
+      } catch (error) {
+        log('❌ Erro ao carregar empresa: ' + error.message);
+        showEmptyState();
+      }
+    }
+    
+    function displayEmpresa(empresa) {
+      // Mostrar seção de visualização
+      document.getElementById('empresa-display').classList.remove('hidden');
+      document.getElementById('empresa-empty').classList.add('hidden');
+      document.getElementById('empresa-form').classList.add('hidden');
+      
+      // Preencher dados
+      document.getElementById('empresa-nome-display').textContent = empresa.nome || '-';
+      document.getElementById('empresa-cnpj-display').textContent = empresa.cnpj || '-';
+      document.getElementById('empresa-endereco-display').textContent = empresa.endereco || '-';
+      document.getElementById('empresa-telefone-display').textContent = empresa.telefone || '-';
+      
+      // Mostrar logo se existir
+      if (empresa.fotoUrl) {
+        document.getElementById('empresa-logo-display').src = empresa.fotoUrl;
+      } else {
+        document.getElementById('empresa-logo-display').src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSIjOWNhM2FmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Tm8gTG9nbzwvdGV4dD48L3N2Zz4=';
+      }
+    }
+    
+    function showEmptyState() {
+      document.getElementById('empresa-display').classList.add('hidden');
+      document.getElementById('empresa-empty').classList.remove('hidden');
+      document.getElementById('empresa-form').classList.add('hidden');
+    }
+    
+    function showForm() {
+      document.getElementById('empresa-display').classList.add('hidden');
+      document.getElementById('empresa-empty').classList.add('hidden');
+      document.getElementById('empresa-form').classList.remove('hidden');
+      
+      // Limpar formulário
+      document.getElementById('nome').value = '';
+      document.getElementById('cnpj').value = '';
+      document.getElementById('endereco').value = '';
+      document.getElementById('telefone').value = '';
+      document.getElementById('foto').value = '';
+      document.getElementById('foto-preview').innerHTML = '';
+    }
+    
+    function editEmpresa() {
+      if (!currentEmpresa) return;
+      
+      showForm();
+      
+      // Preencher formulário com dados atuais
+      document.getElementById('nome').value = currentEmpresa.nome || '';
+      document.getElementById('cnpj').value = currentEmpresa.cnpj || '';
+      document.getElementById('endereco').value = currentEmpresa.endereco || '';
+      document.getElementById('telefone').value = currentEmpresa.telefone || '';
+      
+      if (currentEmpresa.fotoUrl) {
+        document.getElementById('foto-preview').innerHTML = `<img src="${currentEmpresa.fotoUrl}" alt="Preview" style="max-width: 100px; border-radius: 4px;" />`;
+      }
+    }
+    
+    function cancelEdit() {
+      if (currentEmpresa) {
+        displayEmpresa(currentEmpresa);
+      } else {
+        showEmptyState();
+      }
+    }
+    
+    async function deleteEmpresa() {
+      if (!currentEmpresa) return;
+      
+      if (!confirm('Tem certeza que deseja excluir as configurações da empresa? Esta ação não pode ser desfeita.')) {
+        return;
+      }
+      
+      try {
+        log('🗑️ Excluindo empresa...');
+        
+        if (firebaseReady) {
+          await window.FirebaseAuth.deleteEmpresaConfig();
+          log('✅ Empresa excluída do Firebase');
+        }
+        
+        currentEmpresa = null;
+        showEmptyState();
+        updateStatus('✅ Empresa excluída com sucesso!', 'success');
+        
+      } catch (error) {
+        log('❌ Erro ao excluir empresa: ' + error.message);
+        updateStatus('❌ Erro ao excluir empresa', 'error');
+      }
+    }
+    
+    async function testFirebaseConnection() {
+      try {
+        log('🔗 Testando conexão com Firebase...');
+        
+        if (!firebaseReady) {
+          addTestResult('❌ Firebase não está pronto', 'error');
+          return;
+        }
+        
+        const user = await window.FirebaseAuth.getCurrentUser();
+        if (user) {
+          log('✅ Usuário autenticado: ' + user.email);
+          updateStatus('✅ Conexão Firebase OK - Usuário autenticado', 'success');
+        } else {
+          log('⚠️ Nenhum usuário autenticado');
+          updateStatus('⚠️ Conexão Firebase OK - Nenhum usuário autenticado', 'warning');
+        }
+        
+      } catch (error) {
+        log('❌ Erro na conexão Firebase: ' + error.message);
+        updateStatus('❌ Erro na conexão Firebase', 'error');
+      }
+    }
+    
+    async function testLoadEmpresa() {
+      await loadEmpresa();
+    }
+    
+    async function testSaveEmpresa() {
+      showForm();
+    }
+    
+    async function testDeleteEmpresa() {
+      await deleteEmpresa();
+    }
+    
+    function updateStatus(message, type) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `status ${type}`;
+    }
+    
+    function log(message) {
+      const logDiv = document.getElementById('log');
+      const timestamp = new Date().toLocaleTimeString();
+      logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    
+    function clearLog() {
+      document.getElementById('log').innerHTML = '';
+      log('🗑️ Log limpo');
+    }
+    
+    // Event listeners
+    document.getElementById('empresa-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      try {
+        const dadosEmpresa = {
+          nome: document.getElementById('nome').value,
+          cnpj: document.getElementById('cnpj').value,
+          endereco: document.getElementById('endereco').value,
+          telefone: document.getElementById('telefone').value,
+          fotoUrl: document.getElementById('foto-preview').querySelector('img')?.src || currentEmpresa?.fotoUrl || ''
+        };
+        
+        log('💾 Salvando empresa...');
+        
+        if (firebaseReady) {
+          await window.FirebaseAuth.saveEmpresaConfig(dadosEmpresa);
+          log('✅ Empresa salva no Firebase');
+        }
+        
+        currentEmpresa = dadosEmpresa;
+        displayEmpresa(dadosEmpresa);
+        updateStatus('✅ Empresa salva com sucesso!', 'success');
+        
+      } catch (error) {
+        log('❌ Erro ao salvar empresa: ' + error.message);
+        updateStatus('❌ Erro ao salvar empresa', 'error');
+      }
+    });
+    
+    // Preview de imagem
+    document.getElementById('foto').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('foto-preview').innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 100px; border-radius: 4px;" />`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+</body>
+</html>
