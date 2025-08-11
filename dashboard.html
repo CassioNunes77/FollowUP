@@ -1858,6 +1858,10 @@
                     <span class="material-icons" style="font-size: 1rem;">delete</span>
                     Excluir
                   </button>
+                  <button type="button" onclick="testarCarregamentoEmpresa()" style="background: var(--info); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                    <span class="material-icons" style="font-size: 1rem;">bug_report</span>
+                    Testar
+                  </button>
                 </div>
               </div>
               
@@ -7044,6 +7048,52 @@
     }
     
     // Função para carregar configurações da empresa
+    
+    // Função de teste para verificar carregamento da empresa
+    function testarCarregamentoEmpresa() {
+      console.log('🧪 Iniciando teste de carregamento da empresa...');
+      
+      // Verificar localStorage
+      const configEmpresa = localStorage.getItem('configEmpresa');
+      const empresaConfig = localStorage.getItem('empresaConfig');
+      
+      console.log('📊 localStorage configEmpresa:', configEmpresa);
+      console.log('📊 localStorage empresaConfig:', empresaConfig);
+      
+      // Verificar Firebase
+      if (window.FirebaseAuth) {
+        console.log('🔥 Firebase Auth disponível');
+        window.FirebaseAuth.getEmpresaConfig().then(data => {
+          console.log('📊 Firebase empresa data:', data);
+        }).catch(error => {
+          console.log('❌ Firebase error:', error);
+        });
+      } else {
+        console.log('⚠️ Firebase Auth não disponível');
+      }
+      
+      // Verificar elementos da interface
+      const empresaInfoDisplay = document.getElementById('empresa-info-display');
+      const empresaNomeDisplay = document.getElementById('empresa-nome-display-info');
+      
+      console.log('🔍 Elementos da interface:');
+      console.log('- empresa-info-display:', empresaInfoDisplay);
+      console.log('- empresa-nome-display-info:', empresaNomeDisplay);
+      console.log('- empresa-info-display display:', empresaInfoDisplay ? empresaInfoDisplay.style.display : 'NÃO ENCONTRADO');
+      
+      // Forçar exibição se houver dados
+      if (configEmpresa) {
+        try {
+          const data = JSON.parse(configEmpresa);
+          if (data.nome) {
+            console.log('✅ Dados encontrados, forçando exibição...');
+            mostrarInformacoesEmpresa(data);
+          }
+        } catch (e) {
+          console.error('❌ Erro ao fazer parse:', e);
+        }
+      }
+    }
   </script>
 </body>
 </html> 
