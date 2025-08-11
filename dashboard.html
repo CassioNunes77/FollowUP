@@ -5727,6 +5727,9 @@
       console.log('📋 Iniciando carregamento das configurações da empresa...');
       console.log('🕐 Timestamp:', new Date().toLocaleTimeString());
       
+      // Aguardar um pouco para garantir que o DOM está carregado
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Verificar se os elementos existem
       const elementos = {
         empresaInfoDisplay: document.getElementById('empresa-info-display'),
@@ -5749,103 +5752,113 @@
         }
       }
       
+      let empresaData = null;
+      
       try {
         // Tentar carregar do Firebase primeiro
-        if (window.FirebaseAuth) {
+        if (window.FirebaseAuth && typeof window.FirebaseAuth.getEmpresaConfig === 'function') {
           console.log('🔥 Tentando carregar do Firebase...');
-          const empresaConfig = await window.FirebaseAuth.getEmpresaConfig();
-          console.log('📊 Dados do Firebase:', empresaConfig);
-          
-          if (empresaConfig && empresaConfig.nome && empresaConfig.nome.trim() !== '') {
-            console.log('✅ Empresa encontrada no Firebase');
-            
-            // Preencher formulário com dados do Firebase
-            if (elementos.empresaNome) elementos.empresaNome.value = empresaConfig.nome || '';
-            if (elementos.empresaCnpj) elementos.empresaCnpj.value = empresaConfig.cnpj || '';
-            if (elementos.empresaEndereco) elementos.empresaEndereco.value = empresaConfig.endereco || '';
-            if (elementos.empresaTelefone) elementos.empresaTelefone.value = empresaConfig.telefone || '';
-            
-            // Carregar imagem se existir
-            if (empresaConfig.fotoUrl && elementos.empresaFotoPreview && elementos.empresaFotoPlaceholder) {
-              elementos.empresaFotoPreview.src = empresaConfig.fotoUrl;
-              elementos.empresaFotoPreview.style.display = 'block';
-              elementos.empresaFotoPlaceholder.style.display = 'none';
-            }
-            
-            // Atualizar exibição na barra superior
-            atualizarNomeEmpresaHeader(empresaConfig.nome);
-            
-            // Mostrar informações da empresa
-            mostrarInformacoesEmpresa(empresaConfig);
-            return;
-          } else {
-            console.log('ℹ️ Nenhuma empresa válida encontrada no Firebase');
+          try {
+            empresaData = await window.FirebaseAuth.getEmpresaConfig();
+            console.log('📊 Dados do Firebase:', empresaData);
+          } catch (firebaseError) {
+            console.log('❌ Erro ao carregar do Firebase:', firebaseError.message);
+            empresaData = null;
           }
         } else {
           console.log('⚠️ Firebase Auth não disponível');
         }
       } catch (error) {
-        console.log('❌ Erro ao carregar configurações do Firebase:', error);
+        console.log('❌ Erro geral ao carregar do Firebase:', error);
       }
       
-      // Fallback para localStorage
-      console.log('💾 Tentando carregar do localStorage...');
-      const configEmpresa = JSON.parse(localStorage.getItem('configEmpresa') || '{}');
-      console.log('📊 Dados do localStorage:', configEmpresa);
+      // Se não conseguiu do Firebase, tentar localStorage
+      if (!empresaData || !empresaData.nome) {
+        console.log('💾 Tentando carregar do localStorage...');
+        try {
+          const configEmpresa = JSON.parse(localStorage.getItem('configEmpresa') || '{}');
+          const empresaConfigLocal = JSON.parse(localStorage.getItem('empresaConfig') || '{}');
+          
+          console.log('📊 Dados do localStorage configEmpresa:', configEmpresa);
+          console.log('📊 Dados do localStorage empresaConfig:', empresaConfigLocal);
+          
+          // Usar dados do localStorage se Firebase não retornou dados válidos
+          empresaData = configEmpresa.nome ? configEmpresa : (empresaConfigLocal.nome ? empresaConfigLocal : null);
+        } catch (parseError) {
+          console.error('❌ Erro ao fazer parse do localStorage:', parseError);
+          empresaData = null;
+        }
+      }
       
-      // Verificar também no localStorage com chave 'empresaConfig'
-      const empresaConfigLocal = JSON.parse(localStorage.getItem('empresaConfig') || '{}');
-      console.log('📊 Dados do localStorage (empresaConfig):', empresaConfigLocal);
+      console.log('🔍 Dados finais encontrados:', empresaData);
       
-      // Usar dados do localStorage se Firebase não retornou dados válidos
-      const dadosFinais = configEmpresa.nome ? configEmpresa : (empresaConfigLocal.nome ? empresaConfigLocal : null);
-      
-      console.log('🔍 Dados finais encontrados:', dadosFinais);
-      console.log('🔍 Verificação - dadosFinais existe:', !!dadosFinais);
-      console.log('🔍 Verificação - dadosFinais.nome existe:', !!(dadosFinais && dadosFinais.nome));
-      console.log('🔍 Verificação - dadosFinais.nome não está vazio:', !!(dadosFinais && dadosFinais.nome && dadosFinais.nome.trim() !== ''));
-      
-      if (dadosFinais && dadosFinais.nome && dadosFinais.nome.trim() !== '') {
-        console.log('✅ Empresa encontrada no localStorage:', dadosFinais.nome);
+      if (empresaData && empresaData.nome && empresaData.nome.trim() !== '') {
+        console.log('✅ Empresa encontrada:', empresaData.nome);
         
-        // Preencher formulário
-        if (elementos.empresaNome) elementos.empresaNome.value = dadosFinais.nome || '';
-        if (elementos.empresaCnpj) elementos.empresaCnpj.value = dadosFinais.cnpj || '';
-        if (elementos.empresaEndereco) elementos.empresaEndereco.value = dadosFinais.endereco || '';
-        if (elementos.empresaTelefone) elementos.empresaTelefone.value = dadosFinais.telefone || '';
+        // Forçar exibição das informações da empresa
+        console.log('🏢 Forçando exibição das informações da empresa...');
         
-        // Carregar imagem do localStorage se existir
-        if (dadosFinais.fotoUrl && elementos.empresaFotoPreview && elementos.empresaFotoPlaceholder) {
-          elementos.empresaFotoPreview.src = dadosFinais.fotoUrl;
-          elementos.empresaFotoPreview.style.display = 'block';
-          elementos.empresaFotoPlaceholder.style.display = 'none';
+        // Ocultar formulário se existir
+        if (elementos.configForm) {
+          elementos.configForm.style.display = 'none';
+          console.log('✅ Formulário ocultado');
         }
         
-        // Atualizar exibição na barra superior
-        atualizarNomeEmpresaHeader(dadosFinais.nome);
+        // Ocultar botão de adicionar se existir
+        if (elementos.empresaAddButton) {
+          elementos.empresaAddButton.style.display = 'none';
+          console.log('✅ Botão de adicionar ocultado');
+        }
         
-        // Mostrar informações da empresa
-        console.log('🏢 Chamando mostrarInformacoesEmpresa com:', dadosFinais);
-        mostrarInformacoesEmpresa(dadosFinais);
+        // Mostrar seção de informações
+        if (elementos.empresaInfoDisplay) {
+          elementos.empresaInfoDisplay.style.display = 'block';
+          console.log('✅ Seção de informações exibida');
+          
+          // Preencher informações
+          const nomeDisplay = document.getElementById('empresa-nome-display-info');
+          const cnpjDisplay = document.getElementById('empresa-cnpj-display-info');
+          const enderecoDisplay = document.getElementById('empresa-endereco-display-info');
+          const telefoneDisplay = document.getElementById('empresa-telefone-display-info');
+          
+          if (nomeDisplay) nomeDisplay.textContent = empresaData.nome || '-';
+          if (cnpjDisplay) cnpjDisplay.textContent = empresaData.cnpj || '-';
+          if (enderecoDisplay) enderecoDisplay.textContent = empresaData.endereco || '-';
+          if (telefoneDisplay) telefoneDisplay.textContent = empresaData.telefone || '-';
+          
+          console.log('✅ Informações preenchidas na interface');
+          
+          // Mostrar logo se existir
+          const logoImg = document.getElementById('empresa-logo-img');
+          const logoPlaceholder = document.getElementById('empresa-logo-placeholder');
+          
+          if (empresaData.fotoUrl && logoImg && logoPlaceholder) {
+            logoImg.src = empresaData.fotoUrl;
+            logoImg.style.display = 'block';
+            logoPlaceholder.style.display = 'none';
+            console.log('✅ Logo da empresa exibida');
+          } else if (logoImg && logoPlaceholder) {
+            logoImg.style.display = 'none';
+            logoPlaceholder.style.display = 'block';
+            console.log('✅ Placeholder do logo exibido');
+          }
+        } else {
+          console.error('❌ Elemento empresa-info-display não encontrado');
+        }
         
-
+        // Atualizar top menu
+        if (typeof updateEmpresaMenuInfo === 'function') {
+          try {
+            await updateEmpresaMenuInfo();
+            console.log('✅ Top menu atualizado');
+          } catch (menuError) {
+            console.error('❌ Erro ao atualizar top menu:', menuError);
+          }
+        }
         
-        // Verificar se a função foi executada corretamente
-        setTimeout(() => {
-          const empresaInfoDisplay = document.getElementById('empresa-info-display');
-          const configForm = document.getElementById('config-form');
-          console.log('🔍 Verificação pós-execução:');
-          console.log('- empresa-info-display display:', empresaInfoDisplay ? empresaInfoDisplay.style.display : 'NÃO ENCONTRADO');
-          console.log('- config-form display:', configForm ? configForm.style.display : 'NÃO ENCONTRADO');
-        }, 100);
       } else {
-        // Não há empresa cadastrada - mostrar formulário editável
-        console.log('ℹ️ Nenhuma empresa cadastrada - mostrando formulário editável');
-        console.log('🔍 Verificação final - configEmpresa:', configEmpresa);
-        console.log('🔍 Verificação final - empresaConfigLocal:', empresaConfigLocal);
-        mostrarFormularioEditavel();
-        
-
+        console.log('ℹ️ Nenhuma empresa cadastrada encontrada');
+        // Não mostrar nada - a seção ficará vazia
       }
       
       console.log('✅ Função carregarConfiguracoesEmpresa concluída');
