@@ -1862,6 +1862,10 @@
                     <span class="material-icons" style="font-size: 1rem;">bug_report</span>
                     Testar
                   </button>
+                  <button type="button" onclick="forcarExibicaoEmpresa()" style="background: var(--warning); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                    <span class="material-icons" style="font-size: 1rem;">visibility</span>
+                    Forçar
+                  </button>
                 </div>
               </div>
               
@@ -5862,6 +5866,12 @@
       }
       
       console.log('✅ Função carregarConfiguracoesEmpresa concluída');
+      
+      // Forçar exibição após um pequeno delay
+      setTimeout(() => {
+        console.log('🔄 Chamando forcarExibicaoEmpresa...');
+        forcarExibicaoEmpresa();
+      }, 500);
     }
     
 
@@ -7104,6 +7114,120 @@
           }
         } catch (e) {
           console.error('❌ Erro ao fazer parse:', e);
+        }
+      }
+    }
+    
+    // Função de teste mais direta - FORÇAR EXIBIÇÃO
+    function forcarExibicaoEmpresa() {
+      console.log('🚀 FORÇANDO EXIBIÇÃO DA EMPRESA...');
+      
+      // 1. Verificar se há dados
+      let dadosEmpresa = null;
+      
+      // Tentar localStorage
+      try {
+        const configEmpresa = localStorage.getItem('configEmpresa');
+        if (configEmpresa) {
+          dadosEmpresa = JSON.parse(configEmpresa);
+          console.log('✅ Dados encontrados no localStorage:', dadosEmpresa);
+        }
+      } catch (e) {
+        console.error('❌ Erro ao ler localStorage:', e);
+      }
+      
+      // Se não encontrou, tentar outra chave
+      if (!dadosEmpresa) {
+        try {
+          const empresaConfig = localStorage.getItem('empresaConfig');
+          if (empresaConfig) {
+            dadosEmpresa = JSON.parse(empresaConfig);
+            console.log('✅ Dados encontrados em empresaConfig:', dadosEmpresa);
+          }
+        } catch (e) {
+          console.error('❌ Erro ao ler empresaConfig:', e);
+        }
+      }
+      
+      // 2. Se encontrou dados, forçar exibição
+      if (dadosEmpresa && dadosEmpresa.nome) {
+        console.log('🎯 Forçando exibição com dados:', dadosEmpresa.nome);
+        
+        // Ocultar formulário se existir
+        const configForm = document.getElementById('config-form');
+        if (configForm) {
+          configForm.style.display = 'none';
+          console.log('✅ Formulário ocultado');
+        }
+        
+        // Ocultar botão de adicionar se existir
+        const empresaAddButton = document.getElementById('empresa-add-button');
+        if (empresaAddButton) {
+          empresaAddButton.style.display = 'none';
+          console.log('✅ Botão de adicionar ocultado');
+        }
+        
+        // Mostrar seção de informações
+        const empresaInfoDisplay = document.getElementById('empresa-info-display');
+        if (empresaInfoDisplay) {
+          empresaInfoDisplay.style.display = 'block';
+          console.log('✅ Seção de informações exibida');
+          
+          // Preencher informações
+          const nomeDisplay = document.getElementById('empresa-nome-display-info');
+          const cnpjDisplay = document.getElementById('empresa-cnpj-display-info');
+          const enderecoDisplay = document.getElementById('empresa-endereco-display-info');
+          const telefoneDisplay = document.getElementById('empresa-telefone-display-info');
+          
+          if (nomeDisplay) {
+            nomeDisplay.textContent = dadosEmpresa.nome || '-';
+            console.log('✅ Nome preenchido:', dadosEmpresa.nome);
+          }
+          if (cnpjDisplay) cnpjDisplay.textContent = dadosEmpresa.cnpj || '-';
+          if (enderecoDisplay) enderecoDisplay.textContent = dadosEmpresa.endereco || '-';
+          if (telefoneDisplay) telefoneDisplay.textContent = dadosEmpresa.telefone || '-';
+          
+          // Mostrar logo se existir
+          const logoImg = document.getElementById('empresa-logo-img');
+          const logoPlaceholder = document.getElementById('empresa-logo-placeholder');
+          
+          if (dadosEmpresa.fotoUrl && logoImg && logoPlaceholder) {
+            logoImg.src = dadosEmpresa.fotoUrl;
+            logoImg.style.display = 'block';
+            logoPlaceholder.style.display = 'none';
+            console.log('✅ Logo exibida');
+          } else if (logoImg && logoPlaceholder) {
+            logoImg.style.display = 'none';
+            logoPlaceholder.style.display = 'block';
+            console.log('✅ Placeholder do logo exibido');
+          }
+          
+          console.log('🎉 EXIBIÇÃO FORÇADA CONCLUÍDA!');
+          
+        } else {
+          console.error('❌ Elemento empresa-info-display não encontrado!');
+        }
+      } else {
+        console.log('ℹ️ Nenhum dado de empresa encontrado');
+        
+        // Mostrar mensagem de que não há empresa cadastrada
+        const empresaInfoDisplay = document.getElementById('empresa-info-display');
+        if (empresaInfoDisplay) {
+          empresaInfoDisplay.style.display = 'block';
+          empresaInfoDisplay.innerHTML = `
+            <div style="text-align: center; padding: 2rem;">
+              <div style="color: var(--text-muted); margin-bottom: 1rem;">
+                <span class="material-icons" style="font-size: 3rem; margin-bottom: 1rem;">business_off</span>
+                <h3 style="margin: 0; color: var(--text-secondary);">Nenhuma empresa cadastrada</h3>
+                <p style="margin: 0.5rem 0 0 0; color: var(--text-muted);">Não foi encontrada nenhuma empresa cadastrada no sistema.</p>
+              </div>
+              <button type="button" onclick="adicionarEmpresa()" style="background: var(--primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow); font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; margin: 0 auto;">
+                <span class="material-icons" style="font-size: 1rem;">add_business</span>
+                Cadastrar Empresa
+              </button>
+            </div>
+          `;
+          console.log('✅ Mensagem de "nenhuma empresa" exibida');
         }
       }
     }
