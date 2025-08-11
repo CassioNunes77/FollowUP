@@ -6055,9 +6055,15 @@
           const cnpj = document.getElementById('empresa-cnpj').value.trim();
           const endereco = document.getElementById('empresa-endereco').value.trim();
           const telefone = document.getElementById('empresa-telefone').value.trim();
-          const fotoUrl = document.getElementById('empresa-foto-preview').src || '';
+          const fotoPreview = document.getElementById('empresa-foto-preview');
+          const fotoUrl = fotoPreview ? fotoPreview.src || '' : '';
           
-          console.log('📝 Valores dos campos:', { nome, cnpj, endereco, telefone, fotoUrl });
+          console.log('📝 Valores dos campos:', { nome, cnpj, endereco, telefone });
+          console.log('📸 Verificação da foto:');
+          console.log('- Elemento foto-preview encontrado:', !!fotoPreview);
+          console.log('- URL da foto:', fotoUrl);
+          console.log('- Tamanho da URL:', fotoUrl.length, 'caracteres');
+          console.log('- É uma URL válida:', fotoUrl.startsWith('data:image/'));
           
           // Validar campo obrigatório
           if (!nome) {
@@ -6161,25 +6167,35 @@
           const placeholder = document.getElementById('empresa-foto-placeholder');
           const uploadArea = document.getElementById('foto-upload-area');
           
-          preview.src = e.target.result;
-          preview.style.display = 'block';
-          placeholder.style.display = 'none';
-          
-          // Adicionar efeito de sucesso
-          uploadArea.style.borderColor = 'var(--success)';
-          uploadArea.style.background = 'var(--success-50)';
-          
-          // Ocultar loading
-          mostrarLoadingFoto(false);
-          mostrarStatusFoto('✅ Imagem carregada com sucesso!', 'success');
-          
-          // Resetar borda após 2 segundos
-          setTimeout(() => {
-            uploadArea.style.borderColor = 'var(--border)';
-            uploadArea.style.background = 'var(--bg-secondary)';
-          }, 2000);
-          
-          console.log('✅ Imagem processada com sucesso');
+          if (preview && placeholder && uploadArea) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+            
+            // Adicionar efeito de sucesso
+            uploadArea.style.borderColor = 'var(--success)';
+            uploadArea.style.background = 'var(--success-50)';
+            
+            // Ocultar loading
+            mostrarLoadingFoto(false);
+            mostrarStatusFoto('✅ Imagem carregada com sucesso!', 'success');
+            
+            // Log da URL da imagem
+            console.log('📸 URL da imagem carregada:', e.target.result);
+            console.log('📸 Tamanho da URL:', e.target.result.length, 'caracteres');
+            
+            // Resetar borda após 2 segundos
+            setTimeout(() => {
+              uploadArea.style.borderColor = 'var(--border)';
+              uploadArea.style.background = 'var(--bg-secondary)';
+            }, 2000);
+            
+            console.log('✅ Imagem processada com sucesso');
+          } else {
+            console.error('❌ Elementos de preview não encontrados');
+            mostrarLoadingFoto(false);
+            mostrarStatusFoto('❌ Erro ao processar imagem.', 'error');
+          }
         };
         
         reader.onerror = function() {
@@ -6203,22 +6219,37 @@
         const progressBar = document.getElementById('foto-progress-bar');
         const progress = document.getElementById('foto-progress');
         
-        progress.style.display = 'block';
-        progressBar.style.width = '0%';
-        
-        let width = 0;
-        const interval = setInterval(() => {
-          width += Math.random() * 15;
-          if (width >= 100) {
-            width = 100;
-            clearInterval(interval);
-            setTimeout(() => {
-              progress.style.display = 'none';
-              resolve();
-            }, 300);
-          }
-          progressBar.style.width = width + '%';
-        }, 100);
+        if (progress && progressBar) {
+          progress.style.display = 'block';
+          progressBar.style.width = '0%';
+          
+          let width = 0;
+          const interval = setInterval(() => {
+            // Progresso mais realista
+            if (width < 30) {
+              width += Math.random() * 8; // Início mais lento
+            } else if (width < 80) {
+              width += Math.random() * 12; // Meio mais rápido
+            } else {
+              width += Math.random() * 5; // Final mais lento
+            }
+            
+            if (width >= 100) {
+              width = 100;
+              clearInterval(interval);
+              setTimeout(() => {
+                progress.style.display = 'none';
+                resolve();
+              }, 500);
+            }
+            
+            progressBar.style.width = width + '%';
+            console.log(`📊 Progresso do upload: ${Math.round(width)}%`);
+          }, 150);
+        } else {
+          console.error('❌ Elementos de progresso não encontrados');
+          resolve();
+        }
       });
     }
     
