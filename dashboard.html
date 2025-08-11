@@ -1918,6 +1918,10 @@
                   <span class="material-icons" style="font-size: 0.9rem;">science</span>
                   Testar Firebase
                 </button>
+                <button type="button" onclick="forcarEventListener()" style="background: var(--success-light); color: var(--success); border: 1px solid var(--success); padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 500; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                  <span class="material-icons" style="font-size: 0.9rem;">link</span>
+                  Forçar Event Listener
+                </button>
                 <button type="button" onclick="forcarRecargaEmpresa()" style="background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning); padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 500; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
                   <span class="material-icons" style="font-size: 0.9rem;">refresh</span>
                   Recarregar
@@ -5988,7 +5992,7 @@
     
     // Função de diagnóstico para verificar estado atual
     function diagnosticarEmpresa() {
-      console.log('🔍 === DIAGNÓSTICO DA EMPRESA ===');
+      console.log('🔍 === DIAGNÓSTICO COMPLETO DA EMPRESA ===');
       
       // Verificar elementos da interface
       const elementos = {
@@ -5998,7 +6002,10 @@
         'empresa-nome': document.getElementById('empresa-nome'),
         'empresa-cnpj': document.getElementById('empresa-cnpj'),
         'empresa-endereco': document.getElementById('empresa-endereco'),
-        'empresa-telefone': document.getElementById('empresa-telefone')
+        'empresa-telefone': document.getElementById('empresa-telefone'),
+        'empresa-foto': document.getElementById('empresa-foto'),
+        'empresa-foto-preview': document.getElementById('empresa-foto-preview'),
+        'emergency-button': document.getElementById('emergency-button')
       };
       
       console.log('📋 Elementos da interface:');
@@ -6010,11 +6017,41 @@
         }
       }
       
+      // Verificar formulário especificamente
+      const configForm = document.getElementById('config-form');
+      if (configForm) {
+        console.log('📝 Formulário encontrado:');
+        console.log('- ID:', configForm.id);
+        console.log('- Display:', configForm.style.display);
+        console.log('- Event listeners:', configForm.onclick, configForm.onsubmit);
+        
+        // Verificar se o event listener está funcionando
+        const submitButton = configForm.querySelector('button[type="submit"]');
+        if (submitButton) {
+          console.log('✅ Botão submit encontrado:', submitButton.textContent);
+        } else {
+          console.log('❌ Botão submit NÃO encontrado');
+        }
+      }
+      
       // Verificar Firebase
       console.log('🔥 Status do Firebase:');
       if (window.FirebaseAuth) {
         console.log('✅ Firebase Auth disponível');
         console.log('📋 Funções disponíveis:', Object.keys(window.FirebaseAuth));
+        
+        // Verificar se as funções específicas existem
+        if (window.FirebaseAuth.saveEmpresaConfig) {
+          console.log('✅ saveEmpresaConfig disponível');
+        } else {
+          console.log('❌ saveEmpresaConfig NÃO disponível');
+        }
+        
+        if (window.FirebaseAuth.getEmpresaConfig) {
+          console.log('✅ getEmpresaConfig disponível');
+        } else {
+          console.log('❌ getEmpresaConfig NÃO disponível');
+        }
       } else {
         console.log('❌ Firebase Auth NÃO disponível');
       }
@@ -6048,6 +6085,21 @@
         console.log('Telefone:', elementos['empresa-telefone'].value);
       }
       
+      // Verificar se o event listener está funcionando
+      console.log('🔗 Verificando event listeners:');
+      const form = document.getElementById('config-form');
+      if (form) {
+        // Tentar disparar um evento de teste
+        console.log('🧪 Testando event listener do formulário...');
+        try {
+          const testEvent = new Event('submit', { bubbles: true, cancelable: true });
+          form.dispatchEvent(testEvent);
+          console.log('✅ Event listener funcionando');
+        } catch (e) {
+          console.log('❌ Erro no event listener:', e);
+        }
+      }
+      
       console.log('🔍 === FIM DO DIAGNÓSTICO ===');
     }
     
@@ -6061,6 +6113,93 @@
       
       // Recarregar configurações
       carregarConfiguracoesEmpresa();
+    }
+    
+    // Função para forçar adição do event listener
+    function forcarEventListener() {
+      console.log('🔗 Forçando adição do event listener...');
+      
+      const configForm = document.getElementById('config-form');
+      if (!configForm) {
+        console.error('❌ Formulário não encontrado');
+        return;
+      }
+      
+      // Remover event listeners existentes
+      const newForm = configForm.cloneNode(true);
+      configForm.parentNode.replaceChild(newForm, configForm);
+      
+      // Adicionar novo event listener
+      newForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        console.log('🎯 Event listener funcionando!');
+        
+        try {
+          // Obter valores dos campos
+          const nome = document.getElementById('empresa-nome').value.trim();
+          const cnpj = document.getElementById('empresa-cnpj').value.trim();
+          const endereco = document.getElementById('empresa-endereco').value.trim();
+          const telefone = document.getElementById('empresa-telefone').value.trim();
+          const fotoUrl = document.getElementById('empresa-foto-preview').src || '';
+          
+          // Validar campo obrigatório
+          if (!nome) {
+            alert('O campo "Nome da Empresa" é obrigatório!');
+            document.getElementById('empresa-nome').focus();
+            return;
+          }
+          
+          const configEmpresa = {
+            nome: nome,
+            cnpj: cnpj || '',
+            endereco: endereco || '',
+            telefone: telefone || '',
+            fotoUrl: fotoUrl
+          };
+          
+          console.log('📝 Dados da empresa para salvar:', configEmpresa);
+          
+          // Salvar no Firebase se disponível
+          if (window.FirebaseAuth) {
+            console.log('🔥 Salvando no Firebase...');
+            await window.FirebaseAuth.saveEmpresaConfig(configEmpresa);
+            console.log('✅ Configurações da empresa salvas no Firebase');
+          } else {
+            console.log('⚠️ Firebase não disponível, salvando apenas no localStorage');
+          }
+          
+          // Salvar no localStorage como backup
+          localStorage.setItem('configEmpresa', JSON.stringify(configEmpresa));
+          console.log('💾 Dados salvos no localStorage');
+          
+          // Atualizar exibição na barra superior
+          atualizarNomeEmpresaHeader(configEmpresa.nome);
+          
+          // Mostrar informações da empresa
+          mostrarInformacoesEmpresa(configEmpresa);
+          
+          // Ocultar botão de emergência
+          const emergencyButton = document.getElementById('emergency-button');
+          if (emergencyButton) {
+            emergencyButton.style.display = 'none';
+          }
+          
+          // Atualizar texto do botão para indicar que é uma edição
+          const submitButton = document.querySelector('#config-form button[type="submit"]');
+          if (submitButton) {
+            submitButton.textContent = 'Salvar Configurações';
+          }
+          
+          // Feedback visual
+          alert('Configurações da empresa salvas com sucesso!');
+          
+        } catch (error) {
+          console.error('❌ Erro ao salvar configurações:', error);
+          alert('Erro ao salvar configurações: ' + error.message);
+        }
+      });
+      
+      console.log('✅ Event listener forçado adicionado');
     }
     
     // Função para testar Firebase
@@ -6261,6 +6400,13 @@
       setTimeout(() => {
         console.log('🔍 Verificação adicional...');
         forcarExibicaoInicial();
+        
+        // Forçar event listener se necessário
+        const configForm = document.getElementById('config-form');
+        if (configForm && configForm.style.display !== 'none') {
+          console.log('🔗 Verificando event listener do formulário...');
+          forcarEventListener();
+        }
       }, 2000);
       
       // Adicionar máscaras aos campos CNPJ e Telefone
