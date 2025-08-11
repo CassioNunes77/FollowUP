@@ -3280,30 +3280,133 @@
           }
         };
         
-        window.editarCluster = function(idx) {
-          const clusterAtual = clustersCadastrados[idx];
-          const novoNome = prompt('Digite o novo nome do cluster:', clusterAtual);
+        window.editarCluster = async function(clusterAtual) {
+          console.log('✏️ Editando cluster:', clusterAtual);
           
-          if (novoNome && novoNome.trim() !== '') {
-            const nomeLimpo = novoNome.trim();
+          // Criar modal de edição
+          const modal = document.createElement('div');
+          modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+          `;
+          
+          modal.innerHTML = `
+            <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); min-width: 400px; max-width: 500px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0; color: var(--text); font-size: 1.25rem; font-weight: 600; font-family: 'Poppins', sans-serif; display: flex; align-items: center; gap: 0.5rem;">
+                  <span class="material-icons" style="color: var(--primary); font-size: 1.5rem;">edit</span>
+                  Editar Cluster
+                </h3>
+                <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.5rem; padding: 0.25rem;">×</button>
+              </div>
+              
+              <form id="edit-cluster-form">
+                <div style="margin-bottom: 1.5rem;">
+                  <label for="edit-cluster-nome" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">Nome do Cluster</label>
+                  <input type="text" id="edit-cluster-nome" value="${clusterAtual}" placeholder="Digite o nome do cluster" required style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                </div>
+                
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                  <button type="button" onclick="this.closest('.modal-overlay').remove()" style="background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); padding: 0.75rem 1.5rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif;">Cancelar</button>
+                  <button type="submit" style="background: var(--primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow);">Salvar</button>
+                </div>
+              </form>
+            </div>
+          `;
+          
+          modal.className = 'modal-overlay';
+          document.body.appendChild(modal);
+          
+          // Focar no input
+          const input = modal.querySelector('#edit-cluster-nome');
+          input.focus();
+          input.select();
+          
+          // Adicionar event listener ao formulário
+          const form = modal.querySelector('#edit-cluster-form');
+          form.onsubmit = async function(e) {
+            e.preventDefault();
             
-            // Verificar se o novo nome já existe (exceto o próprio)
-            const existeOutro = clustersCadastrados.some((cluster, index) => 
-              index !== idx && cluster.toLowerCase() === nomeLimpo.toLowerCase()
-            );
+            const novoNome = input.value.trim();
             
-            if (existeOutro) {
-              alert('Já existe um cluster com este nome!');
+            if (!novoNome) {
+              alert('Por favor, digite o nome do cluster');
               return;
             }
             
-            // Atualizar o cluster
-            clustersCadastrados[idx] = nomeLimpo;
-            localStorage.setItem('clustersCadastrados', JSON.stringify(clustersCadastrados));
-            renderClusters();
-            updateClusterSelects();
-            updateClusterFilter();
-          }
+            if (novoNome === clusterAtual) {
+              modal.remove();
+              return;
+            }
+            
+            try {
+              console.log('🔄 Salvando edição do cluster no Firebase...');
+              
+              if (window.FirebaseAuth) {
+                // Carregar clusters existentes do Firebase
+                const clustersExistentes = await loadClustersFromFirebase();
+                
+                // Verificar se o novo nome já existe
+                if (clustersExistentes.includes(novoNome)) {
+                  alert('Já existe um cluster com este nome!');
+                  return;
+                }
+                
+                // Atualizar o cluster
+                const index = clustersExistentes.indexOf(clusterAtual);
+                if (index !== -1) {
+                  clustersExistentes[index] = novoNome;
+                  await window.FirebaseAuth.saveClusters(clustersExistentes);
+                  
+                  console.log('✅ Cluster editado no Firebase');
+                  modal.remove();
+                  
+                  // Recarregar e renderizar
+                  await loadClustersFromFirebase();
+                  renderClusters();
+                  await updateClusterSelects();
+                  await updateClusterFilter();
+                } else {
+                  alert('Cluster não encontrado!');
+                }
+              } else {
+                console.error('❌ FirebaseAuth não está disponível');
+                // Fallback para localStorage
+                const clustersLocal = JSON.parse(localStorage.getItem('clustersCadastrados') || '[]');
+                
+                if (clustersLocal.includes(novoNome)) {
+                  alert('Já existe um cluster com este nome!');
+                  return;
+                }
+                
+                const index = clustersLocal.indexOf(clusterAtual);
+                if (index !== -1) {
+                  clustersLocal[index] = novoNome;
+                  localStorage.setItem('clustersCadastrados', JSON.stringify(clustersLocal));
+                  
+                  console.log('✅ Cluster editado no localStorage');
+                  modal.remove();
+                  
+                  renderClusters();
+                  updateClusterSelects();
+                  updateClusterFilter();
+                } else {
+                  alert('Cluster não encontrado!');
+                }
+              }
+            } catch (error) {
+              console.error('❌ Erro ao editar cluster:', error);
+              alert('Erro ao editar cluster. Tente novamente.');
+            }
+          };
         };
         
         if (clusterForm) {
