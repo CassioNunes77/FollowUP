@@ -1669,16 +1669,16 @@
       <section id="dashboard-section" style="display: block;">
         <!-- Filtros do Dashboard -->
         <div style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 2rem;">
-          <div style="display: flex; align-items: end; gap: 1.5rem; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 200px;">
-              <label for="dashboard-cluster-filter" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">Cluster:</label>
-              <select id="dashboard-cluster-filter" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;">
+          <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 200px;">
+              <label for="dashboard-cluster-filter" style="font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem; white-space: nowrap;">Cluster:</label>
+              <select id="dashboard-cluster-filter" style="flex: 1; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;">
                 <option value="">Todos os Clusters</option>
               </select>
             </div>
-            <div style="flex: 1; min-width: 200px;">
-              <label for="dashboard-period-filter" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">Período:</label>
-              <select id="dashboard-period-filter" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 200px;">
+              <label for="dashboard-period-filter" style="font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem; white-space: nowrap;">Período:</label>
+              <select id="dashboard-period-filter" style="flex: 1; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;">
                 <option value="">Todos os Períodos</option>
                 <option value="7">Últimos 7 dias</option>
                 <option value="30">Últimos 30 dias</option>
@@ -1687,7 +1687,7 @@
                 <option value="365">Último ano</option>
               </select>
             </div>
-            <div style="display: flex; gap: 0.75rem; align-items: end;">
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
               <button onclick="applyDashboardFilters()" style="background: var(--primary); color: white; border: none; padding: 0.75rem 1.25rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow); display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
                 <span class="material-icons" style="font-size: 1rem;">filter_alt</span>
                 Aplicar
