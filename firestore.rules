@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Regras para a coleção 'empresa'
+    match /empresa/{document} {
+      // Permitir leitura e escrita apenas para usuários autenticados
+      // e apenas para documentos onde o userId corresponde ao usuário logado
+      allow read, write: if request.auth != null && 
+                          request.auth.uid == resource.data.userId;
+      
+      // Permitir criação de novos documentos para usuários autenticados
+      allow create: if request.auth != null && 
+                     request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Regras para a coleção 'config'
+    match /config/{document} {
+      allow read, write: if request.auth != null && 
+                          request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+                     request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Regras para a coleção 'fichas'
+    match /fichas/{document} {
+      allow read, write: if request.auth != null && 
+                          request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+                     request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Regras para a coleção 'categorias'
+    match /categorias/{document} {
+      allow read, write: if request.auth != null && 
+                          request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+                     request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Regras para a coleção 'clusters'
+    match /clusters/{document} {
+      allow read, write: if request.auth != null && 
+                          request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+                     request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Regras para a coleção 'usuarios'
+    match /usuarios/{document} {
+      allow read, write: if request.auth != null && 
+                          request.auth.uid == resource.data.uid;
+      allow create: if request.auth != null && 
+                     request.auth.uid == request.resource.data.uid;
+    }
+    
+    // Regra padrão: negar acesso a todas as outras coleções
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
