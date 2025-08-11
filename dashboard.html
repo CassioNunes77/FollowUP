@@ -188,13 +188,14 @@
     
     .content-header {
       background: var(--surface);
-      padding: 2rem 2rem 1.5rem 2rem;
+      padding: 2rem 1.5rem 1.5rem 1.5rem;
       box-shadow: var(--shadow);
       border-bottom: 1px solid var(--border);
       font-family: 'Inter', sans-serif;
-      min-height: 80px;
+      height: 88px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
     }
     
     .content-header h2 {
@@ -1490,28 +1491,28 @@
 
   <div class="content-wrapper md:ml-64 transition-all duration-300">
     <div class="content-header">
-      <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <h2 id="page-title">Dashboard de Produção</h2>
-          <div id="empresa-info" style="display: none; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius); color: var(--primary-dark); font-size: 0.9rem; font-weight: 500;">
-            <span class="material-icons" style="font-size: 1rem;">business</span>
-            <span id="empresa-nome-display">Nome da Empresa</span>
+      <!-- Lado esquerdo: Título da página e informações da empresa -->
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <h2 id="page-title" style="margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--primary); letter-spacing: -0.025em; font-family: 'Poppins', sans-serif;">Dashboard de Produção</h2>
+        <div id="empresa-info" style="display: none; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius); color: var(--primary-dark); font-size: 0.9rem; font-weight: 500;">
+          <span class="material-icons" style="font-size: 1rem;">business</span>
+          <span id="empresa-nome-display">Nome da Empresa</span>
+        </div>
+      </div>
+      
+      <!-- Lado direito: Informações da empresa e usuário logado -->
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <!-- Informações da empresa -->
+        <div id="empresa-menu-info" style="display: none; align-items: center; gap: 0.75rem; padding: 0.5rem 1rem; background: var(--success-50); border: 1px solid var(--success-200); border-radius: var(--radius); box-shadow: var(--shadow);">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <img id="empresa-menu-photo" src="" alt="Logo da empresa" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--success);" />
+            <div style="display: flex; flex-direction: column; gap: 0.125rem;">
+              <span id="empresa-menu-nome" style="font-weight: 600; color: var(--success-dark); font-size: 0.9rem;">Nome da Empresa</span>
+              <span style="color: var(--success-secondary); font-size: 0.8rem;">Empresa Cadastrada</span>
+            </div>
           </div>
         </div>
         
-        <!-- Informações do usuário logado e empresa -->
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <!-- Informações da empresa -->
-          <div id="empresa-menu-info" style="display: none; align-items: center; gap: 0.75rem; padding: 0.5rem 1rem; background: var(--success-50); border: 1px solid var(--success-200); border-radius: var(--radius); box-shadow: var(--shadow);">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <img id="empresa-menu-photo" src="" alt="Logo da empresa" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--success);" />
-              <div style="display: flex; flex-direction: column; gap: 0.125rem;">
-                <span id="empresa-menu-nome" style="font-weight: 600; color: var(--success-dark); font-size: 0.9rem;">Nome da Empresa</span>
-                <span style="color: var(--success-secondary); font-size: 0.8rem;">Empresa Cadastrada</span>
-              </div>
-            </div>
-          </div>
-          
         <!-- Informações do usuário logado -->
         <div id="user-info" style="display: none; align-items: center; gap: 0.75rem; padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);">
           <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -1524,7 +1525,6 @@
           <div style="display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; background: var(--primary-50); border-radius: 4px;">
             <span class="material-icons" style="font-size: 0.875rem; color: var(--primary);">verified</span>
             <span style="font-size: 0.75rem; color: var(--primary); font-weight: 500;">Logado</span>
-            </div>
           </div>
         </div>
       </div>
@@ -1671,17 +1671,17 @@
       </section>
       <section id="dashboard-section" style="display: block;">
         <!-- Filtros do Dashboard -->
-        <div style="background: var(--surface); padding: 1.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 2rem;">
+        <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 2rem;">
           <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 200px;">
               <label for="dashboard-cluster-filter" style="font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem; white-space: nowrap;">Cluster:</label>
-              <select id="dashboard-cluster-filter" style="flex: 1; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;">
+              <select id="dashboard-cluster-filter" style="flex: 1; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;">
                 <option value="">Todos os Clusters</option>
               </select>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 200px;">
               <label for="dashboard-period-filter" style="font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem; white-space: nowrap;">Período:</label>
-              <select id="dashboard-period-filter" style="flex: 1; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;">
+              <select id="dashboard-period-filter" style="flex: 1; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;">
                 <option value="">Todos os Períodos</option>
                 <option value="7">Últimos 7 dias</option>
                 <option value="30">Últimos 30 dias</option>
@@ -1691,15 +1691,15 @@
               </select>
             </div>
             <div style="display: flex; gap: 0.75rem; align-items: center;">
-              <button onclick="applyDashboardFilters()" style="background: var(--primary); color: white; border: none; padding: 0.75rem 1.25rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow); display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+              <button onclick="applyDashboardFilters()" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow); display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
                 <span class="material-icons" style="font-size: 1rem;">filter_alt</span>
                 Aplicar
               </button>
-              <button onclick="clearDashboardFilters()" style="background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); padding: 0.75rem 1.25rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+              <button onclick="clearDashboardFilters()" style="background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
                 <span class="material-icons" style="font-size: 1rem;">clear</span>
                 Limpar
               </button>
-              <button onclick="showDashboardReport()" style="background: var(--success); color: white; border: none; padding: 0.75rem 1.25rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow); display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+              <button onclick="showDashboardReport()" style="background: var(--success); color: white; border: none; padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow); display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
                 <span class="material-icons" style="font-size: 1rem;">assessment</span>
                 Relatório
               </button>
