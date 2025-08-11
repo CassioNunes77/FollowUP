@@ -1914,6 +1914,10 @@
                   <span class="material-icons" style="font-size: 0.9rem;">bug_report</span>
                   Diagnóstico
                 </button>
+                <button type="button" onclick="testarFirebase()" style="background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary); padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 500; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                  <span class="material-icons" style="font-size: 0.9rem;">science</span>
+                  Testar Firebase
+                </button>
                 <button type="button" onclick="forcarRecargaEmpresa()" style="background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning); padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 500; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
                   <span class="material-icons" style="font-size: 0.9rem;">refresh</span>
                   Recarregar
@@ -1939,28 +1943,39 @@
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
-                  <label for="empresa-nome" style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">Nome da Empresa</label>
-                  <input type="text" id="empresa-nome" placeholder="Digite o nome da empresa" style="width: 100%; padding: 0.6rem 0.8rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;" />
+                  <label for="empresa-nome" style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">
+                    Nome da Empresa <span style="color: var(--error); font-weight: 700;">*</span>
+                  </label>
+                  <input type="text" id="empresa-nome" placeholder="Digite o nome da empresa" required style="width: 100%; padding: 0.6rem 0.8rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;" />
+                  <small style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem; display: block;">Campo obrigatório</small>
                 </div>
                 <div>
-                  <label for="empresa-cnpj" style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">CNPJ</label>
+                  <label for="empresa-cnpj" style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">
+                    CNPJ <span style="color: var(--text-muted); font-weight: 400;">(opcional)</span>
+                  </label>
                   <input type="text" id="empresa-cnpj" placeholder="00.000.000/0000-00" maxlength="18" style="width: 100%; padding: 0.6rem 0.8rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;" />
                 </div>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
-                  <label for="empresa-endereco" style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">Endereço</label>
+                  <label for="empresa-endereco" style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">
+                    Endereço <span style="color: var(--text-muted); font-weight: 400;">(opcional)</span>
+                  </label>
                   <input type="text" id="empresa-endereco" placeholder="Digite o endereço completo" style="width: 100%; padding: 0.6rem 0.8rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;" />
                 </div>
                 <div>
-                  <label for="empresa-telefone" style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">Telefone</label>
+                  <label for="empresa-telefone" style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">
+                    Telefone <span style="color: var(--text-muted); font-weight: 400;">(opcional)</span>
+                  </label>
                   <input type="text" id="empresa-telefone" placeholder="(00) 00000-0000" maxlength="15" style="width: 100%; padding: 0.6rem 0.8rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition); font-size: 0.9rem;" />
                 </div>
               </div>
               
               <!-- Campo de Foto/Imagem da Empresa -->
               <div style="margin-bottom: 1rem;">
-                <label for="empresa-foto" style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">Logo/Foto da Empresa</label>
+                <label for="empresa-foto" style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">
+                  Logo/Foto da Empresa <span style="color: var(--text-muted); font-weight: 400;">(opcional)</span>
+                </label>
                 <div style="display: flex; align-items: center; gap: 1rem;">
                   <div style="position: relative; width: 80px; height: 80px; border: 2px dashed var(--border); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); cursor: pointer; transition: all var(--transition);" onclick="document.getElementById('empresa-foto').click();">
                     <img id="empresa-foto-preview" src="" alt="Logo da empresa" style="max-width: 100%; max-height: 100%; border-radius: var(--radius); display: none;" />
@@ -5777,28 +5792,54 @@
       e.preventDefault();
       
       try {
+        // Obter valores dos campos
+        const nome = document.getElementById('empresa-nome').value.trim();
+        const cnpj = document.getElementById('empresa-cnpj').value.trim();
+        const endereco = document.getElementById('empresa-endereco').value.trim();
+        const telefone = document.getElementById('empresa-telefone').value.trim();
+        const fotoUrl = document.getElementById('empresa-foto-preview').src || '';
+        
+        // Validar campo obrigatório
+        if (!nome) {
+          alert('O campo "Nome da Empresa" é obrigatório!');
+          document.getElementById('empresa-nome').focus();
+          return;
+        }
+        
         const configEmpresa = {
-          nome: document.getElementById('empresa-nome').value.trim(),
-          cnpj: document.getElementById('empresa-cnpj').value.trim(),
-          endereco: document.getElementById('empresa-endereco').value.trim(),
-          telefone: document.getElementById('empresa-telefone').value.trim(),
-          fotoUrl: document.getElementById('empresa-foto-preview').src || ''
+          nome: nome,
+          cnpj: cnpj || '',
+          endereco: endereco || '',
+          telefone: telefone || '',
+          fotoUrl: fotoUrl
         };
+        
+        console.log('📝 Dados da empresa para salvar:', configEmpresa);
         
         // Salvar no Firebase se disponível
         if (window.FirebaseAuth) {
+          console.log('🔥 Salvando no Firebase...');
           await window.FirebaseAuth.saveEmpresaConfig(configEmpresa);
           console.log('✅ Configurações da empresa salvas no Firebase');
+        } else {
+          console.log('⚠️ Firebase não disponível, salvando apenas no localStorage');
         }
         
         // Salvar no localStorage como backup
         localStorage.setItem('configEmpresa', JSON.stringify(configEmpresa));
+        console.log('💾 Dados salvos no localStorage');
         
         // Atualizar exibição na barra superior
         atualizarNomeEmpresaHeader(configEmpresa.nome);
         
         // Mostrar informações da empresa
         mostrarInformacoesEmpresa(configEmpresa);
+        
+        // Ocultar botão de emergência
+        const emergencyButton = document.getElementById('emergency-button');
+        if (emergencyButton) {
+          emergencyButton.style.display = 'none';
+        }
         
         // Atualizar texto do botão para indicar que é uma edição
         const submitButton = document.querySelector('#config-form button[type="submit"]');
@@ -5807,11 +5848,11 @@
         }
         
         // Feedback visual
-        alert('Configurações salvas com sucesso!');
+        alert('Configurações da empresa salvas com sucesso!');
         
       } catch (error) {
         console.error('❌ Erro ao salvar configurações:', error);
-        alert('Erro ao salvar configurações. Verifique sua conexão e tente novamente.');
+        alert('Erro ao salvar configurações: ' + error.message);
       }
     });
     
@@ -6020,6 +6061,53 @@
       
       // Recarregar configurações
       carregarConfiguracoesEmpresa();
+    }
+    
+    // Função para testar Firebase
+    async function testarFirebase() {
+      console.log('🧪 Testando Firebase...');
+      
+      try {
+        if (!window.FirebaseAuth) {
+          console.log('❌ Firebase Auth não disponível');
+          alert('Firebase Auth não está disponível. Verifique se o arquivo firebase-auth.js foi carregado.');
+          return;
+        }
+        
+        console.log('✅ Firebase Auth disponível');
+        console.log('📋 Funções disponíveis:', Object.keys(window.FirebaseAuth));
+        
+        // Testar função getCurrentUser
+        const user = await window.FirebaseAuth.getCurrentUser();
+        if (user) {
+          console.log('✅ Usuário autenticado:', user.email);
+          
+          // Testar salvamento
+          const testData = {
+            nome: 'Empresa Teste',
+            cnpj: '00.000.000/0001-00',
+            endereco: 'Endereço Teste',
+            telefone: '(00) 00000-0000',
+            fotoUrl: ''
+          };
+          
+          console.log('📝 Salvando dados de teste:', testData);
+          await window.FirebaseAuth.saveEmpresaConfig(testData);
+          console.log('✅ Dados salvos com sucesso!');
+          
+          // Testar carregamento
+          const loadedData = await window.FirebaseAuth.getEmpresaConfig();
+          console.log('📊 Dados carregados:', loadedData);
+          
+          alert('✅ Firebase funcionando corretamente!\n\nDados salvos e carregados com sucesso.');
+        } else {
+          console.log('❌ Usuário não autenticado');
+          alert('❌ Usuário não autenticado. Faça login primeiro.');
+        }
+      } catch (error) {
+        console.error('❌ Erro no teste do Firebase:', error);
+        alert('❌ Erro no teste do Firebase: ' + error.message);
+      }
     }
     
     // Função para forçar exibição do formulário (emergência)
