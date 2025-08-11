@@ -4713,8 +4713,7 @@
       const totalCategorias = new Set(dataToUse.map(f => f.categoria)).size;
       const mediaValor = totalFichas > 0 ? totalValor / totalFichas : 0;
       const mediaPecas = totalFichas > 0 ? totalPecas / totalFichas : 0;
-
-      
+      const pilotagemSim = dataToUse.filter(f => f.pilotagem === 'Sim').length;
       // Calcular valor médio por peça
       const valorMedioPeca = totalPecas > 0 ? totalValor / totalPecas : 0;
 
