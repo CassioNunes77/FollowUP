@@ -1903,6 +1903,16 @@
             
             <!-- Formulário de Edição -->
             <form id="config-form" style="display: none;">
+              <!-- Texto explicativo para cadastro -->
+              <div id="form-instructions" style="margin-bottom: 1.5rem; padding: 1rem; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius);">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  <span class="material-icons" style="color: var(--primary); font-size: 1.25rem;">info</span>
+                  <strong style="color: var(--primary-dark); font-size: 0.9rem;">Cadastro da Empresa</strong>
+                </div>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0; line-height: 1.4;">
+                  Preencha os dados da sua empresa abaixo. Estas informações serão utilizadas em relatórios e documentos do sistema.
+                </p>
+              </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
                   <label for="empresa-nome" style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">Nome da Empresa</label>
@@ -5687,8 +5697,9 @@
         // Mostrar informações da empresa
         mostrarInformacoesEmpresa(configEmpresa);
       } else {
-        // Mostrar botão para adicionar configurações
-        mostrarBotaoAdicionar();
+        // Não há empresa cadastrada - mostrar formulário editável
+        console.log('ℹ️ Nenhuma empresa cadastrada - mostrando formulário editável');
+        mostrarFormularioEditavel();
       }
     }
     
@@ -5732,6 +5743,12 @@
         
         // Mostrar informações da empresa
         mostrarInformacoesEmpresa(configEmpresa);
+        
+        // Atualizar texto do botão para indicar que é uma edição
+        const submitButton = document.querySelector('#config-form button[type="submit"]');
+        if (submitButton) {
+          submitButton.textContent = 'Salvar Configurações';
+        }
         
         // Feedback visual
         alert('Configurações salvas com sucesso!');
@@ -5817,24 +5834,53 @@
       document.getElementById('empresa-add-button').style.display = 'block';
     }
     
-    // Função para adicionar empresa
-    function adicionarEmpresa() {
-      document.getElementById('empresa-add-button').style.display = 'none';
+    // Função para mostrar formulário editável (quando não há empresa cadastrada)
+    function mostrarFormularioEditavel() {
       document.getElementById('empresa-info-display').style.display = 'none';
+      document.getElementById('empresa-add-button').style.display = 'none';
       document.getElementById('config-form').style.display = 'block';
       
-      // Limpar formulário
+      // Mostrar instruções de cadastro
+      const formInstructions = document.getElementById('form-instructions');
+      if (formInstructions) {
+        formInstructions.style.display = 'block';
+      }
+      
+      // Limpar formulário para cadastro
       document.getElementById('empresa-nome').value = '';
       document.getElementById('empresa-cnpj').value = '';
       document.getElementById('empresa-endereco').value = '';
       document.getElementById('empresa-telefone').value = '';
       limparImagemEmpresa();
+      
+      // Atualizar texto do botão para indicar que é um cadastro
+      const submitButton = document.querySelector('#config-form button[type="submit"]');
+      if (submitButton) {
+        submitButton.textContent = 'Cadastrar Empresa';
+      }
+    }
+    
+    // Função para adicionar empresa
+    function adicionarEmpresa() {
+      mostrarFormularioEditavel();
     }
     
     // Função para editar empresa
     function editarEmpresa() {
       document.getElementById('empresa-info-display').style.display = 'none';
       document.getElementById('config-form').style.display = 'block';
+      
+      // Ocultar instruções de cadastro quando estiver editando
+      const formInstructions = document.getElementById('form-instructions');
+      if (formInstructions) {
+        formInstructions.style.display = 'none';
+      }
+      
+      // Atualizar texto do botão para indicar que é uma edição
+      const submitButton = document.querySelector('#config-form button[type="submit"]');
+      if (submitButton) {
+        submitButton.textContent = 'Salvar Configurações';
+      }
     }
     
     // Função para cancelar edição
@@ -5870,7 +5916,7 @@
         
         // Atualizar interface
         atualizarNomeEmpresaHeader('');
-        mostrarBotaoAdicionar();
+        mostrarFormularioEditavel();
         
         // Feedback visual
         alert('Configurações da empresa excluídas com sucesso!');
