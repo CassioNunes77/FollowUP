@@ -1826,6 +1826,15 @@
               Configurações Gerais
             </h3>
             
+            <!-- Botão de emergência para forçar exibição -->
+            <div id="emergency-button" style="display: none; text-align: center; padding: 1rem; margin-bottom: 1rem; background: var(--error-light); border: 1px solid var(--error); border-radius: var(--radius);">
+              <p style="color: var(--error); margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 600;">Interface não carregou corretamente</p>
+              <button type="button" onclick="forcarExibicaoFormulario()" style="background: var(--error); color: white; border: none; padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; margin: 0 auto;">
+                <span class="material-icons" style="font-size: 0.9rem;">emergency</span>
+                Forçar Exibição do Formulário
+              </button>
+            </div>
+            
             <!-- Visualização das Informações da Empresa -->
             <div id="empresa-info-display" style="display: none; margin-bottom: 1.5rem; padding: 1rem; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius);">
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
@@ -1899,7 +1908,7 @@
                 <span class="material-icons" style="font-size: 1rem;">add_business</span>
                 Adicionar Configurações da Empresa
               </button>
-              <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center;">
+              <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
                 <button type="button" onclick="diagnosticarEmpresa()" style="background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 500; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
                   <span class="material-icons" style="font-size: 0.9rem;">bug_report</span>
                   Diagnóstico
@@ -1907,6 +1916,10 @@
                 <button type="button" onclick="forcarRecargaEmpresa()" style="background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning); padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 500; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
                   <span class="material-icons" style="font-size: 0.9rem;">refresh</span>
                   Recarregar
+                </button>
+                <button type="button" onclick="forcarExibicaoFormulario()" style="background: var(--error-light); color: var(--error); border: 1px solid var(--error); padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 500; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                  <span class="material-icons" style="font-size: 0.9rem;">emergency</span>
+                  Forçar Formulário
                 </button>
               </div>
             </div>
@@ -6008,6 +6021,56 @@
       carregarConfiguracoesEmpresa();
     }
     
+    // Função para forçar exibição do formulário (emergência)
+    function forcarExibicaoFormulario() {
+      console.log('🚨 FORÇANDO EXIBIÇÃO DO FORMULÁRIO (EMERGÊNCIA)');
+      
+      // Ocultar todos os elementos
+      const empresaInfoDisplay = document.getElementById('empresa-info-display');
+      const empresaAddButton = document.getElementById('empresa-add-button');
+      const configForm = document.getElementById('config-form');
+      
+      if (empresaInfoDisplay) empresaInfoDisplay.style.display = 'none';
+      if (empresaAddButton) empresaAddButton.style.display = 'none';
+      
+      // Mostrar formulário
+      if (configForm) {
+        configForm.style.display = 'block';
+        console.log('✅ Formulário forçado para exibição');
+        
+        // Mostrar instruções
+        const formInstructions = document.getElementById('form-instructions');
+        if (formInstructions) {
+          formInstructions.style.display = 'block';
+        }
+        
+        // Atualizar texto do botão
+        const submitButton = document.querySelector('#config-form button[type="submit"]');
+        if (submitButton) {
+          submitButton.textContent = 'Cadastrar Empresa';
+        }
+        
+        // Limpar campos
+        const empresaNome = document.getElementById('empresa-nome');
+        const empresaCnpj = document.getElementById('empresa-cnpj');
+        const empresaEndereco = document.getElementById('empresa-endereco');
+        const empresaTelefone = document.getElementById('empresa-telefone');
+        
+        if (empresaNome) empresaNome.value = '';
+        if (empresaCnpj) empresaCnpj.value = '';
+        if (empresaEndereco) empresaEndereco.value = '';
+        if (empresaTelefone) empresaTelefone.value = '';
+        
+        // Limpar imagem
+        limparImagemEmpresa();
+        
+        alert('Formulário de cadastro da empresa foi forçado para exibição!');
+      } else {
+        console.error('❌ Formulário não encontrado!');
+        alert('Erro: Formulário não encontrado. Verifique o console para mais detalhes.');
+      }
+    }
+    
     // Função para excluir empresa
     async function excluirEmpresa() {
       if (!confirm('Tem certeza que deseja excluir as configurações da empresa? Esta ação não pode ser desfeita.')) {
@@ -6050,6 +6113,70 @@
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🚀 Iniciando carregamento das configurações da empresa...');
       
+      // Função para forçar exibição inicial
+      function forcarExibicaoInicial() {
+        console.log('🔧 Forçando exibição inicial...');
+        
+        // Verificar se algum elemento está visível
+        const empresaInfoDisplay = document.getElementById('empresa-info-display');
+        const empresaAddButton = document.getElementById('empresa-add-button');
+        const configForm = document.getElementById('config-form');
+        const emergencyButton = document.getElementById('emergency-button');
+        
+        console.log('📋 Status dos elementos:');
+        console.log('- empresa-info-display:', empresaInfoDisplay ? empresaInfoDisplay.style.display : 'NÃO ENCONTRADO');
+        console.log('- empresa-add-button:', empresaAddButton ? empresaAddButton.style.display : 'NÃO ENCONTRADO');
+        console.log('- config-form:', configForm ? configForm.style.display : 'NÃO ENCONTRADO');
+        
+        // Se nenhum elemento estiver visível, mostrar o formulário
+        const algoVisivel = (empresaInfoDisplay && empresaInfoDisplay.style.display !== 'none') ||
+                           (empresaAddButton && empresaAddButton.style.display !== 'none') ||
+                           (configForm && configForm.style.display !== 'none');
+        
+        if (!algoVisivel) {
+          console.log('⚠️ Nenhuma interface visível - tentando forçar exibição do formulário');
+          
+          // Ocultar todos os elementos primeiro
+          if (empresaInfoDisplay) empresaInfoDisplay.style.display = 'none';
+          if (empresaAddButton) empresaAddButton.style.display = 'none';
+          if (configForm) configForm.style.display = 'none';
+          if (emergencyButton) emergencyButton.style.display = 'none';
+          
+          // Tentar mostrar o formulário
+          if (configForm) {
+            configForm.style.display = 'block';
+            console.log('✅ Formulário exibido');
+            
+            // Mostrar instruções
+            const formInstructions = document.getElementById('form-instructions');
+            if (formInstructions) {
+              formInstructions.style.display = 'block';
+            }
+            
+            // Atualizar texto do botão
+            const submitButton = document.querySelector('#config-form button[type="submit"]');
+            if (submitButton) {
+              submitButton.textContent = 'Cadastrar Empresa';
+            }
+          } else {
+            // Se o formulário não foi encontrado, mostrar botão de emergência
+            console.error('❌ Formulário não encontrado - mostrando botão de emergência');
+            if (emergencyButton) {
+              emergencyButton.style.display = 'block';
+            }
+          }
+        } else {
+          console.log('✅ Interface já está visível');
+          // Ocultar botão de emergência se interface está visível
+          if (emergencyButton) {
+            emergencyButton.style.display = 'none';
+          }
+        }
+      }
+      
+      // Executar verificação inicial imediatamente
+      forcarExibicaoInicial();
+      
       // Aguardar Firebase carregar
       const checkFirebase = setInterval(() => {
         if (window.FirebaseAuth) {
@@ -6068,24 +6195,11 @@
         }
       }, 5000);
       
-      // Verificação adicional após 3 segundos para garantir que algo seja exibido
+      // Verificação adicional após 2 segundos
       setTimeout(() => {
-        console.log('🔍 Verificação adicional - verificando se algo foi exibido...');
-        const empresaInfoDisplay = document.getElementById('empresa-info-display');
-        const empresaAddButton = document.getElementById('empresa-add-button');
-        const configForm = document.getElementById('config-form');
-        
-        const algoVisivel = (empresaInfoDisplay && empresaInfoDisplay.style.display !== 'none') ||
-                           (empresaAddButton && empresaAddButton.style.display !== 'none') ||
-                           (configForm && configForm.style.display !== 'none');
-        
-        if (!algoVisivel) {
-          console.log('⚠️ Nenhuma interface visível detectada - forçando exibição do formulário');
-          mostrarFormularioEditavel();
-        } else {
-          console.log('✅ Interface visível detectada');
-        }
-      }, 3000);
+        console.log('🔍 Verificação adicional...');
+        forcarExibicaoInicial();
+      }, 2000);
       
       // Adicionar máscaras aos campos CNPJ e Telefone
       const cnpjInput = document.getElementById('empresa-cnpj');
