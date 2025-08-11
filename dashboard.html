@@ -3513,14 +3513,11 @@
           existingClustersSection.remove();
         }
         pageTitle.textContent = 'Configurações do Sistema';
-        // Preencher formulário de configurações
-        configForm.reset();
-        // Carregar configurações existentes
-        const config = JSON.parse(localStorage.getItem('config') || '{}');
-        document.getElementById('empresa-nome').value = config.empresaNome || '';
-        document.getElementById('empresa-cnpj').value = config.empresaCnpj || '';
-        document.getElementById('empresa-endereco').value = config.empresaEndereco || '';
-        document.getElementById('empresa-telefone').value = config.empresaTelefone || '';
+        
+        // Carregar configurações da empresa
+        console.log('🔄 Carregando configurações da empresa ao abrir tela...');
+        await carregarConfiguracoesEmpresa();
+        
         // Atualizar informações do sistema
         atualizarInformacoesSistema();
       }
@@ -5854,6 +5851,7 @@
     // Função para carregar configurações da empresa
     async function carregarConfiguracoesEmpresa() {
       console.log('📋 Iniciando carregamento das configurações da empresa...');
+      console.log('🕐 Timestamp:', new Date().toLocaleTimeString());
       
       // Verificar se os elementos existem
       const elementos = {
@@ -5971,6 +5969,8 @@
         console.log('🔍 Verificação final - empresaConfigLocal:', empresaConfigLocal);
         mostrarFormularioEditavel();
       }
+      
+      console.log('✅ Função carregarConfiguracoesEmpresa concluída');
     }
     
     // Função para atualizar nome da empresa no header
