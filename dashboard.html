@@ -1496,18 +1496,32 @@
           </div>
         </div>
         
-        <!-- Informações do usuário logado -->
-        <div id="user-info" style="display: none; align-items: center; gap: 0.75rem; padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);">
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <img id="user-photo" src="" alt="Foto do usuário" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);" />
-            <div style="display: flex; flex-direction: column; gap: 0.125rem;">
-              <span id="user-name" style="font-weight: 600; color: var(--text); font-size: 0.9rem;">Nome do Usuário</span>
-              <span id="user-email" style="color: var(--text-secondary); font-size: 0.8rem;">email@exemplo.com</span>
+        <!-- Informações do usuário logado e empresa -->
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <!-- Informações da empresa -->
+          <div id="empresa-menu-info" style="display: none; align-items: center; gap: 0.75rem; padding: 0.5rem 1rem; background: var(--success-50); border: 1px solid var(--success-200); border-radius: var(--radius); box-shadow: var(--shadow);">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <img id="empresa-menu-photo" src="" alt="Logo da empresa" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--success);" />
+              <div style="display: flex; flex-direction: column; gap: 0.125rem;">
+                <span id="empresa-menu-nome" style="font-weight: 600; color: var(--success-dark); font-size: 0.9rem;">Nome da Empresa</span>
+                <span style="color: var(--success-secondary); font-size: 0.8rem;">Empresa Cadastrada</span>
+              </div>
             </div>
           </div>
-          <div style="display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; background: var(--primary-50); border-radius: 4px;">
-            <span class="material-icons" style="font-size: 0.875rem; color: var(--primary);">verified</span>
-            <span style="font-size: 0.75rem; color: var(--primary); font-weight: 500;">Logado</span>
+          
+          <!-- Informações do usuário logado -->
+          <div id="user-info" style="display: none; align-items: center; gap: 0.75rem; padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <img id="user-photo" src="" alt="Foto do usuário" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);" />
+              <div style="display: flex; flex-direction: column; gap: 0.125rem;">
+                <span id="user-name" style="font-weight: 600; color: var(--text); font-size: 0.9rem;">Nome do Usuário</span>
+                <span id="user-email" style="color: var(--text-secondary); font-size: 0.8rem;">email@exemplo.com</span>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; background: var(--primary-50); border-radius: 4px;">
+              <span class="material-icons" style="font-size: 0.875rem; color: var(--primary);">verified</span>
+              <span style="font-size: 0.75rem; color: var(--primary); font-weight: 500;">Logado</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1985,9 +1999,22 @@
                   Logo/Foto da Empresa <span style="color: var(--text-muted); font-weight: 400;">(opcional)</span>
                 </label>
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                  <div style="position: relative; width: 80px; height: 80px; border: 2px dashed var(--border); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); cursor: pointer; transition: all var(--transition);" onclick="document.getElementById('empresa-foto').click();">
-                    <img id="empresa-foto-preview" src="" alt="Logo da empresa" style="max-width: 100%; max-height: 100%; border-radius: var(--radius); display: none;" />
+                  <div id="foto-upload-area" style="position: relative; width: 80px; height: 80px; border: 2px dashed var(--border); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); cursor: pointer; transition: all var(--transition); overflow: hidden;" onclick="document.getElementById('empresa-foto').click();">
+                    <img id="empresa-foto-preview" src="" alt="Logo da empresa" style="max-width: 100%; max-height: 100%; border-radius: var(--radius); display: none; object-fit: cover;" />
                     <span id="empresa-foto-placeholder" class="material-icons" style="color: var(--text-muted); font-size: 2rem;">add_photo_alternate</span>
+                    
+                    <!-- Barra de progresso -->
+                    <div id="foto-progress" style="position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--border); display: none;">
+                      <div id="foto-progress-bar" style="height: 100%; background: var(--primary); width: 0%; transition: width 0.3s ease;"></div>
+                    </div>
+                    
+                    <!-- Overlay de carregamento -->
+                    <div id="foto-loading" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; border-radius: var(--radius);">
+                      <div style="text-align: center; color: white;">
+                        <div class="material-icons" style="font-size: 1.5rem; margin-bottom: 0.2rem;">upload</div>
+                        <div style="font-size: 0.7rem;">Carregando...</div>
+                      </div>
+                    </div>
                   </div>
                   <div style="flex: 1;">
                     <input type="file" id="empresa-foto" accept="image/*" style="display: none;" />
@@ -2002,6 +2029,11 @@
                       </button>
                     </div>
                     <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.3rem;">Formatos: JPG, PNG, GIF (máx. 2MB)</p>
+                    
+                    <!-- Status da imagem -->
+                    <div id="foto-status" style="margin-top: 0.5rem; padding: 0.5rem; border-radius: var(--radius); font-size: 0.8rem; display: none;">
+                      <div id="foto-status-text"></div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2041,9 +2073,43 @@
                 display: none !important;
               }
               
-              .foto-upload-area:hover {
+              #foto-upload-area:hover {
                 border-color: var(--primary);
                 background: var(--primary-50);
+                transform: scale(1.02);
+              }
+              
+              #foto-upload-area {
+                transition: all 0.3s ease;
+              }
+              
+              #foto-progress {
+                border-radius: 0 0 var(--radius) var(--radius);
+                overflow: hidden;
+              }
+              
+              #foto-progress-bar {
+                transition: width 0.3s ease;
+                background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+              }
+              
+              #foto-loading {
+                backdrop-filter: blur(2px);
+                animation: pulse 1.5s infinite;
+              }
+              
+              @keyframes pulse {
+                0%, 100% { opacity: 0.7; }
+                50% { opacity: 1; }
+              }
+              
+              #foto-status {
+                animation: slideIn 0.3s ease;
+              }
+              
+              @keyframes slideIn {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
               }
               
               /* Estilos para os botões de imagem */
@@ -2789,18 +2855,27 @@
       }
     }
     
-    // Função para atualizar informações do usuário
+    // Função para atualizar informações do usuário e empresa
     async function updateUserInfo() {
       try {
-        console.log('🔄 Atualizando informações do usuário...');
+        console.log('🔄 Atualizando informações do usuário e empresa...');
         
         const userInfoElement = document.getElementById('user-info');
         const userNameElement = document.getElementById('user-name');
         const userEmailElement = document.getElementById('user-email');
         const userPhotoElement = document.getElementById('user-photo');
         
+        const empresaMenuInfoElement = document.getElementById('empresa-menu-info');
+        const empresaMenuNomeElement = document.getElementById('empresa-menu-nome');
+        const empresaMenuPhotoElement = document.getElementById('empresa-menu-photo');
+        
         if (!userInfoElement || !userNameElement || !userEmailElement || !userPhotoElement) {
           console.error('❌ Elementos de usuário não encontrados');
+          return;
+        }
+        
+        if (!empresaMenuInfoElement || !empresaMenuNomeElement || !empresaMenuPhotoElement) {
+          console.error('❌ Elementos de empresa não encontrados');
           return;
         }
         
@@ -2831,7 +2906,7 @@
           userPhotoURL = localStorage.getItem('userPhotoURL') || '';
         }
         
-        // Atualizar elementos
+        // Atualizar elementos do usuário
         userNameElement.textContent = userDisplayName;
         userEmailElement.textContent = userEmail;
         
@@ -2852,8 +2927,81 @@
         userInfoElement.style.display = 'flex';
         console.log('✅ Informações do usuário atualizadas:', { userDisplayName, userEmail });
         
+        // Carregar e exibir informações da empresa
+        await updateEmpresaMenuInfo();
+        
       } catch (error) {
         console.error('❌ Erro ao atualizar informações do usuário:', error);
+      }
+    }
+    
+    // Função para atualizar informações da empresa no menu
+    async function updateEmpresaMenuInfo() {
+      try {
+        console.log('🔄 Atualizando informações da empresa no menu...');
+        
+        const empresaMenuInfoElement = document.getElementById('empresa-menu-info');
+        const empresaMenuNomeElement = document.getElementById('empresa-menu-nome');
+        const empresaMenuPhotoElement = document.getElementById('empresa-menu-photo');
+        
+        if (!empresaMenuInfoElement || !empresaMenuNomeElement || !empresaMenuPhotoElement) {
+          console.error('❌ Elementos de empresa no menu não encontrados');
+          return;
+        }
+        
+        let empresaData = null;
+        
+        // Tentar obter dados da empresa do Firebase
+        if (window.FirebaseAuth) {
+          try {
+            empresaData = await window.FirebaseAuth.getEmpresaConfig();
+            console.log('📊 Dados da empresa do Firebase:', empresaData);
+          } catch (firebaseError) {
+            console.error('❌ Erro ao obter empresa do Firebase:', firebaseError);
+          }
+        }
+        
+        // Fallback para localStorage se Firebase não disponível ou sem dados
+        if (!empresaData || !empresaData.nome) {
+          console.log('🔄 Usando dados da empresa do localStorage...');
+          const empresaLocalStorage = localStorage.getItem('empresaConfig');
+          if (empresaLocalStorage) {
+            try {
+              empresaData = JSON.parse(empresaLocalStorage);
+              console.log('📊 Dados da empresa do localStorage:', empresaData);
+            } catch (parseError) {
+              console.error('❌ Erro ao parsear dados da empresa do localStorage:', parseError);
+            }
+          }
+        }
+        
+        // Exibir informações da empresa se disponível
+        if (empresaData && empresaData.nome) {
+          console.log('✅ Exibindo informações da empresa:', empresaData.nome);
+          
+          empresaMenuNomeElement.textContent = empresaData.nome;
+          
+          if (empresaData.fotoUrl) {
+            empresaMenuPhotoElement.src = empresaData.fotoUrl;
+            empresaMenuPhotoElement.style.display = 'block';
+          } else {
+            // Usar ícone padrão se não há foto
+            empresaMenuPhotoElement.style.display = 'none';
+            empresaMenuPhotoElement.parentElement.innerHTML = `
+              <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; border: 2px solid var(--success);">
+                <span class="material-icons" style="color: white; font-size: 1rem;">business</span>
+              </div>
+            `;
+          }
+          
+          empresaMenuInfoElement.style.display = 'flex';
+        } else {
+          console.log('ℹ️ Nenhuma empresa cadastrada encontrada');
+          empresaMenuInfoElement.style.display = 'none';
+        }
+        
+      } catch (error) {
+        console.error('❌ Erro ao atualizar informações da empresa no menu:', error);
       }
     }
     
@@ -5895,32 +6043,147 @@
     }
     
     // Função para lidar com upload de imagem
-    function handleImageUpload(file) {
+    async function handleImageUpload(file) {
       if (!file) return;
+      
+      console.log('📸 Iniciando upload de imagem:', file.name, file.size, 'bytes');
       
       // Validar tipo de arquivo
       if (!file.type.startsWith('image/')) {
-        alert('Por favor, selecione apenas arquivos de imagem.');
+        mostrarStatusFoto('❌ Por favor, selecione apenas arquivos de imagem.', 'error');
         return;
       }
       
       // Validar tamanho (máximo 2MB)
       if (file.size > 2 * 1024 * 1024) {
-        alert('A imagem deve ter no máximo 2MB.');
+        mostrarStatusFoto('❌ A imagem deve ter no máximo 2MB.', 'error');
         return;
       }
       
-      // Criar URL para preview
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const preview = document.getElementById('empresa-foto-preview');
-        const placeholder = document.getElementById('empresa-foto-placeholder');
+      // Mostrar loading
+      mostrarLoadingFoto(true);
+      mostrarStatusFoto('📸 Processando imagem...', 'info');
+      
+      try {
+        // Simular progresso
+        await simularProgressoUpload();
         
-        preview.src = e.target.result;
-        preview.style.display = 'block';
-        placeholder.style.display = 'none';
-      };
-      reader.readAsDataURL(file);
+        // Criar URL para preview
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          const preview = document.getElementById('empresa-foto-preview');
+          const placeholder = document.getElementById('empresa-foto-placeholder');
+          const uploadArea = document.getElementById('foto-upload-area');
+          
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+          placeholder.style.display = 'none';
+          
+          // Adicionar efeito de sucesso
+          uploadArea.style.borderColor = 'var(--success)';
+          uploadArea.style.background = 'var(--success-50)';
+          
+          // Ocultar loading
+          mostrarLoadingFoto(false);
+          mostrarStatusFoto('✅ Imagem carregada com sucesso!', 'success');
+          
+          // Resetar borda após 2 segundos
+          setTimeout(() => {
+            uploadArea.style.borderColor = 'var(--border)';
+            uploadArea.style.background = 'var(--bg-secondary)';
+          }, 2000);
+          
+          console.log('✅ Imagem processada com sucesso');
+        };
+        
+        reader.onerror = function() {
+          mostrarLoadingFoto(false);
+          mostrarStatusFoto('❌ Erro ao processar imagem.', 'error');
+          console.error('❌ Erro ao ler arquivo de imagem');
+        };
+        
+        reader.readAsDataURL(file);
+        
+      } catch (error) {
+        mostrarLoadingFoto(false);
+        mostrarStatusFoto('❌ Erro ao processar imagem.', 'error');
+        console.error('❌ Erro no upload de imagem:', error);
+      }
+    }
+    
+    // Função para simular progresso de upload
+    function simularProgressoUpload() {
+      return new Promise((resolve) => {
+        const progressBar = document.getElementById('foto-progress-bar');
+        const progress = document.getElementById('foto-progress');
+        
+        progress.style.display = 'block';
+        progressBar.style.width = '0%';
+        
+        let width = 0;
+        const interval = setInterval(() => {
+          width += Math.random() * 15;
+          if (width >= 100) {
+            width = 100;
+            clearInterval(interval);
+            setTimeout(() => {
+              progress.style.display = 'none';
+              resolve();
+            }, 300);
+          }
+          progressBar.style.width = width + '%';
+        }, 100);
+      });
+    }
+    
+    // Função para mostrar/ocultar loading
+    function mostrarLoadingFoto(mostrar) {
+      const loading = document.getElementById('foto-loading');
+      if (loading) {
+        loading.style.display = mostrar ? 'flex' : 'none';
+      }
+    }
+    
+    // Função para mostrar status da foto
+    function mostrarStatusFoto(mensagem, tipo) {
+      const status = document.getElementById('foto-status');
+      const statusText = document.getElementById('foto-status-text');
+      
+      if (status && statusText) {
+        statusText.textContent = mensagem;
+        status.style.display = 'block';
+        
+        // Definir cor baseada no tipo
+        switch (tipo) {
+          case 'success':
+            status.style.background = 'var(--success-light)';
+            status.style.color = 'var(--success)';
+            status.style.border = '1px solid var(--success)';
+            break;
+          case 'error':
+            status.style.background = 'var(--error-light)';
+            status.style.color = 'var(--error)';
+            status.style.border = '1px solid var(--error)';
+            break;
+          case 'info':
+            status.style.background = 'var(--primary-light)';
+            status.style.color = 'var(--primary)';
+            status.style.border = '1px solid var(--primary)';
+            break;
+          default:
+            status.style.background = 'var(--bg-secondary)';
+            status.style.color = 'var(--text-secondary)';
+            status.style.border = '1px solid var(--border)';
+        }
+        
+        // Ocultar status após 3 segundos para sucesso
+        if (tipo === 'success') {
+          setTimeout(() => {
+            status.style.display = 'none';
+          }, 3000);
+        }
+      }
     }
     
     // Função para limpar imagem selecionada
@@ -5928,11 +6191,34 @@
       const preview = document.getElementById('empresa-foto-preview');
       const placeholder = document.getElementById('empresa-foto-placeholder');
       const fileInput = document.getElementById('empresa-foto');
+      const uploadArea = document.getElementById('foto-upload-area');
+      const status = document.getElementById('foto-status');
       
+      // Limpar elementos
       preview.src = '';
       preview.style.display = 'none';
       placeholder.style.display = 'block';
       fileInput.value = '';
+      
+      // Resetar área de upload
+      uploadArea.style.borderColor = 'var(--border)';
+      uploadArea.style.background = 'var(--bg-secondary)';
+      
+      // Ocultar status
+      if (status) {
+        status.style.display = 'none';
+      }
+      
+      // Ocultar progresso
+      const progress = document.getElementById('foto-progress');
+      if (progress) {
+        progress.style.display = 'none';
+      }
+      
+      // Ocultar loading
+      mostrarLoadingFoto(false);
+      
+      console.log('🗑️ Imagem limpa com sucesso');
     }
     
     // Função para mostrar informações da empresa
@@ -6004,7 +6290,9 @@
     }
     
     // Função para editar empresa
-    function editarEmpresa() {
+    async function editarEmpresa() {
+      console.log('✏️ Iniciando edição da empresa...');
+      
       document.getElementById('empresa-info-display').style.display = 'none';
       document.getElementById('config-form').style.display = 'block';
       
@@ -6014,11 +6302,90 @@
         formInstructions.style.display = 'none';
       }
       
+      // Carregar dados existentes para preencher o formulário
+      try {
+        let dadosEmpresa = null;
+        
+        // Tentar carregar do Firebase primeiro
+        if (window.FirebaseAuth) {
+          console.log('🔥 Carregando dados do Firebase para edição...');
+          dadosEmpresa = await window.FirebaseAuth.getEmpresaConfig();
+          if (dadosEmpresa) {
+            console.log('✅ Dados carregados do Firebase:', dadosEmpresa);
+          }
+        }
+        
+        // Fallback para localStorage se Firebase não retornar dados
+        if (!dadosEmpresa) {
+          console.log('💾 Carregando dados do localStorage para edição...');
+          const localStorageData = localStorage.getItem('configEmpresa');
+          if (localStorageData) {
+            dadosEmpresa = JSON.parse(localStorageData);
+            console.log('✅ Dados carregados do localStorage:', dadosEmpresa);
+          }
+        }
+        
+        // Preencher formulário com dados existentes
+        if (dadosEmpresa) {
+          console.log('📝 Preenchendo formulário com dados existentes...');
+          
+          // Preencher campos de texto
+          const empresaNome = document.getElementById('empresa-nome');
+          const empresaCnpj = document.getElementById('empresa-cnpj');
+          const empresaEndereco = document.getElementById('empresa-endereco');
+          const empresaTelefone = document.getElementById('empresa-telefone');
+          
+          if (empresaNome) empresaNome.value = dadosEmpresa.nome || '';
+          if (empresaCnpj) empresaCnpj.value = dadosEmpresa.cnpj || '';
+          if (empresaEndereco) empresaEndereco.value = dadosEmpresa.endereco || '';
+          if (empresaTelefone) empresaTelefone.value = dadosEmpresa.telefone || '';
+          
+          // Preencher imagem se existir
+          if (dadosEmpresa.fotoUrl && dadosEmpresa.fotoUrl.trim() !== '') {
+            console.log('🖼️ Carregando imagem existente...');
+            const preview = document.getElementById('empresa-foto-preview');
+            const placeholder = document.getElementById('empresa-foto-placeholder');
+            const uploadArea = document.getElementById('foto-upload-area');
+            
+            if (preview && placeholder && uploadArea) {
+              preview.src = dadosEmpresa.fotoUrl;
+              preview.style.display = 'block';
+              placeholder.style.display = 'none';
+              
+              // Adicionar efeito visual para indicar que imagem foi carregada
+              uploadArea.style.borderColor = 'var(--success)';
+              uploadArea.style.background = 'var(--success-50)';
+              
+              // Mostrar status
+              mostrarStatusFoto('✅ Imagem carregada da empresa', 'success');
+              
+              console.log('✅ Imagem carregada com sucesso');
+            }
+          } else {
+            // Limpar imagem se não existir
+            limparImagemEmpresa();
+          }
+          
+          console.log('✅ Formulário preenchido com dados existentes');
+        } else {
+          console.log('ℹ️ Nenhum dado encontrado para preencher');
+        }
+        
+      } catch (error) {
+        console.error('❌ Erro ao carregar dados para edição:', error);
+        // Continuar mesmo com erro, formulário ficará vazio
+      }
+      
       // Atualizar texto do botão para indicar que é uma edição
       const submitButton = document.querySelector('#config-form button[type="submit"]');
       if (submitButton) {
         submitButton.textContent = 'Salvar Configurações';
       }
+      
+      // Adicionar event listener ao formulário
+      adicionarEventListenerFormulario();
+      
+      console.log('✅ Modo de edição ativado');
     }
     
     // Função para cancelar edição
@@ -6229,6 +6596,9 @@
           
           // Feedback visual
           alert('Configurações da empresa salvas com sucesso!');
+          
+          // Atualizar informações da empresa no menu
+          await updateEmpresaMenuInfo();
           
         } catch (error) {
           console.error('❌ Erro ao salvar configurações:', error);
@@ -6545,36 +6915,135 @@
 
     // Funções de formatação para CNPJ e Telefone
     function formatarCNPJ(input) {
-      let value = input.value.replace(/\D/g, ''); // Remove tudo que não é dígito
+      // Obter apenas números
+      let value = input.value.replace(/\D/g, '');
       
-      if (value.length <= 14) {
-        // Aplica a máscara: XX.XXX.XXX/XXXX-XX
-        value = value.replace(/^(\d{2})(\d)/, '$1.$2');
-        value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
-        value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
-        value = value.replace(/(\d{4})(\d)/, '$1-$2');
+      // Limitar a 14 dígitos
+      if (value.length > 14) {
+        value = value.substring(0, 14);
       }
       
+      // Aplicar máscara: XX.XXX.XXX/XXXX-XX
+      if (value.length > 0) {
+        value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+      }
+      if (value.length > 3) {
+        value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+      }
+      if (value.length > 7) {
+        value = value.replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3/$4');
+      }
+      if (value.length > 12) {
+        value = value.replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, '$1.$2.$3/$4-$5');
+      }
+      
+      // Atualizar valor do input
       input.value = value;
+      
+      // Adicionar classe de validação visual
+      if (value.length === 18) { // CNPJ completo
+        input.style.borderColor = 'var(--success)';
+        input.style.boxShadow = '0 0 0 2px var(--success-light)';
+      } else if (value.length > 0) {
+        input.style.borderColor = 'var(--warning)';
+        input.style.boxShadow = '0 0 0 2px var(--warning-light)';
+      } else {
+        input.style.borderColor = 'var(--border)';
+        input.style.boxShadow = 'none';
+      }
     }
     
     function formatarTelefone(input) {
-      let value = input.value.replace(/\D/g, ''); // Remove tudo que não é dígito
+      // Obter apenas números
+      let value = input.value.replace(/\D/g, '');
       
-      if (value.length <= 11) {
-        // Aplica a máscara: (XX) XXXXX-XXXX ou (XX) XXXX-XXXX
+      // Limitar a 11 dígitos
+      if (value.length > 11) {
+        value = value.substring(0, 11);
+      }
+      
+      // Aplicar máscara baseada no número de dígitos
+      if (value.length > 0) {
+        value = value.replace(/^(\d{2})(\d)/, '($1) $2');
+      }
+      
+      if (value.length > 4) {
         if (value.length <= 10) {
           // Telefone fixo: (XX) XXXX-XXXX
-          value = value.replace(/^(\d{2})(\d)/, '($1) $2');
-          value = value.replace(/(\d{4})(\d)/, '$1-$2');
+          value = value.replace(/^\((\d{2})\) (\d{4})(\d)/, '($1) $2-$3');
         } else {
           // Celular: (XX) XXXXX-XXXX
-          value = value.replace(/^(\d{2})(\d)/, '($1) $2');
-          value = value.replace(/(\d{5})(\d)/, '$1-$2');
+          value = value.replace(/^\((\d{2})\) (\d{5})(\d)/, '($1) $2-$3');
         }
       }
       
+      // Atualizar valor do input
       input.value = value;
+      
+      // Adicionar classe de validação visual
+      if (value.length === 15) { // Telefone completo (fixo ou celular)
+        input.style.borderColor = 'var(--success)';
+        input.style.boxShadow = '0 0 0 2px var(--success-light)';
+      } else if (value.length > 0) {
+        input.style.borderColor = 'var(--warning)';
+        input.style.boxShadow = '0 0 0 2px var(--warning-light)';
+      } else {
+        input.style.borderColor = 'var(--border)';
+        input.style.boxShadow = 'none';
+      }
+    }
+    
+    // Função para validar CNPJ
+    function validarCNPJ(cnpj) {
+      // Remove caracteres não numéricos
+      cnpj = cnpj.replace(/\D/g, '');
+      
+      // Verifica se tem 14 dígitos
+      if (cnpj.length !== 14) {
+        return false;
+      }
+      
+      // Verifica se todos os dígitos são iguais
+      if (/^(\d)\1+$/.test(cnpj)) {
+        return false;
+      }
+      
+      // Validação do primeiro dígito verificador
+      let soma = 0;
+      let peso = 2;
+      for (let i = 11; i >= 0; i--) {
+        soma += parseInt(cnpj.charAt(i)) * peso;
+        peso = peso === 9 ? 2 : peso + 1;
+      }
+      let digito = 11 - (soma % 11);
+      if (digito > 9) digito = 0;
+      if (parseInt(cnpj.charAt(12)) !== digito) {
+        return false;
+      }
+      
+      // Validação do segundo dígito verificador
+      soma = 0;
+      peso = 2;
+      for (let i = 12; i >= 0; i--) {
+        soma += parseInt(cnpj.charAt(i)) * peso;
+        peso = peso === 9 ? 2 : peso + 1;
+      }
+      digito = 11 - (soma % 11);
+      if (digito > 9) digito = 0;
+      if (parseInt(cnpj.charAt(13)) !== digito) {
+        return false;
+      }
+      
+      return true;
+    }
+    
+    // Função para validar telefone
+    function validarTelefone(telefone) {
+      // Remove caracteres não numéricos
+      telefone = telefone.replace(/\D/g, '');
+      
+      // Verifica se tem 10 ou 11 dígitos
+      return telefone.length === 10 || telefone.length === 11;
     }
     
     // Função para carregar configurações da empresa
