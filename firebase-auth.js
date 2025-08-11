@@ -28,7 +28,8 @@ const COLLECTIONS = {
   CONFIG: 'config',
   CATEGORIAS: 'categorias',
   CLUSTERS: 'clusters',
-  USUARIOS: 'usuarios'
+  USUARIOS: 'usuarios',
+  EMPRESA: 'empresa'
 };
 
 // Authentication Functions
@@ -354,6 +355,61 @@ async function getClusters() {
   }
 }
 
+// Funções específicas para configurações da empresa
+async function saveEmpresaConfig(empresaData) {
+  const user = await getCurrentUser();
+  if (!user) {
+    throw new Error('Usuário não autenticado');
+  }
+
+  try {
+    // Delete existing empresa config documents for this user
+    const userQuery = query(
+      collection(db, COLLECTIONS.EMPRESA), 
+      where("userId", "==", user.uid)
+    );
+    const querySnapshot = await getDocs(userQuery);
+    const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
+    
+    // Add new empresa config
+    await addDoc(collection(db, COLLECTIONS.EMPRESA), {
+      ...empresaData,
+      userId: user.uid,
+      userEmail: user.email,
+      updatedAt: new Date()
+    });
+    console.log('✅ Configuração da empresa salva');
+  } catch (error) {
+    console.error('❌ Erro ao salvar configuração da empresa:', error);
+    throw error;
+  }
+}
+
+async function getEmpresaConfig() {
+  const user = await getCurrentUser();
+  if (!user) {
+    throw new Error('Usuário não autenticado');
+  }
+
+  try {
+    const userQuery = query(
+      collection(db, COLLECTIONS.EMPRESA), 
+      where("userId", "==", user.uid)
+    );
+    const querySnapshot = await getDocs(userQuery);
+    if (!querySnapshot.empty) {
+      const empresaDoc = querySnapshot.docs[0];
+      console.log('✅ Configuração da empresa carregada');
+      return empresaDoc.data();
+    }
+    return null;
+  } catch (error) {
+    console.error('❌ Erro ao carregar configuração da empresa:', error);
+    throw error;
+  }
+}
+
 // Export functions
 window.FirebaseAuth = {
   signInWithGoogle,
@@ -368,7 +424,9 @@ window.FirebaseAuth = {
   saveCategorias,
   getCategorias,
   saveClusters,
-  getClusters
+  getClusters,
+  saveEmpresaConfig,
+  getEmpresaConfig
 };
 
 console.log('🔐 Firebase Auth configurado para FollowUP - Sistema de Login Google');

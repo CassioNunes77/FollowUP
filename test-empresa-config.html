@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste Configurações da Empresa - FollowUP</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f8fafc;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .status {
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+    .success { background: #d1fae5; color: #065f46; }
+    .error { background: #fee2e2; color: #991b1b; }
+    .info { background: #dbeafe; color: #1e40af; }
+    .log {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 8px;
+      font-family: monospace;
+      max-height: 300px;
+      overflow-y: auto;
+      margin: 1rem 0;
+      white-space: pre-wrap;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    button:hover { background: #1d4ed8; }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .foto-preview {
+      width: 100px;
+      height: 100px;
+      border: 2px dashed #e2e8f0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1rem 0;
+      background: #f8fafc;
+    }
+    .foto-preview img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏢 Teste Configurações da Empresa</h1>
+    <p>Esta página testa o cadastro e salvamento das configurações da empresa no Firebase.</p>
+    
+    <div id="status" class="status info">
+      Aguardando inicialização...
+    </div>
+    
+    <div>
+      <button onclick="testEmpresaConfig()">🏢 Testar Configurações da Empresa</button>
+      <button onclick="testAuth()">🔐 Testar Auth</button>
+      <button onclick="clearLog()">🗑️ Limpar Log</button>
+    </div>
+    
+    <!-- Formulário de Teste -->
+    <div style="margin: 2rem 0; padding: 1.5rem; border: 1px solid #e2e8f0; border-radius: 8px;">
+      <h3>Formulário de Teste</h3>
+      <form id="test-form">
+        <div class="form-group">
+          <label for="nome">Nome da Empresa:</label>
+          <input type="text" id="nome" placeholder="Digite o nome da empresa" />
+        </div>
+        <div class="form-group">
+          <label for="cnpj">CNPJ:</label>
+          <input type="text" id="cnpj" placeholder="00.000.000/0000-00" maxlength="18" />
+        </div>
+        <div class="form-group">
+          <label for="endereco">Endereço:</label>
+          <textarea id="endereco" placeholder="Digite o endereço completo" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="telefone">Telefone:</label>
+          <input type="text" id="telefone" placeholder="(00) 00000-0000" maxlength="15" />
+        </div>
+        <div class="form-group">
+          <label for="foto">Foto/Logo:</label>
+          <input type="file" id="foto" accept="image/*" />
+          <div class="foto-preview" id="foto-preview">
+            <span>Sem imagem</span>
+          </div>
+        </div>
+        <button type="submit">💾 Salvar Configurações</button>
+      </form>
+    </div>
+    
+    <div class="log" id="log"></div>
+  </div>
+
+  <script type="module" src="firebase-auth.js"></script>
+  <script>
+    let checkCount = 0;
+    
+    // Aguardar página carregar
+    window.addEventListener('load', () => {
+      log('🚀 Página carregada');
+      updateStatus('⏳ Aguardando Firebase carregar...', 'info');
+      
+      // Verificar Firebase a cada 500ms
+      const checkInterval = setInterval(() => {
+        checkCount++;
+        log(`🔍 Tentativa ${checkCount}: Verificando window.FirebaseAuth...`);
+        
+        if (window.FirebaseAuth) {
+          clearInterval(checkInterval);
+          log('✅ window.FirebaseAuth encontrado!');
+          updateStatus('✅ Firebase carregado com sucesso!', 'success');
+          
+          // Carregar configurações existentes
+          carregarConfiguracoesExistentes();
+          
+        } else if (checkCount >= 20) { // 10 segundos
+          clearInterval(checkInterval);
+          log('❌ Timeout: window.FirebaseAuth não encontrado após 10 segundos');
+          updateStatus('❌ Firebase não carregou', 'error');
+        }
+      }, 500);
+    });
+    
+    async function carregarConfiguracoesExistentes() {
+      try {
+        log('📋 Carregando configurações existentes...');
+        
+        if (window.FirebaseAuth) {
+          const config = await window.FirebaseAuth.getEmpresaConfig();
+          if (config) {
+            log('✅ Configurações encontradas:');
+            log(JSON.stringify(config, null, 2));
+            
+            // Preencher formulário
+            document.getElementById('nome').value = config.nome || '';
+            document.getElementById('cnpj').value = config.cnpj || '';
+            document.getElementById('endereco').value = config.endereco || '';
+            document.getElementById('telefone').value = config.telefone || '';
+            
+            if (config.fotoUrl) {
+              const preview = document.getElementById('foto-preview');
+              preview.innerHTML = `<img src="${config.fotoUrl}" alt="Logo da empresa" />`;
+            }
+            
+            updateStatus('✅ Configurações carregadas', 'success');
+          } else {
+            log('ℹ️ Nenhuma configuração encontrada');
+            updateStatus('ℹ️ Nenhuma configuração encontrada', 'info');
+          }
+        }
+      } catch (error) {
+        log('❌ Erro ao carregar configurações: ' + error.message);
+        updateStatus('❌ Erro ao carregar configurações', 'error');
+      }
+    }
+    
+    async function testEmpresaConfig() {
+      try {
+        log('🏢 Testando configurações da empresa...');
+        
+        if (!window.FirebaseAuth) {
+          log('❌ Firebase Auth não disponível');
+          return;
+        }
+        
+        // Testar dados do formulário
+        const dadosEmpresa = {
+          nome: document.getElementById('nome').value,
+          cnpj: document.getElementById('cnpj').value,
+          endereco: document.getElementById('endereco').value,
+          telefone: document.getElementById('telefone').value,
+          fotoUrl: document.getElementById('foto-preview').querySelector('img')?.src || ''
+        };
+        
+        log('📝 Dados a serem salvos:');
+        log(JSON.stringify(dadosEmpresa, null, 2));
+        
+        // Salvar configurações
+        await window.FirebaseAuth.saveEmpresaConfig(dadosEmpresa);
+        log('✅ Configurações salvas com sucesso');
+        
+        // Recarregar para verificar
+        const configSalva = await window.FirebaseAuth.getEmpresaConfig();
+        log('📋 Configurações carregadas após salvar:');
+        log(JSON.stringify(configSalva, null, 2));
+        
+        updateStatus('✅ Teste de configurações concluído com sucesso', 'success');
+        
+      } catch (error) {
+        log('❌ Erro no teste de configurações: ' + error.message);
+        updateStatus('❌ Erro no teste de configurações', 'error');
+      }
+    }
+    
+    async function testAuth() {
+      try {
+        log('🔐 Testando autenticação...');
+        
+        if (!window.FirebaseAuth) {
+          log('❌ Firebase Auth não disponível');
+          return;
+        }
+        
+        const user = await window.FirebaseAuth.getCurrentUser();
+        if (user) {
+          log('✅ Usuário logado: ' + user.email);
+          updateStatus('✅ Autenticação OK', 'success');
+        } else {
+          log('ℹ️ Nenhum usuário logado (normal)');
+          updateStatus('ℹ️ Nenhum usuário logado', 'info');
+        }
+        
+      } catch (error) {
+        log('❌ Erro na autenticação: ' + error.message);
+        updateStatus('❌ Erro na autenticação', 'error');
+      }
+    }
+    
+    function updateStatus(message, type) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `status ${type}`;
+    }
+    
+    function log(message) {
+      const logDiv = document.getElementById('log');
+      const timestamp = new Date().toLocaleTimeString();
+      logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    
+    function clearLog() {
+      document.getElementById('log').innerHTML = '';
+      log('🗑️ Log limpo');
+    }
+    
+    // Event listeners para o formulário
+    document.getElementById('test-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      await testEmpresaConfig();
+    });
+    
+    // Preview de imagem
+    document.getElementById('foto').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('foto-preview');
+          preview.innerHTML = `<img src="${e.target.result}" alt="Preview" />`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+</body>
+</html>
