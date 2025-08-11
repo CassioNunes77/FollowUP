@@ -5954,6 +5954,9 @@
         console.log('🏢 Chamando mostrarInformacoesEmpresa com:', dadosFinais);
         mostrarInformacoesEmpresa(dadosFinais);
         
+        // Ocultar seção "Configurações da Empresa" quando há empresa cadastrada
+        ocultarSecaoConfiguracoesEmpresa();
+        
         // Verificar se a função foi executada corretamente
         setTimeout(() => {
           const empresaInfoDisplay = document.getElementById('empresa-info-display');
@@ -5968,9 +5971,30 @@
         console.log('🔍 Verificação final - configEmpresa:', configEmpresa);
         console.log('🔍 Verificação final - empresaConfigLocal:', empresaConfigLocal);
         mostrarFormularioEditavel();
+        
+        // Mostrar seção "Configurações da Empresa" quando não há empresa cadastrada
+        mostrarSecaoConfiguracoesEmpresa();
       }
       
       console.log('✅ Função carregarConfiguracoesEmpresa concluída');
+    }
+    
+    // Função para ocultar seção "Configurações da Empresa"
+    function ocultarSecaoConfiguracoesEmpresa() {
+      const emergencyButton = document.getElementById('emergency-button');
+      if (emergencyButton) {
+        emergencyButton.style.display = 'none';
+        console.log('✅ Seção "Configurações da Empresa" ocultada');
+      }
+    }
+    
+    // Função para mostrar seção "Configurações da Empresa"
+    function mostrarSecaoConfiguracoesEmpresa() {
+      const emergencyButton = document.getElementById('emergency-button');
+      if (emergencyButton) {
+        emergencyButton.style.display = 'block';
+        console.log('✅ Seção "Configurações da Empresa" exibida');
+      }
     }
     
     // Função para atualizar nome da empresa no header
@@ -6858,6 +6882,9 @@
         // Atualizar interface
         atualizarNomeEmpresaHeader('');
         mostrarFormularioEditavel();
+        
+        // Mostrar seção "Configurações da Empresa" novamente
+        mostrarSecaoConfiguracoesEmpresa();
         
         // Feedback visual
         alert('Configurações da empresa excluídas com sucesso!');
