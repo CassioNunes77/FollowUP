@@ -2964,7 +2964,13 @@
         // Fallback para localStorage se Firebase não disponível ou sem dados
         if (!empresaData || !empresaData.nome) {
           console.log('🔄 Usando dados da empresa do localStorage...');
-          const empresaLocalStorage = localStorage.getItem('empresaConfig');
+          
+          // Tentar diferentes chaves do localStorage
+          let empresaLocalStorage = localStorage.getItem('empresaConfig');
+          if (!empresaLocalStorage) {
+            empresaLocalStorage = localStorage.getItem('configEmpresa');
+          }
+          
           if (empresaLocalStorage) {
             try {
               empresaData = JSON.parse(empresaLocalStorage);
@@ -2981,15 +2987,26 @@
           
           empresaMenuNomeElement.textContent = empresaData.nome;
           
-          if (empresaData.fotoUrl) {
+          if (empresaData.fotoUrl && empresaData.fotoUrl.trim() !== '') {
+            // Se tem foto, mostrar foto
             empresaMenuPhotoElement.src = empresaData.fotoUrl;
             empresaMenuPhotoElement.style.display = 'block';
+            // Restaurar estrutura original se foi modificada
+            if (empresaMenuPhotoElement.parentElement.querySelector('.material-icons')) {
+              empresaMenuPhotoElement.parentElement.innerHTML = `
+                <img id="empresa-menu-photo" src="${empresaData.fotoUrl}" alt="Logo da empresa" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--success);" />
+              `;
+            }
           } else {
-            // Usar ícone padrão se não há foto
+            // Se não tem foto, mostrar apenas o nome da empresa
             empresaMenuPhotoElement.style.display = 'none';
-            empresaMenuPhotoElement.parentElement.innerHTML = `
-              <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; border: 2px solid var(--success);">
-                <span class="material-icons" style="color: white; font-size: 1rem;">business</span>
+            // Modificar o layout para mostrar apenas o nome
+            empresaMenuInfoElement.innerHTML = `
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.125rem;">
+                  <span id="empresa-menu-nome" style="font-weight: 600; color: var(--success-dark); font-size: 0.9rem;">${empresaData.nome}</span>
+                  <span style="color: var(--success-secondary); font-size: 0.8rem;">Empresa Cadastrada</span>
+                </div>
               </div>
             `;
           }
@@ -5902,30 +5919,39 @@
       const configEmpresa = JSON.parse(localStorage.getItem('configEmpresa') || '{}');
       console.log('📊 Dados do localStorage:', configEmpresa);
       
-      if (configEmpresa && configEmpresa.nome && configEmpresa.nome.trim() !== '') {
-        console.log('✅ Empresa encontrada no localStorage');
+      // Verificar também no localStorage com chave 'empresaConfig'
+      const empresaConfigLocal = JSON.parse(localStorage.getItem('empresaConfig') || '{}');
+      console.log('📊 Dados do localStorage (empresaConfig):', empresaConfigLocal);
+      
+      // Usar dados do localStorage se Firebase não retornou dados válidos
+      const dadosFinais = configEmpresa.nome ? configEmpresa : (empresaConfigLocal.nome ? empresaConfigLocal : null);
+      
+      if (dadosFinais && dadosFinais.nome && dadosFinais.nome.trim() !== '') {
+        console.log('✅ Empresa encontrada no localStorage:', dadosFinais.nome);
         
         // Preencher formulário
-        if (elementos.empresaNome) elementos.empresaNome.value = configEmpresa.nome || '';
-        if (elementos.empresaCnpj) elementos.empresaCnpj.value = configEmpresa.cnpj || '';
-        if (elementos.empresaEndereco) elementos.empresaEndereco.value = configEmpresa.endereco || '';
-        if (elementos.empresaTelefone) elementos.empresaTelefone.value = configEmpresa.telefone || '';
+        if (elementos.empresaNome) elementos.empresaNome.value = dadosFinais.nome || '';
+        if (elementos.empresaCnpj) elementos.empresaCnpj.value = dadosFinais.cnpj || '';
+        if (elementos.empresaEndereco) elementos.empresaEndereco.value = dadosFinais.endereco || '';
+        if (elementos.empresaTelefone) elementos.empresaTelefone.value = dadosFinais.telefone || '';
         
         // Carregar imagem do localStorage se existir
-        if (configEmpresa.fotoUrl && elementos.empresaFotoPreview && elementos.empresaFotoPlaceholder) {
-          elementos.empresaFotoPreview.src = configEmpresa.fotoUrl;
+        if (dadosFinais.fotoUrl && elementos.empresaFotoPreview && elementos.empresaFotoPlaceholder) {
+          elementos.empresaFotoPreview.src = dadosFinais.fotoUrl;
           elementos.empresaFotoPreview.style.display = 'block';
           elementos.empresaFotoPlaceholder.style.display = 'none';
         }
         
         // Atualizar exibição na barra superior
-        atualizarNomeEmpresaHeader(configEmpresa.nome);
+        atualizarNomeEmpresaHeader(dadosFinais.nome);
         
         // Mostrar informações da empresa
-        mostrarInformacoesEmpresa(configEmpresa);
+        mostrarInformacoesEmpresa(dadosFinais);
       } else {
         // Não há empresa cadastrada - mostrar formulário editável
         console.log('ℹ️ Nenhuma empresa cadastrada - mostrando formulário editável');
+        console.log('🔍 Verificação final - configEmpresa:', configEmpresa);
+        console.log('🔍 Verificação final - empresaConfigLocal:', empresaConfigLocal);
         mostrarFormularioEditavel();
       }
     }
