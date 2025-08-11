@@ -1840,15 +1840,7 @@
               Configurações Gerais
             </h3>
             
-            <!-- Botão de emergência para forçar exibição -->
-            <div id="emergency-button" style="display: block; text-align: center; padding: 1rem; margin-bottom: 1rem; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius);">
-              <p style="color: var(--primary-dark); margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 600;">Configurações da Empresa</p>
-              <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.85rem;">Clique no botão abaixo para cadastrar os dados da sua empresa</p>
-              <button type="button" onclick="forcarExibicaoFormulario()" style="background: var(--primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; margin: 0 auto;">
-                <span class="material-icons" style="font-size: 1rem;">add_business</span>
-                Cadastrar Empresa
-              </button>
-            </div>
+
             
             <!-- Visualização das Informações da Empresa -->
             <div id="empresa-info-display" style="display: none; margin-bottom: 1.5rem; padding: 1rem; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius);">
@@ -5954,9 +5946,7 @@
         console.log('🏢 Chamando mostrarInformacoesEmpresa com:', dadosFinais);
         mostrarInformacoesEmpresa(dadosFinais);
         
-        // Ocultar seção "Configurações da Empresa" quando há empresa cadastrada
-        console.log('🏢 Empresa encontrada - ocultando seção de configurações');
-        ocultarSecaoConfiguracoesEmpresa();
+
         
         // Verificar se a função foi executada corretamente
         setTimeout(() => {
@@ -5973,47 +5963,13 @@
         console.log('🔍 Verificação final - empresaConfigLocal:', empresaConfigLocal);
         mostrarFormularioEditavel();
         
-        // Mostrar seção "Configurações da Empresa" quando não há empresa cadastrada
-        mostrarSecaoConfiguracoesEmpresa();
+
       }
       
       console.log('✅ Função carregarConfiguracoesEmpresa concluída');
     }
     
-    // Função para ocultar seção "Configurações da Empresa"
-    function ocultarSecaoConfiguracoesEmpresa() {
-      console.log('🔧 Tentando ocultar seção "Configurações da Empresa"...');
-      const emergencyButton = document.getElementById('emergency-button');
-      
-      if (emergencyButton) {
-        console.log('✅ Elemento emergency-button encontrado');
-        console.log('📋 Display atual:', emergencyButton.style.display);
-        emergencyButton.style.display = 'none';
-        console.log('✅ Seção "Configurações da Empresa" ocultada');
-        
-        // Verificar se foi ocultado corretamente
-        setTimeout(() => {
-          console.log('🔍 Verificação pós-ocultação - display:', emergencyButton.style.display);
-        }, 100);
-      } else {
-        console.error('❌ Elemento emergency-button NÃO encontrado');
-      }
-    }
-    
-    // Função para mostrar seção "Configurações da Empresa"
-    function mostrarSecaoConfiguracoesEmpresa() {
-      console.log('🔧 Tentando mostrar seção "Configurações da Empresa"...');
-      const emergencyButton = document.getElementById('emergency-button');
-      
-      if (emergencyButton) {
-        console.log('✅ Elemento emergency-button encontrado');
-        console.log('📋 Display atual:', emergencyButton.style.display);
-        emergencyButton.style.display = 'block';
-        console.log('✅ Seção "Configurações da Empresa" exibida');
-      } else {
-        console.error('❌ Elemento emergency-button NÃO encontrado');
-      }
-    }
+
     
     // Função para atualizar nome da empresa no header
     function atualizarNomeEmpresaHeader(nomeEmpresa) {
@@ -6167,10 +6123,21 @@
           const placeholder = document.getElementById('empresa-foto-placeholder');
           const uploadArea = document.getElementById('foto-upload-area');
           
+          console.log('🖼️ Processando preview da imagem...');
+          console.log('📋 Elementos encontrados:', {
+            preview: !!preview,
+            placeholder: !!placeholder,
+            uploadArea: !!uploadArea
+          });
+          
           if (preview && placeholder && uploadArea) {
+            // Definir a URL da imagem
             preview.src = e.target.result;
             preview.style.display = 'block';
             placeholder.style.display = 'none';
+            
+            // Forçar reflow para garantir que a imagem seja exibida
+            preview.offsetHeight;
             
             // Adicionar efeito de sucesso
             uploadArea.style.borderColor = 'var(--success)';
@@ -6181,8 +6148,19 @@
             mostrarStatusFoto('✅ Imagem carregada com sucesso!', 'success');
             
             // Log da URL da imagem
-            console.log('📸 URL da imagem carregada:', e.target.result);
+            console.log('📸 URL da imagem carregada:', e.target.result.substring(0, 50) + '...');
             console.log('📸 Tamanho da URL:', e.target.result.length, 'caracteres');
+            console.log('📸 Display da preview:', preview.style.display);
+            console.log('📸 Src da preview:', preview.src.substring(0, 50) + '...');
+            
+            // Verificar se a imagem foi carregada
+            preview.onload = function() {
+              console.log('✅ Imagem carregada no preview com sucesso');
+            };
+            
+            preview.onerror = function() {
+              console.error('❌ Erro ao carregar imagem no preview');
+            };
             
             // Resetar borda após 2 segundos
             setTimeout(() => {
@@ -6932,8 +6910,7 @@
         atualizarNomeEmpresaHeader('');
         mostrarFormularioEditavel();
         
-        // Mostrar seção "Configurações da Empresa" novamente
-        mostrarSecaoConfiguracoesEmpresa();
+
         
         // Feedback visual
         alert('Configurações da empresa excluídas com sucesso!');
@@ -7042,10 +7019,16 @@
       // Event listener para upload de imagem
       const fotoInput = document.getElementById('empresa-foto');
       if (fotoInput) {
+        console.log('✅ Event listener para upload de imagem adicionado');
         fotoInput.addEventListener('change', function(e) {
           const file = e.target.files[0];
-          handleImageUpload(file);
+          console.log('📸 Arquivo selecionado:', file ? file.name : 'Nenhum arquivo');
+          if (file) {
+            handleImageUpload(file);
+          }
         });
+      } else {
+        console.error('❌ Elemento empresa-foto não encontrado');
       }
     });
 
