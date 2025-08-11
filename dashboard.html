@@ -1509,18 +1509,18 @@
             </div>
           </div>
           
-          <!-- Informações do usuário logado -->
-          <div id="user-info" style="display: none; align-items: center; gap: 0.75rem; padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <img id="user-photo" src="" alt="Foto do usuário" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);" />
-              <div style="display: flex; flex-direction: column; gap: 0.125rem;">
-                <span id="user-name" style="font-weight: 600; color: var(--text); font-size: 0.9rem;">Nome do Usuário</span>
-                <span id="user-email" style="color: var(--text-secondary); font-size: 0.8rem;">email@exemplo.com</span>
-              </div>
+        <!-- Informações do usuário logado -->
+        <div id="user-info" style="display: none; align-items: center; gap: 0.75rem; padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <img id="user-photo" src="" alt="Foto do usuário" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);" />
+            <div style="display: flex; flex-direction: column; gap: 0.125rem;">
+              <span id="user-name" style="font-weight: 600; color: var(--text); font-size: 0.9rem;">Nome do Usuário</span>
+              <span id="user-email" style="color: var(--text-secondary); font-size: 0.8rem;">email@exemplo.com</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; background: var(--primary-50); border-radius: 4px;">
-              <span class="material-icons" style="font-size: 0.875rem; color: var(--primary);">verified</span>
-              <span style="font-size: 0.75rem; color: var(--primary); font-weight: 500;">Logado</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; background: var(--primary-50); border-radius: 4px;">
+            <span class="material-icons" style="font-size: 0.875rem; color: var(--primary);">verified</span>
+            <span style="font-size: 0.75rem; color: var(--primary); font-weight: 500;">Logado</span>
             </div>
           </div>
         </div>
@@ -2038,7 +2038,7 @@
                 </div>
               </div>
               <div style="display: flex; gap: 0.5rem;">
-                <button type="submit" style="background: var(--primary); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow); font-size: 0.9rem;">Salvar Configurações</button>
+              <button type="submit" style="background: var(--primary); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow); font-size: 0.9rem;">Salvar Configurações</button>
                 <button type="button" onclick="cancelarEdicao()" style="background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); padding: 0.6rem 1.2rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.9rem;">Cancelar</button>
               </div>
             </form>
@@ -2985,15 +2985,27 @@
         if (empresaData && empresaData.nome) {
           console.log('✅ Exibindo informações da empresa:', empresaData.nome);
           
-          empresaMenuNomeElement.textContent = empresaData.nome;
-          
           if (empresaData.fotoUrl && empresaData.fotoUrl.trim() !== '') {
-            // Se tem foto, mostrar foto
-            empresaMenuPhotoElement.src = empresaData.fotoUrl;
-            empresaMenuPhotoElement.style.display = 'block';
+            // Se tem foto, mostrar foto + nome
+            empresaMenuInfoElement.innerHTML = `
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <img id="empresa-menu-photo" src="${empresaData.fotoUrl}" alt="Logo da empresa" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--success);" />
+                <div style="display: flex; flex-direction: column; gap: 0.125rem;">
+                  <span id="empresa-menu-nome" style="font-weight: 600; color: var(--success-dark); font-size: 0.9rem;">${empresaData.nome}</span>
+                  <span style="color: var(--success-secondary); font-size: 0.8rem;">Empresa Cadastrada</span>
+                </div>
+              </div>
+            `;
           } else {
-            // Se não tem foto, apenas ocultar a imagem - manter estrutura original
-            empresaMenuPhotoElement.style.display = 'none';
+            // Se não tem foto, mostrar apenas o nome da empresa (sem ícone)
+            empresaMenuInfoElement.innerHTML = `
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.125rem;">
+                  <span id="empresa-menu-nome" style="font-weight: 600; color: var(--success-dark); font-size: 0.9rem;">${empresaData.nome}</span>
+                  <span style="color: var(--success-secondary); font-size: 0.8rem;">Empresa Cadastrada</span>
+                </div>
+              </div>
+            `;
           }
           
           empresaMenuInfoElement.style.display = 'flex';
@@ -5912,9 +5924,9 @@
       const dadosFinais = configEmpresa.nome ? configEmpresa : (empresaConfigLocal.nome ? empresaConfigLocal : null);
       
       console.log('🔍 Dados finais encontrados:', dadosFinais);
-      console.log('🔍 Verificação de nome:', dadosFinais?.nome);
-      console.log('🔍 Verificação de nome.trim():', dadosFinais?.nome?.trim());
-      console.log('🔍 Condição final:', dadosFinais && dadosFinais.nome && dadosFinais.nome.trim() !== '');
+      console.log('🔍 Verificação - dadosFinais existe:', !!dadosFinais);
+      console.log('🔍 Verificação - dadosFinais.nome existe:', !!(dadosFinais && dadosFinais.nome));
+      console.log('🔍 Verificação - dadosFinais.nome não está vazio:', !!(dadosFinais && dadosFinais.nome && dadosFinais.nome.trim() !== ''));
       
       if (dadosFinais && dadosFinais.nome && dadosFinais.nome.trim() !== '') {
         console.log('✅ Empresa encontrada no localStorage:', dadosFinais.nome);
@@ -5936,7 +5948,17 @@
         atualizarNomeEmpresaHeader(dadosFinais.nome);
         
         // Mostrar informações da empresa
+        console.log('🏢 Chamando mostrarInformacoesEmpresa com:', dadosFinais);
         mostrarInformacoesEmpresa(dadosFinais);
+        
+        // Verificar se a função foi executada corretamente
+        setTimeout(() => {
+          const empresaInfoDisplay = document.getElementById('empresa-info-display');
+          const configForm = document.getElementById('config-form');
+          console.log('🔍 Verificação pós-execução:');
+          console.log('- empresa-info-display display:', empresaInfoDisplay ? empresaInfoDisplay.style.display : 'NÃO ENCONTRADO');
+          console.log('- config-form display:', configForm ? configForm.style.display : 'NÃO ENCONTRADO');
+        }, 100);
       } else {
         // Não há empresa cadastrada - mostrar formulário editável
         console.log('ℹ️ Nenhuma empresa cadastrada - mostrando formulário editável');
@@ -5977,7 +5999,7 @@
       
       // Adicionar novo event listener
       newForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
+      e.preventDefault();
         console.log('🎯 Event listener do formulário disparado!');
         
         try {
@@ -5996,8 +6018,8 @@
             document.getElementById('empresa-nome').focus();
             return;
           }
-          
-          const configEmpresa = {
+      
+      const configEmpresa = {
             nome: nome,
             cnpj: cnpj || '',
             endereco: endereco || '',
@@ -6025,11 +6047,11 @@
           }
           
           // Salvar no localStorage como backup
-          localStorage.setItem('configEmpresa', JSON.stringify(configEmpresa));
+      localStorage.setItem('configEmpresa', JSON.stringify(configEmpresa));
           console.log('💾 Dados salvos no localStorage');
-          
-          // Atualizar exibição na barra superior
-          atualizarNomeEmpresaHeader(configEmpresa.nome);
+      
+      // Atualizar exibição na barra superior
+      atualizarNomeEmpresaHeader(configEmpresa.nome);
           
           // Mostrar informações da empresa
           mostrarInformacoesEmpresa(configEmpresa);
@@ -6045,8 +6067,8 @@
           if (submitButton) {
             submitButton.textContent = 'Salvar Configurações';
           }
-          
-          // Feedback visual
+      
+      // Feedback visual
           alert('Configurações da empresa salvas com sucesso!');
           
         } catch (error) {
@@ -6240,12 +6262,29 @@
     // Função para mostrar informações da empresa
     function mostrarInformacoesEmpresa(empresaConfig) {
       console.log('🏢 Mostrando informações da empresa:', empresaConfig);
+      
+      // Verificar se os elementos existem
+      const empresaAddButton = document.getElementById('empresa-add-button');
+      const configForm = document.getElementById('config-form');
+      const empresaInfoDisplay = document.getElementById('empresa-info-display');
+      
+      console.log('🔍 Elementos encontrados:', {
+        empresaAddButton: !!empresaAddButton,
+        configForm: !!configForm,
+        empresaInfoDisplay: !!empresaInfoDisplay
+      });
+      
       // Ocultar botão de adicionar e formulário
-      document.getElementById('empresa-add-button').style.display = 'none';
-      document.getElementById('config-form').style.display = 'none';
+      if (empresaAddButton) empresaAddButton.style.display = 'none';
+      if (configForm) configForm.style.display = 'none';
       
       // Mostrar seção de informações
-      document.getElementById('empresa-info-display').style.display = 'block';
+      if (empresaInfoDisplay) {
+        empresaInfoDisplay.style.display = 'block';
+        console.log('✅ Seção de informações da empresa exibida');
+      } else {
+        console.error('❌ Elemento empresa-info-display não encontrado');
+      }
       
       // Preencher informações
       document.getElementById('empresa-nome-display-info').textContent = empresaConfig.nome || '-';
@@ -6868,7 +6907,7 @@
         if (window.FirebaseAuth) {
           clearInterval(checkFirebase);
           console.log('✅ Firebase carregado, carregando configurações...');
-          carregarConfiguracoesEmpresa();
+      carregarConfiguracoesEmpresa();
         }
       }, 100);
       
