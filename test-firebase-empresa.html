@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste Firebase Empresa - FollowUP</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f8fafc;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .status {
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+    .success { background: #d1fae5; color: #065f46; }
+    .error { background: #fee2e2; color: #991b1b; }
+    .info { background: #dbeafe; color: #1e40af; }
+    .warning { background: #fef3c7; color: #92400e; }
+    .log {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 8px;
+      font-family: monospace;
+      max-height: 400px;
+      overflow-y: auto;
+      margin: 1rem 0;
+      white-space: pre-wrap;
+      font-size: 0.85rem;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    button:hover { background: #1d4ed8; }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .test-section {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    .test-result {
+      padding: 0.5rem;
+      border-radius: 4px;
+      margin: 0.5rem 0;
+      font-size: 0.9rem;
+    }
+    .test-success { background: #d1fae5; color: #065f46; }
+    .test-error { background: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔥 Teste Firebase Empresa</h1>
+    <p>Esta página testa especificamente o salvamento e carregamento das configurações da empresa no Firebase.</p>
+    
+    <div id="status" class="status info">
+      Aguardando inicialização...
+    </div>
+    
+    <div>
+      <button onclick="testFirebaseConnection()">🔗 Testar Conexão Firebase</button>
+      <button onclick="testSaveEmpresa()">💾 Testar Salvamento</button>
+      <button onclick="testLoadEmpresa()">📋 Testar Carregamento</button>
+      <button onclick="testFullFlow()">🔄 Testar Fluxo Completo</button>
+      <button onclick="clearLog()">🗑️ Limpar Log</button>
+    </div>
+    
+    <!-- Formulário de Teste -->
+    <div class="test-section">
+      <h3>Formulário de Teste</h3>
+      <form id="test-form">
+        <div class="form-group">
+          <label for="nome">Nome da Empresa:</label>
+          <input type="text" id="nome" value="Empresa Teste FollowUP" />
+        </div>
+        <div class="form-group">
+          <label for="cnpj">CNPJ:</label>
+          <input type="text" id="cnpj" value="12.345.678/0001-90" />
+        </div>
+        <div class="form-group">
+          <label for="endereco">Endereço:</label>
+          <textarea id="endereco" rows="2">Rua Teste, 123 - Centro - São Paulo/SP</textarea>
+        </div>
+        <div class="form-group">
+          <label for="telefone">Telefone:</label>
+          <input type="text" id="telefone" value="(11) 99999-9999" />
+        </div>
+        <button type="button" onclick="testSaveEmpresa()">💾 Salvar no Firebase</button>
+      </form>
+    </div>
+    
+    <!-- Resultados dos Testes -->
+    <div class="test-section">
+      <h3>Resultados dos Testes</h3>
+      <div id="test-results"></div>
+    </div>
+    
+    <div class="log" id="log"></div>
+  </div>
+
+  <script type="module" src="firebase-auth.js"></script>
+  <script>
+    let checkCount = 0;
+    let firebaseReady = false;
+    
+    // Aguardar página carregar
+    window.addEventListener('load', () => {
+      log('🚀 Página carregada');
+      updateStatus('⏳ Aguardando Firebase carregar...', 'info');
+      
+      // Verificar Firebase a cada 500ms
+      const checkInterval = setInterval(() => {
+        checkCount++;
+        log(`🔍 Tentativa ${checkCount}: Verificando window.FirebaseAuth...`);
+        
+        if (window.FirebaseAuth) {
+          clearInterval(checkInterval);
+          firebaseReady = true;
+          log('✅ window.FirebaseAuth encontrado!');
+          log('📋 Funções disponíveis: ' + Object.keys(window.FirebaseAuth).join(', '));
+          updateStatus('✅ Firebase carregado com sucesso!', 'success');
+          
+        } else if (checkCount >= 20) { // 10 segundos
+          clearInterval(checkInterval);
+          log('❌ Timeout: window.FirebaseAuth não encontrado após 10 segundos');
+          updateStatus('❌ Firebase não carregou', 'error');
+        }
+      }, 500);
+    });
+    
+    async function testFirebaseConnection() {
+      try {
+        log('🔗 Testando conexão com Firebase...');
+        
+        if (!firebaseReady) {
+          addTestResult('❌ Firebase não está pronto', 'error');
+          return;
+        }
+        
+        // Testar autenticação
+        const user = await window.FirebaseAuth.getCurrentUser();
+        if (user) {
+          log('✅ Usuário autenticado: ' + user.email);
+          addTestResult('✅ Conexão Firebase OK - Usuário autenticado', 'success');
+        } else {
+          log('⚠️ Nenhum usuário autenticado');
+          addTestResult('⚠️ Conexão Firebase OK - Nenhum usuário autenticado', 'warning');
+        }
+        
+      } catch (error) {
+        log('❌ Erro na conexão Firebase: ' + error.message);
+        addTestResult('❌ Erro na conexão Firebase: ' + error.message, 'error');
+      }
+    }
+    
+    async function testSaveEmpresa() {
+      try {
+        log('💾 Testando salvamento da empresa...');
+        
+        if (!firebaseReady) {
+          addTestResult('❌ Firebase não está pronto', 'error');
+          return;
+        }
+        
+        const dadosEmpresa = {
+          nome: document.getElementById('nome').value,
+          cnpj: document.getElementById('cnpj').value,
+          endereco: document.getElementById('endereco').value,
+          telefone: document.getElementById('telefone').value,
+          fotoUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzI1NjNlYiIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkZvbGxvZ1VQPC90ZXh0Pjwvc3ZnPg=='
+        };
+        
+        log('📝 Dados a serem salvos:');
+        log(JSON.stringify(dadosEmpresa, null, 2));
+        
+        // Salvar no Firebase
+        await window.FirebaseAuth.saveEmpresaConfig(dadosEmpresa);
+        log('✅ Dados salvos com sucesso no Firebase');
+        
+        addTestResult('✅ Salvamento no Firebase OK', 'success');
+        
+      } catch (error) {
+        log('❌ Erro no salvamento: ' + error.message);
+        addTestResult('❌ Erro no salvamento: ' + error.message, 'error');
+      }
+    }
+    
+    async function testLoadEmpresa() {
+      try {
+        log('📋 Testando carregamento da empresa...');
+        
+        if (!firebaseReady) {
+          addTestResult('❌ Firebase não está pronto', 'error');
+          return;
+        }
+        
+        // Carregar do Firebase
+        const empresaConfig = await window.FirebaseAuth.getEmpresaConfig();
+        
+        if (empresaConfig) {
+          log('✅ Dados carregados do Firebase:');
+          log(JSON.stringify(empresaConfig, null, 2));
+          addTestResult('✅ Carregamento do Firebase OK', 'success');
+        } else {
+          log('ℹ️ Nenhuma configuração encontrada no Firebase');
+          addTestResult('ℹ️ Nenhuma configuração encontrada no Firebase', 'warning');
+        }
+        
+      } catch (error) {
+        log('❌ Erro no carregamento: ' + error.message);
+        addTestResult('❌ Erro no carregamento: ' + error.message, 'error');
+      }
+    }
+    
+    async function testFullFlow() {
+      try {
+        log('🔄 Testando fluxo completo...');
+        
+        if (!firebaseReady) {
+          addTestResult('❌ Firebase não está pronto', 'error');
+          return;
+        }
+        
+        // 1. Salvar dados
+        log('1️⃣ Salvando dados...');
+        await testSaveEmpresa();
+        
+        // 2. Aguardar um pouco
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // 3. Carregar dados
+        log('2️⃣ Carregando dados...');
+        await testLoadEmpresa();
+        
+        // 4. Verificar se os dados são iguais
+        log('3️⃣ Verificando consistência...');
+        const dadosSalvos = {
+          nome: document.getElementById('nome').value,
+          cnpj: document.getElementById('cnpj').value,
+          endereco: document.getElementById('endereco').value,
+          telefone: document.getElementById('telefone').value
+        };
+        
+        const dadosCarregados = await window.FirebaseAuth.getEmpresaConfig();
+        
+        if (dadosCarregados && 
+            dadosSalvos.nome === dadosCarregados.nome &&
+            dadosSalvos.cnpj === dadosCarregados.cnpj &&
+            dadosSalvos.endereco === dadosCarregados.endereco &&
+            dadosSalvos.telefone === dadosCarregados.telefone) {
+          log('✅ Dados consistentes!');
+          addTestResult('✅ Fluxo completo OK - Dados consistentes', 'success');
+        } else {
+          log('❌ Dados inconsistentes!');
+          addTestResult('❌ Fluxo completo falhou - Dados inconsistentes', 'error');
+        }
+        
+      } catch (error) {
+        log('❌ Erro no fluxo completo: ' + error.message);
+        addTestResult('❌ Erro no fluxo completo: ' + error.message, 'error');
+      }
+    }
+    
+    function addTestResult(message, type) {
+      const resultsDiv = document.getElementById('test-results');
+      const resultDiv = document.createElement('div');
+      resultDiv.className = `test-result test-${type}`;
+      resultDiv.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      resultsDiv.appendChild(resultDiv);
+    }
+    
+    function updateStatus(message, type) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `status ${type}`;
+    }
+    
+    function log(message) {
+      const logDiv = document.getElementById('log');
+      const timestamp = new Date().toLocaleTimeString();
+      logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    
+    function clearLog() {
+      document.getElementById('log').innerHTML = '';
+      document.getElementById('test-results').innerHTML = '';
+      log('🗑️ Log limpo');
+    }
+  </script>
+</body>
+</html>

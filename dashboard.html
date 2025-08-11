@@ -1825,7 +1825,62 @@
               <span class="material-icons" style="color: var(--primary); font-size: 1.25rem;">settings</span>
               Configurações Gerais
             </h3>
-            <form id="config-form">
+            
+            <!-- Visualização das Informações da Empresa -->
+            <div id="empresa-info-display" style="display: none; margin-bottom: 1.5rem; padding: 1rem; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius);">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                <h4 style="color: var(--primary-dark); font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                  <span class="material-icons" style="font-size: 1.25rem;">business</span>
+                  Informações da Empresa
+                </h4>
+                <button type="button" onclick="editarEmpresa()" style="background: var(--primary); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                  <span class="material-icons" style="font-size: 1rem;">edit</span>
+                  Editar
+                </button>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; align-items: start;">
+                <!-- Logo da Empresa -->
+                <div style="text-align: center;">
+                  <div id="empresa-logo-display" style="width: 80px; height: 80px; margin: 0 auto; border: 2px solid var(--primary-200); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; background: white;">
+                    <img id="empresa-logo-img" src="" alt="Logo da empresa" style="max-width: 100%; max-height: 100%; border-radius: var(--radius); display: none;" />
+                    <span id="empresa-logo-placeholder" class="material-icons" style="color: var(--text-muted); font-size: 2rem;">business</span>
+                  </div>
+                </div>
+                
+                <!-- Informações da Empresa -->
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <div>
+                    <strong style="color: var(--text); font-size: 0.9rem;">Nome:</strong>
+                    <span id="empresa-nome-display-info" style="color: var(--text-secondary); font-size: 0.9rem; margin-left: 0.5rem;">-</span>
+                  </div>
+                  <div>
+                    <strong style="color: var(--text); font-size: 0.9rem;">CNPJ:</strong>
+                    <span id="empresa-cnpj-display-info" style="color: var(--text-secondary); font-size: 0.9rem; margin-left: 0.5rem;">-</span>
+                  </div>
+                  <div>
+                    <strong style="color: var(--text); font-size: 0.9rem;">Endereço:</strong>
+                    <span id="empresa-endereco-display-info" style="color: var(--text-secondary); font-size: 0.9rem; margin-left: 0.5rem;">-</span>
+                  </div>
+                  <div>
+                    <strong style="color: var(--text); font-size: 0.9rem;">Telefone:</strong>
+                    <span id="empresa-telefone-display-info" style="color: var(--text-secondary); font-size: 0.9rem; margin-left: 0.5rem;">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Botão para Adicionar Configurações -->
+            <div id="empresa-add-button" style="display: none; text-align: center; padding: 2rem;">
+              <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">Nenhuma configuração da empresa encontrada.</p>
+              <button type="button" onclick="adicionarEmpresa()" style="background: var(--primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow); font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; margin: 0 auto;">
+                <span class="material-icons" style="font-size: 1rem;">add_business</span>
+                Adicionar Configurações da Empresa
+              </button>
+            </div>
+            
+            <!-- Formulário de Edição -->
+            <form id="config-form" style="display: none;">
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
                   <label for="empresa-nome" style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem;">Nome da Empresa</label>
@@ -1871,7 +1926,10 @@
                   </div>
                 </div>
               </div>
-              <button type="submit" style="background: var(--primary); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow); font-size: 0.9rem;">Salvar Configurações</button>
+              <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" style="background: var(--primary); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow); font-size: 0.9rem;">Salvar Configurações</button>
+                <button type="button" onclick="cancelarEdicao()" style="background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); padding: 0.6rem 1.2rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; font-size: 0.9rem;">Cancelar</button>
+              </div>
             </form>
             
             <style>
@@ -5539,10 +5597,13 @@
 
     // Função para carregar configurações da empresa
     async function carregarConfiguracoesEmpresa() {
+      console.log('📋 Carregando configurações da empresa...');
       try {
         // Tentar carregar do Firebase primeiro
         if (window.FirebaseAuth) {
+          console.log('🔥 Tentando carregar do Firebase...');
           const empresaConfig = await window.FirebaseAuth.getEmpresaConfig();
+          console.log('📊 Dados do Firebase:', empresaConfig);
           if (empresaConfig) {
             // Preencher formulário com dados do Firebase
             document.getElementById('empresa-nome').value = empresaConfig.nome || '';
@@ -5559,31 +5620,44 @@
             
             // Atualizar exibição na barra superior
             atualizarNomeEmpresaHeader(empresaConfig.nome);
+            
+            // Mostrar informações da empresa
+            mostrarInformacoesEmpresa(empresaConfig);
             return;
           }
         }
       } catch (error) {
-        console.log('Erro ao carregar configurações do Firebase:', error);
+        console.log('❌ Erro ao carregar configurações do Firebase:', error);
       }
       
       // Fallback para localStorage
+      console.log('💾 Tentando carregar do localStorage...');
       const configEmpresa = JSON.parse(localStorage.getItem('configEmpresa') || '{}');
+      console.log('📊 Dados do localStorage:', configEmpresa);
       
-      // Preencher formulário
-      document.getElementById('empresa-nome').value = configEmpresa.nome || '';
-      document.getElementById('empresa-cnpj').value = configEmpresa.cnpj || '';
-      document.getElementById('empresa-endereco').value = configEmpresa.endereco || '';
-      document.getElementById('empresa-telefone').value = configEmpresa.telefone || '';
-      
-      // Carregar imagem do localStorage se existir
-      if (configEmpresa.fotoUrl) {
-        document.getElementById('empresa-foto-preview').src = configEmpresa.fotoUrl;
-        document.getElementById('empresa-foto-preview').style.display = 'block';
-        document.getElementById('empresa-foto-placeholder').style.display = 'none';
+      if (configEmpresa.nome) {
+        // Preencher formulário
+        document.getElementById('empresa-nome').value = configEmpresa.nome || '';
+        document.getElementById('empresa-cnpj').value = configEmpresa.cnpj || '';
+        document.getElementById('empresa-endereco').value = configEmpresa.endereco || '';
+        document.getElementById('empresa-telefone').value = configEmpresa.telefone || '';
+        
+        // Carregar imagem do localStorage se existir
+        if (configEmpresa.fotoUrl) {
+          document.getElementById('empresa-foto-preview').src = configEmpresa.fotoUrl;
+          document.getElementById('empresa-foto-preview').style.display = 'block';
+          document.getElementById('empresa-foto-placeholder').style.display = 'none';
+        }
+        
+        // Atualizar exibição na barra superior
+        atualizarNomeEmpresaHeader(configEmpresa.nome);
+        
+        // Mostrar informações da empresa
+        mostrarInformacoesEmpresa(configEmpresa);
+      } else {
+        // Mostrar botão para adicionar configurações
+        mostrarBotaoAdicionar();
       }
-      
-      // Atualizar exibição na barra superior
-      atualizarNomeEmpresaHeader(configEmpresa.nome);
     }
     
     // Função para atualizar nome da empresa no header
@@ -5623,6 +5697,9 @@
         
         // Atualizar exibição na barra superior
         atualizarNomeEmpresaHeader(configEmpresa.nome);
+        
+        // Mostrar informações da empresa
+        mostrarInformacoesEmpresa(configEmpresa);
         
         // Feedback visual
         alert('Configurações salvas com sucesso!');
@@ -5674,9 +5751,87 @@
       fileInput.value = '';
     }
     
+    // Função para mostrar informações da empresa
+    function mostrarInformacoesEmpresa(empresaConfig) {
+      console.log('🏢 Mostrando informações da empresa:', empresaConfig);
+      // Ocultar botão de adicionar e formulário
+      document.getElementById('empresa-add-button').style.display = 'none';
+      document.getElementById('config-form').style.display = 'none';
+      
+      // Mostrar seção de informações
+      document.getElementById('empresa-info-display').style.display = 'block';
+      
+      // Preencher informações
+      document.getElementById('empresa-nome-display-info').textContent = empresaConfig.nome || '-';
+      document.getElementById('empresa-cnpj-display-info').textContent = empresaConfig.cnpj || '-';
+      document.getElementById('empresa-endereco-display-info').textContent = empresaConfig.endereco || '-';
+      document.getElementById('empresa-telefone-display-info').textContent = empresaConfig.telefone || '-';
+      
+      // Mostrar logo se existir
+      if (empresaConfig.fotoUrl) {
+        document.getElementById('empresa-logo-img').src = empresaConfig.fotoUrl;
+        document.getElementById('empresa-logo-img').style.display = 'block';
+        document.getElementById('empresa-logo-placeholder').style.display = 'none';
+      } else {
+        document.getElementById('empresa-logo-img').style.display = 'none';
+        document.getElementById('empresa-logo-placeholder').style.display = 'block';
+      }
+    }
+    
+    // Função para mostrar botão de adicionar
+    function mostrarBotaoAdicionar() {
+      document.getElementById('empresa-info-display').style.display = 'none';
+      document.getElementById('config-form').style.display = 'none';
+      document.getElementById('empresa-add-button').style.display = 'block';
+    }
+    
+    // Função para adicionar empresa
+    function adicionarEmpresa() {
+      document.getElementById('empresa-add-button').style.display = 'none';
+      document.getElementById('empresa-info-display').style.display = 'none';
+      document.getElementById('config-form').style.display = 'block';
+      
+      // Limpar formulário
+      document.getElementById('empresa-nome').value = '';
+      document.getElementById('empresa-cnpj').value = '';
+      document.getElementById('empresa-endereco').value = '';
+      document.getElementById('empresa-telefone').value = '';
+      limparImagemEmpresa();
+    }
+    
+    // Função para editar empresa
+    function editarEmpresa() {
+      document.getElementById('empresa-info-display').style.display = 'none';
+      document.getElementById('config-form').style.display = 'block';
+    }
+    
+    // Função para cancelar edição
+    function cancelarEdicao() {
+      // Recarregar dados originais
+      carregarConfiguracoesEmpresa();
+    }
+    
     // Carregar configurações ao iniciar
     document.addEventListener('DOMContentLoaded', function() {
-      carregarConfiguracoesEmpresa();
+      console.log('🚀 Iniciando carregamento das configurações da empresa...');
+      
+      // Aguardar Firebase carregar
+      const checkFirebase = setInterval(() => {
+        if (window.FirebaseAuth) {
+          clearInterval(checkFirebase);
+          console.log('✅ Firebase carregado, carregando configurações...');
+          carregarConfiguracoesEmpresa();
+        }
+      }, 100);
+      
+      // Timeout após 5 segundos
+      setTimeout(() => {
+        clearInterval(checkFirebase);
+        if (!window.FirebaseAuth) {
+          console.log('⚠️ Firebase não carregou, usando localStorage...');
+          carregarConfiguracoesEmpresa();
+        }
+      }, 5000);
       
       // Adicionar máscaras aos campos CNPJ e Telefone
       const cnpjInput = document.getElementById('empresa-cnpj');
