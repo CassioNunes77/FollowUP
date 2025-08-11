@@ -5945,6 +5945,7 @@
         mostrarInformacoesEmpresa(dadosFinais);
         
         // Ocultar seção "Configurações da Empresa" quando há empresa cadastrada
+        console.log('🏢 Empresa encontrada - ocultando seção de configurações');
         ocultarSecaoConfiguracoesEmpresa();
         
         // Verificar se a função foi executada corretamente
@@ -5971,19 +5972,36 @@
     
     // Função para ocultar seção "Configurações da Empresa"
     function ocultarSecaoConfiguracoesEmpresa() {
+      console.log('🔧 Tentando ocultar seção "Configurações da Empresa"...');
       const emergencyButton = document.getElementById('emergency-button');
+      
       if (emergencyButton) {
+        console.log('✅ Elemento emergency-button encontrado');
+        console.log('📋 Display atual:', emergencyButton.style.display);
         emergencyButton.style.display = 'none';
         console.log('✅ Seção "Configurações da Empresa" ocultada');
+        
+        // Verificar se foi ocultado corretamente
+        setTimeout(() => {
+          console.log('🔍 Verificação pós-ocultação - display:', emergencyButton.style.display);
+        }, 100);
+      } else {
+        console.error('❌ Elemento emergency-button NÃO encontrado');
       }
     }
     
     // Função para mostrar seção "Configurações da Empresa"
     function mostrarSecaoConfiguracoesEmpresa() {
+      console.log('🔧 Tentando mostrar seção "Configurações da Empresa"...');
       const emergencyButton = document.getElementById('emergency-button');
+      
       if (emergencyButton) {
+        console.log('✅ Elemento emergency-button encontrado');
+        console.log('📋 Display atual:', emergencyButton.style.display);
         emergencyButton.style.display = 'block';
         console.log('✅ Seção "Configurações da Empresa" exibida');
+      } else {
+        console.error('❌ Elemento emergency-button NÃO encontrado');
       }
     }
     
