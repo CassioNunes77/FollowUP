@@ -2984,8 +2984,11 @@
         // Exibir informações da empresa se disponível
         if (empresaData && empresaData.nome) {
           console.log('✅ Exibindo informações da empresa:', empresaData.nome);
+          console.log('📸 Foto da empresa:', empresaData.fotoUrl);
+          console.log('🔍 Verificação foto:', empresaData.fotoUrl && empresaData.fotoUrl.trim() !== '');
           
           if (empresaData.fotoUrl && empresaData.fotoUrl.trim() !== '') {
+            console.log('🖼️ Empresa TEM foto - mostrando foto + nome');
             // Se tem foto, mostrar foto + nome
             empresaMenuInfoElement.innerHTML = `
               <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -2997,6 +3000,7 @@
               </div>
             `;
           } else {
+            console.log('📝 Empresa NÃO tem foto - mostrando apenas nome');
             // Se não tem foto, mostrar apenas o nome da empresa (sem ícone)
             empresaMenuInfoElement.innerHTML = `
               <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -3009,6 +3013,7 @@
           }
           
           empresaMenuInfoElement.style.display = 'flex';
+          console.log('✅ Elemento empresa-menu-info exibido');
         } else {
           console.log('ℹ️ Nenhuma empresa cadastrada encontrada');
           empresaMenuInfoElement.style.display = 'none';
