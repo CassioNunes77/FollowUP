@@ -317,7 +317,7 @@ async function saveClusters(clusters) {
     // Add new clusters
     const addPromises = clusters.map(cluster => 
       addDoc(collection(db, COLLECTIONS.CLUSTERS), {
-        nome: cluster,
+        ...cluster,
         userId: user.uid,
         userEmail: user.email,
         createdAt: new Date()
@@ -345,7 +345,20 @@ async function getClusters() {
     const querySnapshot = await getDocs(userQuery);
     const clusters = [];
     querySnapshot.forEach((doc) => {
-      clusters.push(doc.data().nome);
+      const data = doc.data();
+      clusters.push({
+        id: doc.id,
+        nome: data.nome || '',
+        cpf: data.cpf || '',
+        endereco: data.endereco || '',
+        fotoCostureira: data.fotoCostureira || '',
+        fotoEspaco: data.fotoEspaco || '',
+        declaracaoTrabalho: data.declaracaoTrabalho || false,
+        contato: data.contato || '',
+        declaracaoSaude: data.declaracaoSaude || false,
+        fotoAmbiente: data.fotoAmbiente || '',
+        createdAt: data.createdAt
+      });
     });
     console.log('✅ Clusters carregados:', clusters.length);
     return clusters;

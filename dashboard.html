@@ -2217,6 +2217,16 @@
   </div>
 
   <script>
+    // Função para converter arquivo para base64
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
     // Função para testar localStorage
     function testLocalStorage() {
       try {
@@ -3168,18 +3178,83 @@
         clustersSection.id = 'clusters-section';
         clustersSection.style.display = 'block';
         clustersSection.innerHTML = `
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+          <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
             <div style="background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid var(--border);">
               <h3 style="margin-bottom: 1.5rem; color: var(--text); font-size: 1.25rem; font-weight: 600; font-family: 'Poppins', sans-serif; display: flex; align-items: center; gap: 0.75rem;">
                 <span class="material-icons" style="color: var(--primary); font-size: 1.5rem;">add_business</span>
-                Adicionar Novo Cluster
+                Cadastro de Cluster - Ficha Única
               </h3>
               <form id="cluster-form">
-                <div style="margin-bottom: 1.5rem;">
-                  <label for="novo-cluster" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">Nome do Cluster</label>
-                  <input type="text" id="novo-cluster" placeholder="Digite o nome do cluster" required style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                <!-- Informações Básicas -->
+                <div class="form-section" style="background: var(--bg-secondary); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border);">
+                  <h4 style="margin-bottom: 1rem; color: var(--primary); font-size: 1.1rem; font-weight: 600; font-family: 'Poppins', sans-serif;">📋 Informações Básicas</h4>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                      <label for="novo-cluster-nome" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">Nome da Costureira *</label>
+                      <input type="text" id="novo-cluster-nome" placeholder="Digite o nome completo" required style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                    </div>
+                    <div class="form-group">
+                      <label for="novo-cluster-cpf" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">CPF (opcional)</label>
+                      <input type="text" id="novo-cluster-cpf" placeholder="000.000.000-00" style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                    </div>
+                  </div>
+                  <div class="form-group" style="margin-top: 1rem;">
+                    <label for="novo-cluster-endereco" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">Endereço (opcional)</label>
+                    <input type="text" id="novo-cluster-endereco" placeholder="Digite o endereço completo" style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                  </div>
                 </div>
-                <button type="submit" style="background: var(--primary); color: white; border: none; padding: 0.875rem 1.75rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow);">Adicionar Cluster</button>
+
+                <!-- Fotos -->
+                <div class="form-section" style="background: var(--bg-secondary); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border);">
+                  <h4 style="margin-bottom: 1rem; color: var(--primary); font-size: 1.1rem; font-weight: 600; font-family: 'Poppins', sans-serif;">📸 Fotos</h4>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                      <label for="novo-cluster-foto-costureira" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">Foto da Costureira (opcional)</label>
+                      <input type="file" id="novo-cluster-foto-costureira" accept="image/*" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                    </div>
+                    <div class="form-group">
+                      <label for="novo-cluster-foto-espaco" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">Foto do Espaço de Trabalho (opcional)</label>
+                      <input type="file" id="novo-cluster-foto-espaco" accept="image/*" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Declarações -->
+                <div class="form-section" style="background: var(--bg-secondary); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border);">
+                  <h4 style="margin-bottom: 1rem; color: var(--primary); font-size: 1.1rem; font-weight: 600; font-family: 'Poppins', sans-serif;">📝 Declarações</h4>
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; cursor: pointer;">
+                      <input type="checkbox" id="novo-cluster-declaracao-trabalho" style="width: 1.2rem; height: 1.2rem;" />
+                      Declaro que não utilizo trabalho infantil ou forçado
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; cursor: pointer;">
+                      <input type="checkbox" id="novo-cluster-declaracao-saude" style="width: 1.2rem; height: 1.2rem;" />
+                      Declaro que o local de trabalho possui iluminação, ventilação e condições adequadas
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Contato -->
+                <div class="form-section" style="background: var(--bg-secondary); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border);">
+                  <h4 style="margin-bottom: 1rem; color: var(--primary); font-size: 1.1rem; font-weight: 600; font-family: 'Poppins', sans-serif;">📞 Contato</h4>
+                  <div class="form-group">
+                    <label for="novo-cluster-contato" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">WhatsApp/Telefone (opcional)</label>
+                    <input type="text" id="novo-cluster-contato" placeholder="(00) 00000-0000" style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                  </div>
+                </div>
+
+                <!-- Foto do Ambiente -->
+                <div class="form-section" style="background: var(--bg-secondary); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border);">
+                  <h4 style="margin-bottom: 1rem; color: var(--primary); font-size: 1.1rem; font-weight: 600; font-family: 'Poppins', sans-serif;">🏠 Registro Fotográfico do Ambiente</h4>
+                  <div class="form-group">
+                    <label for="novo-cluster-foto-ambiente" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">Foto do Ambiente de Trabalho (opcional)</label>
+                    <input type="file" id="novo-cluster-foto-ambiente" accept="image/*" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                  </div>
+                </div>
+
+                <button type="submit" style="background: var(--primary); color: white; border: none; padding: 0.875rem 1.75rem; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: 'Inter', sans-serif; box-shadow: var(--shadow); width: 100%;">Cadastrar Cluster</button>
               </form>
             </div>
             <div style="background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid var(--border);">
@@ -3187,7 +3262,7 @@
                 <span class="material-icons" style="color: var(--primary); font-size: 1.5rem;">business</span>
                 Clusters Cadastrados
               </h3>
-              <div id="lista-clusters" style="max-height: 300px; overflow-y: auto;">
+              <div id="lista-clusters" style="max-height: 500px; overflow-y: auto;">
                 <p style="color: var(--muted); text-align: center; padding: 2rem;">Nenhum cluster cadastrado</p>
               </div>
             </div>
@@ -3236,18 +3311,30 @@
             listaClusters.innerHTML = '';
             clustersCadastrados.forEach((cluster, idx) => {
               const div = document.createElement('div');
-              div.style.display = 'flex';
-              div.style.justifyContent = 'space-between';
-              div.style.alignItems = 'center';
-              div.style.padding = '0.8rem';
-              div.style.marginBottom = '0.5rem';
+              div.style.padding = '1rem';
+              div.style.marginBottom = '1rem';
               div.style.backgroundColor = 'var(--bg-secondary)';
               div.style.borderRadius = '8px';
               div.style.border = '1px solid var(--border)';
+              
+              // Determinar se é um cluster antigo (apenas string) ou novo (objeto)
+              const isOldFormat = typeof cluster === 'string';
+              const clusterData = isOldFormat ? { nome: cluster } : cluster;
+              
               div.innerHTML = `
-                <span style="font-weight: 500; color: var(--text);">${cluster}</span>
-                <div style="display: flex; gap: 0.5rem;">
-                  <button onclick="editarCluster('${cluster}')" style="background: var(--primary); color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Editar</button>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                  <div style="flex: 1;">
+                    <h4 style="font-weight: 600; color: var(--text); margin: 0 0 0.5rem 0; font-size: 1.1rem;">${clusterData.nome}</h4>
+                    ${clusterData.cpf ? `<p style="color: var(--text-secondary); margin: 0 0 0.25rem 0; font-size: 0.9rem;"><strong>CPF:</strong> ${clusterData.cpf}</p>` : ''}
+                    ${clusterData.endereco ? `<p style="color: var(--text-secondary); margin: 0 0 0.25rem 0; font-size: 0.9rem;"><strong>Endereço:</strong> ${clusterData.endereco}</p>` : ''}
+                    ${clusterData.contato ? `<p style="color: var(--text-secondary); margin: 0 0 0.25rem 0; font-size: 0.9rem;"><strong>Contato:</strong> ${clusterData.contato}</p>` : ''}
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                      ${clusterData.declaracaoTrabalho ? '<span style="background: var(--success-50); color: var(--success); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; border: 1px solid var(--success-200);">✓ Trabalho Legal</span>' : ''}
+                      ${clusterData.declaracaoSaude ? '<span style="background: var(--success-50); color: var(--success); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; border: 1px solid var(--success-200);">✓ Condições Adequadas</span>' : ''}
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 0.5rem; margin-left: 1rem;">
+                    <button onclick="editarCluster('${clusterData.nome}')" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">Editar</button>
                   <button onclick="removerCluster('${cluster}')" style="background: var(--error); color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Remover</button>
                 </div>
               `;
@@ -3290,7 +3377,7 @@
           `;
           
           modal.innerHTML = `
-            <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); min-width: 400px; max-width: 500px;">
+            <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); min-width: 600px; max-width: 800px; max-height: 90vh; overflow-y: auto;">
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
                 <h3 style="margin: 0; color: var(--text); font-size: 1.25rem; font-weight: 600; font-family: 'Poppins', sans-serif; display: flex; align-items: center; gap: 0.5rem;">
                   <span class="material-icons" style="color: var(--primary); font-size: 1.5rem;">edit</span>
@@ -3300,9 +3387,73 @@
               </div>
               
               <form id="edit-cluster-form">
-                <div style="margin-bottom: 1.5rem;">
-                  <label for="edit-cluster-nome" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">Nome do Cluster</label>
-                  <input type="text" id="edit-cluster-nome" value="${clusterAtual}" placeholder="Digite o nome do cluster" required style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                <!-- Informações Básicas -->
+                <div class="form-section" style="background: var(--bg-secondary); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border);">
+                  <h4 style="margin-bottom: 1rem; color: var(--primary); font-size: 1.1rem; font-weight: 600; font-family: 'Poppins', sans-serif;">📋 Informações Básicas</h4>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                      <label for="edit-cluster-nome" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">Nome da Costureira *</label>
+                      <input type="text" id="edit-cluster-nome" value="${clusterAtual}" placeholder="Digite o nome completo" required style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                    </div>
+                    <div class="form-group">
+                      <label for="edit-cluster-cpf" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">CPF (opcional)</label>
+                      <input type="text" id="edit-cluster-cpf" placeholder="000.000.000-00" style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                    </div>
+                  </div>
+                  <div class="form-group" style="margin-top: 1rem;">
+                    <label for="edit-cluster-endereco" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">Endereço (opcional)</label>
+                    <input type="text" id="edit-cluster-endereco" placeholder="Digite o endereço completo" style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                  </div>
+                </div>
+
+                <!-- Fotos -->
+                <div class="form-section" style="background: var(--bg-secondary); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border);">
+                  <h4 style="margin-bottom: 1rem; color: var(--primary); font-size: 1.1rem; font-weight: 600; font-family: 'Poppins', sans-serif;">📸 Fotos</h4>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                      <label for="edit-cluster-foto-costureira" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">Foto da Costureira (opcional)</label>
+                      <input type="file" id="edit-cluster-foto-costureira" accept="image/*" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                    </div>
+                    <div class="form-group">
+                      <label for="edit-cluster-foto-espaco" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">Foto do Espaço de Trabalho (opcional)</label>
+                      <input type="file" id="edit-cluster-foto-espaco" accept="image/*" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Declarações -->
+                <div class="form-section" style="background: var(--bg-secondary); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border);">
+                  <h4 style="margin-bottom: 1rem; color: var(--primary); font-size: 1.1rem; font-weight: 600; font-family: 'Poppins', sans-serif;">📝 Declarações</h4>
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; cursor: pointer;">
+                      <input type="checkbox" id="edit-cluster-declaracao-trabalho" style="width: 1.2rem; height: 1.2rem;" />
+                      Declaro que não utilizo trabalho infantil ou forçado
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif; cursor: pointer;">
+                      <input type="checkbox" id="edit-cluster-declaracao-saude" style="width: 1.2rem; height: 1.2rem;" />
+                      Declaro que o local de trabalho possui iluminação, ventilação e condições adequadas
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Contato -->
+                <div class="form-section" style="background: var(--bg-secondary); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border);">
+                  <h4 style="margin-bottom: 1rem; color: var(--primary); font-size: 1.1rem; font-weight: 600; font-family: 'Poppins', sans-serif;">📞 Contato</h4>
+                  <div class="form-group">
+                    <label for="edit-cluster-contato" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">WhatsApp/Telefone (opcional)</label>
+                    <input type="text" id="edit-cluster-contato" placeholder="(00) 00000-0000" style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                  </div>
+                </div>
+
+                <!-- Foto do Ambiente -->
+                <div class="form-section" style="background: var(--bg-secondary); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border);">
+                  <h4 style="margin-bottom: 1rem; color: var(--primary); font-size: 1.1rem; font-weight: 600; font-family: 'Poppins', sans-serif;">🏠 Registro Fotográfico do Ambiente</h4>
+                  <div class="form-group">
+                    <label for="edit-cluster-foto-ambiente" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">Foto do Ambiente de Trabalho (opcional)</label>
+                    <input type="file" id="edit-cluster-foto-ambiente" accept="image/*" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
+                  </div>
                 </div>
                 
                 <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
@@ -3316,6 +3467,22 @@
           modal.className = 'modal-overlay';
           document.body.appendChild(modal);
           
+          // Preencher campos com dados existentes
+          const clustersExistentes = await loadClustersFromFirebase();
+          const clusterExistente = clustersExistentes.find(c => 
+            typeof c === 'string' ? c === clusterAtual : c.nome === clusterAtual
+          );
+          
+          if (clusterExistente && typeof clusterExistente === 'object') {
+            // Preencher campos com dados existentes
+            document.getElementById('edit-cluster-nome').value = clusterExistente.nome || '';
+            document.getElementById('edit-cluster-cpf').value = clusterExistente.cpf || '';
+            document.getElementById('edit-cluster-endereco').value = clusterExistente.endereco || '';
+            document.getElementById('edit-cluster-contato').value = clusterExistente.contato || '';
+            document.getElementById('edit-cluster-declaracao-trabalho').checked = clusterExistente.declaracaoTrabalho || false;
+            document.getElementById('edit-cluster-declaracao-saude').checked = clusterExistente.declaracaoSaude || false;
+          }
+          
           // Focar no input
           const input = modal.querySelector('#edit-cluster-nome');
           input.focus();
@@ -3326,35 +3493,75 @@
           form.onsubmit = async function(e) {
             e.preventDefault();
             
-            const novoNome = input.value.trim();
+            // Capturar todos os campos do formulário
+            const nome = document.getElementById('edit-cluster-nome').value.trim();
+            const cpf = document.getElementById('edit-cluster-cpf').value.trim();
+            const endereco = document.getElementById('edit-cluster-endereco').value.trim();
+            const fotoCostureira = document.getElementById('edit-cluster-foto-costureira').files[0];
+            const fotoEspaco = document.getElementById('edit-cluster-foto-espaco').files[0];
+            const declaracaoTrabalho = document.getElementById('edit-cluster-declaracao-trabalho').checked;
+            const contato = document.getElementById('edit-cluster-contato').value.trim();
+            const declaracaoSaude = document.getElementById('edit-cluster-declaracao-saude').checked;
+            const fotoAmbiente = document.getElementById('edit-cluster-foto-ambiente').files[0];
             
-            if (!novoNome) {
-              alert('Por favor, digite o nome do cluster');
-              return;
-            }
-            
-            if (novoNome === clusterAtual) {
-              modal.remove();
+            if (!nome) {
+              alert('Por favor, digite o nome da costureira');
               return;
             }
             
             try {
               console.log('🔄 Salvando edição do cluster no Firebase...');
               
+              // Processar fotos (convertê-las para base64 se foram alteradas)
+              let fotoCostureiraUrl = clusterExistente?.fotoCostureira || '';
+              let fotoEspacoUrl = clusterExistente?.fotoEspaco || '';
+              let fotoAmbienteUrl = clusterExistente?.fotoAmbiente || '';
+              
+              if (fotoCostureira) {
+                fotoCostureiraUrl = await convertFileToBase64(fotoCostureira);
+              }
+              if (fotoEspaco) {
+                fotoEspacoUrl = await convertFileToBase64(fotoEspaco);
+              }
+              if (fotoAmbiente) {
+                fotoAmbienteUrl = await convertFileToBase64(fotoAmbiente);
+              }
+              
+              const clusterAtualizado = {
+                nome: nome,
+                cpf: cpf,
+                endereco: endereco,
+                fotoCostureira: fotoCostureiraUrl,
+                fotoEspaco: fotoEspacoUrl,
+                declaracaoTrabalho: declaracaoTrabalho,
+                contato: contato,
+                declaracaoSaude: declaracaoSaude,
+                fotoAmbiente: fotoAmbienteUrl
+              };
+              
               if (window.FirebaseAuth) {
                 // Carregar clusters existentes do Firebase
                 const clustersExistentes = await loadClustersFromFirebase();
                 
-                // Verificar se o novo nome já existe
-                if (clustersExistentes.includes(novoNome)) {
-                  alert('Já existe um cluster com este nome!');
-                  return;
+                // Verificar se o novo nome já existe (se foi alterado)
+                if (nome !== clusterAtual) {
+                  const clusterComMesmoNome = clustersExistentes.find(c => 
+                    typeof c === 'string' ? c === nome : c.nome === nome
+                  );
+                  
+                  if (clusterComMesmoNome) {
+                    alert('Já existe um cluster com este nome!');
+                    return;
+                  }
                 }
                 
                 // Atualizar o cluster
-                const index = clustersExistentes.indexOf(clusterAtual);
+                const index = clustersExistentes.findIndex(c => 
+                  typeof c === 'string' ? c === clusterAtual : c.nome === clusterAtual
+                );
+                
                 if (index !== -1) {
-                  clustersExistentes[index] = novoNome;
+                  clustersExistentes[index] = clusterAtualizado;
                   await window.FirebaseAuth.saveClusters(clustersExistentes);
                   
                   console.log('✅ Cluster editado no Firebase');
@@ -3373,14 +3580,23 @@
                 // Fallback para localStorage
                 const clustersLocal = JSON.parse(localStorage.getItem('clustersCadastrados') || '[]');
                 
-                if (clustersLocal.includes(novoNome)) {
-                  alert('Já existe um cluster com este nome!');
-                  return;
+                if (nome !== clusterAtual) {
+                  const clusterComMesmoNome = clustersLocal.find(c => 
+                    typeof c === 'string' ? c === nome : c.nome === nome
+                  );
+                  
+                  if (clusterComMesmoNome) {
+                    alert('Já existe um cluster com este nome!');
+                    return;
+                  }
                 }
                 
-                const index = clustersLocal.indexOf(clusterAtual);
+                const index = clustersLocal.findIndex(c => 
+                  typeof c === 'string' ? c === clusterAtual : c.nome === clusterAtual
+                );
+                
                 if (index !== -1) {
-                  clustersLocal[index] = novoNome;
+                  clustersLocal[index] = clusterAtualizado;
                   localStorage.setItem('clustersCadastrados', JSON.stringify(clustersLocal));
                   
                   console.log('✅ Cluster editado no localStorage');
@@ -3403,22 +3619,64 @@
         if (clusterForm) {
           clusterForm.onsubmit = async function(e) {
             e.preventDefault();
-            const novoCluster = novoClusterInput.value.trim();
             
-            if (!novoCluster) {
-              alert('Por favor, digite o nome do cluster');
+            // Capturar todos os campos do formulário
+            const nome = document.getElementById('novo-cluster-nome').value.trim();
+            const cpf = document.getElementById('novo-cluster-cpf').value.trim();
+            const endereco = document.getElementById('novo-cluster-endereco').value.trim();
+            const fotoCostureira = document.getElementById('novo-cluster-foto-costureira').files[0];
+            const fotoEspaco = document.getElementById('novo-cluster-foto-espaco').files[0];
+            const declaracaoTrabalho = document.getElementById('novo-cluster-declaracao-trabalho').checked;
+            const contato = document.getElementById('novo-cluster-contato').value.trim();
+            const declaracaoSaude = document.getElementById('novo-cluster-declaracao-saude').checked;
+            const fotoAmbiente = document.getElementById('novo-cluster-foto-ambiente').files[0];
+            
+            if (!nome) {
+              alert('Por favor, digite o nome da costureira');
               return;
             }
             
             try {
               console.log('🔄 Salvando cluster no Firebase...');
               
+              // Processar fotos (convertê-las para base64)
+              let fotoCostureiraUrl = '';
+              let fotoEspacoUrl = '';
+              let fotoAmbienteUrl = '';
+              
+              if (fotoCostureira) {
+                fotoCostureiraUrl = await convertFileToBase64(fotoCostureira);
+              }
+              if (fotoEspaco) {
+                fotoEspacoUrl = await convertFileToBase64(fotoEspaco);
+              }
+              if (fotoAmbiente) {
+                fotoAmbienteUrl = await convertFileToBase64(fotoAmbiente);
+              }
+              
+              const novoCluster = {
+                nome: nome,
+                cpf: cpf,
+                endereco: endereco,
+                fotoCostureira: fotoCostureiraUrl,
+                fotoEspaco: fotoEspacoUrl,
+                declaracaoTrabalho: declaracaoTrabalho,
+                contato: contato,
+                declaracaoSaude: declaracaoSaude,
+                fotoAmbiente: fotoAmbienteUrl
+              };
+              
               if (window.FirebaseAuth) {
                 // Carregar clusters existentes do Firebase
                 const clustersExistentes = await loadClustersFromFirebase();
                 
-                if (clustersExistentes.includes(novoCluster)) {
-                  alert('Este cluster já existe!');
+                // Verificar se já existe um cluster com este nome
+                const clusterExistente = clustersExistentes.find(c => 
+                  typeof c === 'string' ? c === nome : c.nome === nome
+                );
+                
+                if (clusterExistente) {
+                  alert('Já existe um cluster com este nome!');
                   return;
                 }
                 
@@ -3427,7 +3685,17 @@
                 await window.FirebaseAuth.saveClusters(novosClusters);
                 
                 console.log('✅ Cluster salvo no Firebase');
-                novoClusterInput.value = '';
+                
+                // Limpar formulário
+                document.getElementById('novo-cluster-nome').value = '';
+                document.getElementById('novo-cluster-cpf').value = '';
+                document.getElementById('novo-cluster-endereco').value = '';
+                document.getElementById('novo-cluster-foto-costureira').value = '';
+                document.getElementById('novo-cluster-foto-espaco').value = '';
+                document.getElementById('novo-cluster-declaracao-trabalho').checked = false;
+                document.getElementById('novo-cluster-contato').value = '';
+                document.getElementById('novo-cluster-declaracao-saude').checked = false;
+                document.getElementById('novo-cluster-foto-ambiente').value = '';
                 
                 // Recarregar e renderizar
                 await loadClustersFromFirebase();
@@ -3437,30 +3705,36 @@
               } else {
                 console.error('❌ FirebaseAuth não está disponível');
                 // Fallback para localStorage
-                if (!clustersCadastrados.includes(novoCluster)) {
-                  clustersCadastrados.push(novoCluster);
-                  localStorage.setItem('clustersCadastrados', JSON.stringify(clustersCadastrados));
-                  novoClusterInput.value = '';
-                  renderClusters();
-                  updateClusterSelects();
-                  updateClusterFilter();
-                } else {
-                  alert('Este cluster já existe!');
+                const clustersLocal = JSON.parse(localStorage.getItem('clustersCadastrados') || '[]');
+                
+                if (clustersLocal.some(c => typeof c === 'string' ? c === nome : c.nome === nome)) {
+                  alert('Já existe um cluster com este nome!');
+                  return;
                 }
-              }
-            } catch (error) {
-              console.error('❌ Erro ao salvar cluster no Firebase:', error);
-              // Fallback para localStorage
-              if (!clustersCadastrados.includes(novoCluster)) {
-                clustersCadastrados.push(novoCluster);
-                localStorage.setItem('clustersCadastrados', JSON.stringify(clustersCadastrados));
-                novoClusterInput.value = '';
+                
+                clustersLocal.push(novoCluster);
+                localStorage.setItem('clustersCadastrados', JSON.stringify(clustersLocal));
+                
+                console.log('✅ Cluster salvo no localStorage');
+                
+                // Limpar formulário
+                document.getElementById('novo-cluster-nome').value = '';
+                document.getElementById('novo-cluster-cpf').value = '';
+                document.getElementById('novo-cluster-endereco').value = '';
+                document.getElementById('novo-cluster-foto-costureira').value = '';
+                document.getElementById('novo-cluster-foto-espaco').value = '';
+                document.getElementById('novo-cluster-declaracao-trabalho').checked = false;
+                document.getElementById('novo-cluster-contato').value = '';
+                document.getElementById('novo-cluster-declaracao-saude').checked = false;
+                document.getElementById('novo-cluster-foto-ambiente').value = '';
+                
                 renderClusters();
                 updateClusterSelects();
                 updateClusterFilter();
-              } else {
-                alert('Este cluster já existe!');
               }
+            } catch (error) {
+              console.error('❌ Erro ao salvar cluster no Firebase:', error);
+              alert('Erro ao salvar cluster. Tente novamente.');
             }
           };
         }
@@ -4406,8 +4680,9 @@
         clusterFilter.innerHTML = '<option value="">Todos os Clusters</option>';
         clustersCadastrados.forEach(cluster => {
           const option = document.createElement('option');
-          option.value = cluster;
-          option.textContent = cluster;
+          const clusterNome = typeof cluster === 'string' ? cluster : cluster.nome;
+          option.value = clusterNome;
+          option.textContent = clusterNome;
           clusterFilter.appendChild(option);
         });
       } catch (error) {
@@ -4485,8 +4760,9 @@
         clusterSelect.innerHTML = '<option value="">Selecione um cluster</option>';
         clustersCadastrados.forEach(cluster => {
           const option = document.createElement('option');
-          option.value = cluster;
-          option.textContent = cluster;
+          const clusterNome = typeof cluster === 'string' ? cluster : cluster.nome;
+          option.value = clusterNome;
+          option.textContent = clusterNome;
           clusterSelect.appendChild(option);
         });
       }
@@ -4496,8 +4772,9 @@
         editClusterSelect.innerHTML = '<option value="">Selecione um cluster</option>';
         clustersCadastrados.forEach(cluster => {
           const option = document.createElement('option');
-          option.value = cluster;
-          option.textContent = cluster;
+          const clusterNome = typeof cluster === 'string' ? cluster : cluster.nome;
+          option.value = clusterNome;
+          option.textContent = clusterNome;
           editClusterSelect.appendChild(option);
         });
       }
