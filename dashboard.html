@@ -1492,11 +1492,11 @@
   <div class="content-wrapper md:ml-64 transition-all duration-300">
     <div class="content-header">
       <!-- Lado esquerdo: Título da página e informações da empresa -->
-      <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
         <h2 id="page-title" style="margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--primary); letter-spacing: -0.025em; font-family: 'Poppins', sans-serif;">Dashboard de Produção</h2>
-        <div id="empresa-info" style="display: none; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius); color: var(--primary-dark); font-size: 0.9rem; font-weight: 500;">
-          <span class="material-icons" style="font-size: 1rem;">business</span>
-          <span id="empresa-nome-display">Nome da Empresa</span>
+          <div id="empresa-info" style="display: none; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius); color: var(--primary-dark); font-size: 0.9rem; font-weight: 500;">
+            <span class="material-icons" style="font-size: 1rem;">business</span>
+            <span id="empresa-nome-display">Nome da Empresa</span>
         </div>
       </div>
       
@@ -1859,7 +1859,7 @@
                     Forçar
                   </button>
                 </div>
-              </div>
+                </div>
               
               <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; align-items: start;">
                 <!-- Logo da Empresa -->
@@ -1867,7 +1867,7 @@
                   <div id="empresa-logo-display" style="width: 100px; height: 100px; margin: 0 auto; border: 2px solid var(--primary-200); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; background: white; box-shadow: var(--shadow);">
                     <img id="empresa-logo-img" src="" alt="Logo da empresa" style="max-width: 100%; max-height: 100%; border-radius: var(--radius); display: none; object-fit: cover;" />
                     <span id="empresa-logo-placeholder" class="material-icons" style="color: var(--text-muted); font-size: 2.5rem;">business</span>
-                  </div>
+              </div>
                   <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">Logo da Empresa</p>
                 </div>
                 
@@ -1877,9 +1877,9 @@
                     <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
                       <span class="material-icons" style="color: var(--primary); font-size: 1rem;">business</span>
                       <strong style="color: var(--text); font-size: 0.9rem;">Nome da Empresa</strong>
-                    </div>
+                </div>
                     <span id="empresa-nome-display-info" style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;">-</span>
-                  </div>
+              </div>
                   
                   <div style="padding: 0.75rem; background: white; border-radius: var(--radius); border: 1px solid var(--border-light);">
                     <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
@@ -3222,7 +3222,7 @@
                     <div class="form-group">
                       <label for="novo-cluster-nome" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">Nome da Costureira *</label>
                       <input type="text" id="novo-cluster-nome" placeholder="Digite o nome completo" required style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
-                    </div>
+                </div>
                     <div class="form-group">
                       <label for="novo-cluster-cpf" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text); font-family: 'Inter', sans-serif;">CPF (opcional)</label>
                       <input type="text" id="novo-cluster-cpf" placeholder="000.000.000-00" style="width: 100%; padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-family: 'Inter', sans-serif; color: var(--text); transition: all var(--transition);" />
@@ -3580,12 +3580,12 @@
                   );
                   
                   if (clusterComMesmoNome) {
-                    alert('Já existe um cluster com este nome!');
-                    return;
+              alert('Já existe um cluster com este nome!');
+              return;
                   }
-                }
-                
-                // Atualizar o cluster
+            }
+            
+            // Atualizar o cluster
                 const index = clustersExistentes.findIndex(c => 
                   typeof c === 'string' ? c === clusterAtual : c.nome === clusterAtual
                 );
@@ -3632,9 +3632,9 @@
                   console.log('✅ Cluster editado no localStorage');
                   modal.remove();
                   
-                  renderClusters();
-                  updateClusterSelects();
-                  updateClusterFilter();
+            renderClusters();
+            updateClusterSelects();
+            updateClusterFilter();
                 } else {
                   alert('Cluster não encontrado!');
                 }
@@ -3758,9 +3758,9 @@
                 document.getElementById('novo-cluster-declaracao-saude').checked = false;
                 document.getElementById('novo-cluster-foto-ambiente').value = '';
                 
-                renderClusters();
-                updateClusterSelects();
-                updateClusterFilter();
+                  renderClusters();
+                  updateClusterSelects();
+                  updateClusterFilter();
               }
             } catch (error) {
               console.error('❌ Erro ao salvar cluster no Firebase:', error);
@@ -5330,7 +5330,7 @@
       showGlobalLoading();
       
       try {
-        // Validação dos campos obrigatórios
+      // Validação dos campos obrigatórios
       const cluster = document.getElementById('cluster').value.trim();
       const categoria = document.getElementById('categoria').value.trim();
       const referencia = document.getElementById('referencia').value.trim();
@@ -6201,7 +6201,7 @@
       if (!empresaData || !empresaData.nome) {
         console.log('💾 Tentando carregar do localStorage...');
         try {
-          const configEmpresa = JSON.parse(localStorage.getItem('configEmpresa') || '{}');
+      const configEmpresa = JSON.parse(localStorage.getItem('configEmpresa') || '{}');
           const empresaConfigLocal = JSON.parse(localStorage.getItem('empresaConfig') || '{}');
           
           console.log('📊 Dados do localStorage configEmpresa:', configEmpresa);
