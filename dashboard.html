@@ -1616,8 +1616,8 @@
             <h2>🧪 Processos</h2>
             <div class="form-row">
               <div class="form-group">
-                <label for="entrada">Data de entrada</label>
-                <input type="date" id="entrada" />
+                <label for="saida">Data de Remessa</label>
+                <input type="date" id="saida" required />
               </div>
               <div class="form-group">
                 <label for="pilotagem">Pilotagem</label>
@@ -1627,8 +1627,8 @@
                 </select>
               </div>
               <div class="form-group">
-                <label for="saida">Data de saída</label>
-                <input type="date" id="saida" required />
+                <label for="entrada">Data de Recebimento</label>
+                <input type="date" id="entrada" />
               </div>
               <div class="form-group">
                 <label for="pagamento">Pagamento / data</label>
@@ -2118,8 +2118,8 @@
             <h2>🧪 Processos</h2>
             <div class="form-row">
               <div class="form-group">
-                <label for="edit-entrada">Data de entrada</label>
-                <input type="date" id="edit-entrada" />
+                <label for="edit-saida">Data de Remessa</label>
+                <input type="date" id="edit-saida" required />
               </div>
               <div class="form-group">
                 <label for="edit-pilotagem">Pilotagem</label>
@@ -2129,8 +2129,8 @@
                 </select>
               </div>
               <div class="form-group">
-                <label for="edit-saida">Data de saída</label>
-                <input type="date" id="edit-saida" required />
+                <label for="edit-entrada">Data de Recebimento</label>
+                <input type="date" id="edit-entrada" />
               </div>
               <div class="form-group">
                 <label for="edit-pagamento">Pagamento / data</label>
@@ -3990,12 +3990,12 @@
             </h4>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
               <div>
-                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Data de Entrada:</strong>
-                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${formatarData(ficha.entrada)}</p>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Data de Remessa:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${formatarData(ficha.saida)}</p>
               </div>
               <div>
-                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Data de Saída:</strong>
-                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${formatarData(ficha.saida)}</p>
+                <strong style="color: var(--text-secondary); font-size: 0.9rem;">Data de Recebimento:</strong>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text); font-weight: 500;">${formatarData(ficha.entrada)}</p>
               </div>
               <div>
                 <strong style="color: var(--text-secondary); font-size: 0.9rem;">Data de Pagamento:</strong>
@@ -4412,8 +4412,8 @@
         doc.setFontSize(12);
         doc.text('Datas e Prazos:', 20, 140);
         doc.setFontSize(10);
-        doc.text(`Data de Entrada: ${formatarData(currentFicha.entrada)}`, 30, 150);
-        doc.text(`Data de Saída: ${formatarData(currentFicha.saida)}`, 30, 160);
+              doc.text(`Data de Remessa: ${formatarData(currentFicha.saida)}`, 30, 150);
+      doc.text(`Data de Recebimento: ${formatarData(currentFicha.entrada)}`, 30, 160);
         doc.text(`Data de Pagamento: ${formatarData(currentFicha.pagamento)}`, 30, 170);
         doc.text(`Pilotagem: ${formatarData(currentFicha.pilotagem)}`, 30, 180);
         
@@ -5325,7 +5325,7 @@
         return;
       }
       if (!saida) {
-        alert('Por favor, preencha a data de saída');
+        alert('Por favor, preencha a data de remessa');
         document.getElementById('saida').focus();
         return;
       }
