@@ -427,6 +427,16 @@
           <span id="google-login-spinner" class="loading-spinner" style="display: none;"></span>
         </button>
       </div>
+
+      <div class="login-divider"><span>ou</span></div>
+
+      <div>
+        <button id="guest-login-button" class="login-button" style="background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%;">
+          <span class="material-icons">login</span>
+          <span id="guest-login-text">Entrar sem login</span>
+          <span id="guest-login-spinner" class="loading-spinner" style="display: none;"></span>
+        </button>
+      </div>
     </div>
     
     <div class="demo-credentials">
@@ -448,6 +458,11 @@
     const googleLoginButton = document.getElementById('google-login-button');
     const googleLoginText = document.getElementById('google-login-text');
     const googleLoginSpinner = document.getElementById('google-login-spinner');
+
+    // Guest Login Elements
+    const guestLoginButton = document.getElementById('guest-login-button');
+    const guestLoginText = document.getElementById('guest-login-text');
+    const guestLoginSpinner = document.getElementById('guest-login-spinner');
 
 
 
@@ -483,6 +498,19 @@
         googleLoginButton.disabled = false;
         googleLoginText.style.display = 'inline';
         googleLoginSpinner.style.display = 'none';
+      }
+    }
+
+    // Set Guest loading state
+    function setGuestLoading(loading) {
+      if (loading) {
+        guestLoginButton.disabled = true;
+        guestLoginText.style.display = 'none';
+        guestLoginSpinner.style.display = 'inline-block';
+      } else {
+        guestLoginButton.disabled = false;
+        guestLoginText.style.display = 'inline';
+        guestLoginSpinner.style.display = 'none';
       }
     }
     
@@ -548,6 +576,33 @@
     }
 
 
+    // Handle Guest Login (Acesso sem login)
+    async function handleGuestLogin() {
+      try {
+        hideMessages();
+        setGuestLoading(true);
+        console.log('🚪 Iniciando acesso como convidado...');
+
+        // Salvar sessão convidado
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('isGuest', 'true');
+        localStorage.setItem('currentUser', 'guest@local');
+        localStorage.setItem('loginTimestamp', Date.now().toString());
+        localStorage.setItem('userDisplayName', 'Visitante');
+        localStorage.setItem('userPhotoURL', '');
+
+        // Redirecionar para dashboard com flag de convidado
+        const timestamp = Date.now();
+        const redirectUrl = `dashboard.html?t=${timestamp}&guest=true`;
+        window.location.href = redirectUrl;
+      } catch (error) {
+        console.error('❌ Erro no acesso como convidado:', error);
+        setGuestLoading(false);
+        showError('Não foi possível entrar como convidado.');
+      }
+    }
+
+
     
     // Check if user is already logged in
     async function checkExistingLogin() {
@@ -583,6 +638,8 @@
 
     // Handle Google Login Button
     googleLoginButton.addEventListener('click', handleGoogleLogin);
+    // Handle Guest Login Button
+    guestLoginButton.addEventListener('click', handleGuestLogin);
 
     // Auto-focus no botão Google e verificar login existente
     document.addEventListener('DOMContentLoaded', async function() {

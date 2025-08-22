@@ -2279,6 +2279,27 @@
       try {
         console.log('Iniciando verificação de login...');
         
+        // Permitir acesso convidado se sinalizado
+        const urlParams = new URLSearchParams(window.location.search);
+        const isGuestParam = urlParams.get('guest');
+        const isGuestLS = localStorage.getItem('isGuest') === 'true';
+        if (isGuestParam === 'true' || isGuestLS) {
+          console.log('👤 Acesso como convidado habilitado. Pulando verificação Firebase.');
+          try {
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('isGuest', 'true');
+            if (!localStorage.getItem('currentUser')) {
+              localStorage.setItem('currentUser', 'guest@local');
+            }
+            if (!localStorage.getItem('userDisplayName')) {
+              localStorage.setItem('userDisplayName', 'Visitante');
+            }
+          } catch (e) {
+            console.warn('Não foi possível persistir sessão convidado:', e);
+          }
+          return true;
+        }
+
         // Primeiro, tentar verificar Firebase Auth
         if (window.FirebaseAuth) {
           try {
